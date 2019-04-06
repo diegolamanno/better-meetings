@@ -1,0 +1,19 @@
+{
+  "name": "good-time",
+  "version": "1.0.0",
+  "description": "Be nice. Share space. Have better meetings.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecobee/good-time.git"
+  },
+  "author": "ecobee <https://github.com/ecobee>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ecobee/good-time/issues"
+  },
+  "homepage": "https://github.com/ecobee/good-time#readme"
+}
