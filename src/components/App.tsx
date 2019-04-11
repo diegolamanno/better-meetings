@@ -61,7 +61,9 @@ const App: FC<RouteComponentProps> = props => (
 							return <div>Error :(</div>
 						}
 						console.log(data.meeting)
-						return data.meeting.map(meet => <span>{meet.name} - </span>)
+						return data.meeting.map(meet => (
+							<span key={meet.id}>{meet.name} - </span>
+						))
 					}}
 				</Query>
 				{props.children}
