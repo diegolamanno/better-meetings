@@ -1,5 +1,5 @@
 {
-	"name": "good-time",
+	"name": "better-meetings",
 	"version": "1.0.0",
 	"description": "Be nice. Share space. Have better meetings.",
 	"scripts": {
@@ -14,14 +14,14 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/ecobee/good-time.git"
+		"url": "git+https://github.com/ecobee/better-meetings.git"
 	},
 	"author": "ecobee <https://github.com/ecobee>",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/ecobee/good-time/issues"
+		"url": "https://github.com/ecobee/better-meetings/issues"
 	},
-	"homepage": "https://github.com/ecobee/good-time#readme",
+	"homepage": "https://github.com/ecobee/better-meetings#readme",
 	"dependencies": {
 		"@emotion/core": "^10.0.10",
 		"@types/enzyme": "^3.9.1",
