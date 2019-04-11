@@ -3,20 +3,21 @@ import { render } from 'react-dom'
 import { ApolloProvider } from 'react-apollo'
 import ApolloClient from 'apollo-boost'
 
-import App from './components/App'
 import 'normalize.css/normalize.css'
+
+import Routes from './components/Routes'
 
 const client = new ApolloClient({
 	uri: 'https://hth5-better-meetings.herokuapp.com/v1alpha1/graphql',
 })
 
-const ApolloApp = AppComponent => (
+const ApolloApp = () => (
 	<ApolloProvider client={client}>
-		<AppComponent />
+		<Routes />
 	</ApolloProvider>
 )
 
 const root = document.createElement('div')
 document.body.appendChild(root)
 
-render(ApolloApp(App), root)
+render(ApolloApp(), root)
