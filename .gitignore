@@ -3,3 +3,4 @@ build
 reports
 yarn-error.log
 .DS_Store
+.env

@@ -3,7 +3,7 @@ import { Global, css } from '@emotion/core'
 import { gql } from 'apollo-boost'
 import { Query } from 'react-apollo'
 import { hot } from 'react-hot-loader'
-import HelloWorld from './HelloWorld'
+import Auth from '../auth/Auth'
 
 const GET_MEETINGS = gql`
 	query {
@@ -13,6 +13,9 @@ const GET_MEETINGS = gql`
 		}
 	}
 `
+
+const auth = new Auth()
+auth.login()
 
 const App: FC = () => (
 	<>
