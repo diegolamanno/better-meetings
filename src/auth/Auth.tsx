@@ -46,8 +46,9 @@ export const handleAuthentication = () => {
 export const isAuthenticated = () => {
 	// Check whether the current time is past the
 	// Access Token's expiry time
+	const idToken = localStorage.getItem('id_token')
 	const expiresAt = localStorage.getItem('expires_at')
-	return !expiresAt || new Date().getTime() < JSON.parse(expiresAt)
+	return idToken && (!expiresAt || new Date().getTime() < JSON.parse(expiresAt))
 }
 
 export const getUserData = () => {
