@@ -15,7 +15,7 @@ const GET_MEETINGS = gql`
 	}
 `
 
-const App: FC<RouteComponentProps> = () => (
+const App: FC<RouteComponentProps> = props => (
 	<>
 		<Global
 			styles={css`
@@ -55,14 +55,17 @@ const App: FC<RouteComponentProps> = () => (
 			</span>
 		</div>
 		{isAuthenticated() && (
-			<Query query={GET_MEETINGS}>
-				{({ loading, error, data }) => {
-					if (loading) return <div>Loading...</div>
-					if (error) return <div>Error :(</div>
-					console.log(data.meeting)
-					return data.meeting.map(meet => <span>{meet.name} - </span>)
-				}}
-			</Query>
+			<>
+				<Query query={GET_MEETINGS}>
+					{({ loading, error, data }) => {
+						if (loading) return <div>Loading...</div>
+						if (error) return <div>Error :(</div>
+						console.log(data.meeting)
+						return data.meeting.map(meet => <span>{meet.name} - </span>)
+					}}
+				</Query>
+				{props.children}
+			</>
 		)}
 	</>
 )

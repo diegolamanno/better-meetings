@@ -1,11 +1,11 @@
 import React, { FC } from 'react'
 import { RouteComponentProps } from '@reach/router'
 
-const CreateRoom: FC<RouteComponentProps> = () => (
+const JoinRoomPage: FC<RouteComponentProps> = () => (
 	<>
 		<input type="text" />
-		<button>Create Room</button>
+		<button>Join Room</button>
 	</>
 )
 
-export default CreateRoom
+export default JoinRoomPage

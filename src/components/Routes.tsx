@@ -2,17 +2,18 @@ import React from 'react'
 import { Router } from '@reach/router'
 import App from './App'
 import Callback from './Callback'
-import Home from './Home'
-import CreateRoom from './CreateRoom'
-import JoinRoom from './JoinRoom'
+import HomePage from '../pages/HomePage'
+import CreateRoomPage from '../pages/CreateRoomPage'
+import JoinRoomPage from '../pages/JoinRoomPage'
 
 const Routes = () => (
 	<Router>
-		<App path="/" />
 		<Callback path="/callback" />
-		<Home path="/" />
-		<CreateRoom path="/room/create" />
-		<JoinRoom path="/room/join" />
+		<App path="/">
+			<HomePage path="home" />
+			<CreateRoomPage path="room/create" />
+			<JoinRoomPage path="room/join" />
+		</App>
 	</Router>
 )
 export default Routes

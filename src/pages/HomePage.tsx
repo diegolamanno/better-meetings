@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import { Link, RouteComponentProps } from '@reach/router'
 
-const Home: FC<RouteComponentProps> = () => (
+const HomePage: FC<RouteComponentProps> = () => (
 	<>
 		<h2>Welcome, let's get you started.</h2>
 		<ul>
@@ -15,4 +15,4 @@ const Home: FC<RouteComponentProps> = () => (
 	</>
 )
 
-export default Home
+export default HomePage
