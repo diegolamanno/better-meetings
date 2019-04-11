@@ -3,6 +3,8 @@ import { Global, css } from '@emotion/core'
 import { gql } from 'apollo-boost'
 import { Query } from 'react-apollo'
 import { hot } from 'react-hot-loader'
+import { RouteComponentProps } from '@reach/router'
+
 import Auth from '../auth/Auth'
 
 const GET_MEETINGS = gql`
@@ -17,7 +19,7 @@ const GET_MEETINGS = gql`
 const auth = new Auth()
 auth.login()
 
-const App: FC = () => (
+const App: FC<RouteComponentProps> = () => (
 	<>
 		<Global
 			styles={css`
