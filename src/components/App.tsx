@@ -2,7 +2,6 @@ import React, { FC } from 'react'
 import { Global, css } from '@emotion/core'
 import { gql } from 'apollo-boost'
 import { Query, QueryResult } from 'react-apollo'
-import { hot } from 'react-hot-loader'
 import { RouteComponentProps } from '@reach/router'
 import { isAuthenticated, login, logout } from '../auth/Auth'
 
@@ -71,4 +70,4 @@ const App: FC<RouteComponentProps> = props => (
 	</>
 )
 
-export default hot(module)(App)
+export default App
