@@ -10,6 +10,7 @@ export const logout = () => {
 	// Clear Access Token and ID Token from local storage
 	localStorage.removeItem('id_token')
 	localStorage.removeItem('expires_at')
+	localStorage.removeItem('sub')
 	// navigate to the home route
 	navigate('/')
 }
@@ -23,8 +24,9 @@ const auth0 = new WebAuth({
 	scope: 'openid',
 })
 
-const setSession = (idToken: string, expiresIn?: number) => {
+const setSession = (idToken: string, sub: string, expiresIn?: number) => {
 	localStorage.setItem('id_token', idToken)
+	localStorage.setItem('sub', sub)
 	if (expiresIn) {
 		// Set the time that the Access Token will expire at
 		const expiresAt = JSON.stringify(expiresIn * 1000 + new Date().getTime())
@@ -35,7 +37,11 @@ const setSession = (idToken: string, expiresIn?: number) => {
 export const handleAuthentication = () => {
 	auth0.parseHash((err, authResult) => {
 		if (authResult && authResult.idToken) {
-			setSession(authResult.idToken, authResult.expiresIn)
+			setSession(
+				authResult.idToken,
+				authResult.idTokenPayload.sub,
+				authResult.expiresIn,
+			)
 		} else if (err) {
 			console.error(err)
 		}
