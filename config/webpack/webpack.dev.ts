@@ -10,6 +10,7 @@ module.exports = merge(common, {
 	devServer: {
 		contentBase: paths.build,
 		hot: true,
+		historyApiFallback: true,
 	},
 	resolve: {
 		alias: {
