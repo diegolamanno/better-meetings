@@ -3,7 +3,6 @@ import { Global, css } from '@emotion/core'
 import { gql } from 'apollo-boost'
 import { Query } from 'react-apollo'
 import { hot } from 'react-hot-loader'
-import HelloWorld from './HelloWorld'
 
 const GET_MEETINGS = gql`
 	query {
