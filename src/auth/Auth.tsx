@@ -15,27 +15,27 @@ export const logout = () => {
 }
 
 const auth0 = new WebAuth({
-	domain: process.env.REACT_APP_DOMAIN,
-	clientID: process.env.REACT_APP_CLIENTID,
+	domain: process.env.REACT_APP_DOMAIN!,
+	clientID: process.env.REACT_APP_CLIENTID!,
 	redirectUri: process.env.REACT_APP_REDIRECTURI,
 	audience: `https://${process.env.REACT_APP_DOMAIN}/userinfo`,
 	responseType: 'token id_token',
 	scope: 'openid',
 })
 
-const setSession = authResult => {
-	// Set the time that the Access Token will expire at
-	let expiresAt = JSON.stringify(
-		authResult.expiresIn * 1000 + new Date().getTime(),
-	)
-	localStorage.setItem('id_token', authResult.idToken)
-	localStorage.setItem('expires_at', expiresAt)
+const setSession = (idToken: string, expiresIn?: number) => {
+	localStorage.setItem('id_token', idToken)
+	if (expiresIn) {
+		// Set the time that the Access Token will expire at
+		const expiresAt = JSON.stringify(expiresIn * 1000 + new Date().getTime())
+		localStorage.setItem('expires_at', expiresAt)
+	}
 }
 
 export const handleAuthentication = () => {
 	auth0.parseHash((err, authResult) => {
 		if (authResult && authResult.idToken) {
-			setSession(authResult)
+			setSession(authResult.idToken, authResult.expiresIn)
 		} else if (err) {
 			console.error(err)
 		}
@@ -46,9 +46,8 @@ export const handleAuthentication = () => {
 export const isAuthenticated = () => {
 	// Check whether the current time is past the
 	// Access Token's expiry time
-	let expiresAt = JSON.parse(localStorage.getItem('expires_at'))
-	const now = new Date().getTime()
-	return now < expiresAt
+	const expiresAt = localStorage.getItem('expires_at')
+	return !expiresAt || new Date().getTime() < JSON.parse(expiresAt)
 }
 
 export const getUserData = () => {

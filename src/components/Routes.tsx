@@ -1,4 +1,5 @@
 import React from 'react'
+import { hot } from 'react-hot-loader'
 import { Router } from '@reach/router'
 import App from './App'
 import Callback from './Callback'
@@ -18,4 +19,5 @@ const Routes = () => (
 		</App>
 	</Router>
 )
-export default Routes
+
+export default hot(module)(Routes)

@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import { Global, css } from '@emotion/core'
 import { gql } from 'apollo-boost'
-import { Query } from 'react-apollo'
+import { Query, QueryResult } from 'react-apollo'
 import { hot } from 'react-hot-loader'
 import { RouteComponentProps } from '@reach/router'
 import { isAuthenticated, login, logout } from '../auth/Auth'
@@ -14,6 +14,13 @@ const GET_MEETINGS = gql`
 		}
 	}
 `
+
+type ResultData = {
+	meeting: {
+		id: number
+		name: string
+	}[]
+}
 
 const App: FC<RouteComponentProps> = props => (
 	<>
@@ -35,20 +42,12 @@ const App: FC<RouteComponentProps> = props => (
 				<a href="#">Auth0 - React</a>
 
 				{!isAuthenticated() && (
-					<button
-						bsStyle="primary"
-						className="btn-margin"
-						onClick={() => login()}
-					>
+					<button className="btn-margin" onClick={() => login()}>
 						Log In
 					</button>
 				)}
 				{isAuthenticated() && (
-					<button
-						bsStyle="primary"
-						className="btn-margin"
-						onClick={() => logout()}
-					>
+					<button className="btn-margin" onClick={() => logout()}>
 						Log Out
 					</button>
 				)}
@@ -57,9 +56,11 @@ const App: FC<RouteComponentProps> = props => (
 		{isAuthenticated() && (
 			<>
 				<Query query={GET_MEETINGS}>
-					{({ loading, error, data }) => {
+					{({ loading, error, data }: QueryResult<ResultData>) => {
 						if (loading) return <div>Loading...</div>
-						if (error) return <div>Error :(</div>
+						if (error || !data) {
+							return <div>Error :(</div>
+						}
 						console.log(data.meeting)
 						return data.meeting.map(meet => <span>{meet.name} - </span>)
 					}}

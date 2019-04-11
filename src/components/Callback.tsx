@@ -12,7 +12,7 @@ interface Props extends RouteComponentProps {
 // You might load user data from mongodb or firebase in the handleAuthentication function and for those
 // cases we'll want to have this loading page because that takes time.
 export default class Callback extends Component<Props> {
-	authorizeIfAuthenticated = href => {
+	authorizeIfAuthenticated = (href: string) => {
 		if (/id_token|error/.test(href)) {
 			// redirects to / when complete
 			handleAuthentication()
@@ -22,7 +22,10 @@ export default class Callback extends Component<Props> {
 	render() {
 		// Reach router passes in location.href by default lets check it for the token
 		// Redirect to '/' if it's there.
-		this.authorizeIfAuthenticated(this.props.location.href)
+		if (this.props.location) {
+			this.authorizeIfAuthenticated(this.props.location.href)
+		}
+
 		return (
 			<div>
 				<p>Loading...</p>
