@@ -10,7 +10,10 @@ export const addRoomQuery = gql`
 export const getRoomQuery = gql`
 	query($roomName: String) {
 		room(where: { name: { _eq: $roomName } }) {
+<<<<<<< HEAD
 			id
+=======
+>>>>>>> :sparkles: add new user, join room
 			name
 			administrator
 		}

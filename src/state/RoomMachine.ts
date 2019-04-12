@@ -27,7 +27,6 @@ export type Event =
 	| UpdateEvent
 
 const initialData: Room = {
-	id: '',
 	name: '',
 	attendees: [],
 	queue: [],

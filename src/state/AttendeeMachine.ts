@@ -6,13 +6,9 @@ import {
 	assign,
 } from 'xstate'
 import { TCreateContext } from 'use-machine'
-import { join, queue, yieldTurn, leave } from '../client'
+import { queue, yieldTurn, leave } from '../client'
 import { retryTransition } from './utilities'
 import { Attendee } from './types'
-
-type AttendeeWithIsNext = Attendee & {
-	isNext?: boolean
-}
 
 export interface StateSchema extends BaseStateSchema {
 	states: {
@@ -23,8 +19,7 @@ export interface StateSchema extends BaseStateSchema {
 				subscribed: {
 					states: {
 						absent: {}
-						joining: {}
-						joined: {
+						present: {
 							states: {
 								idle: {}
 								active: {
@@ -52,7 +47,7 @@ export type JoinEvent = {
 	type: 'LOGIN'
 } & Attendee
 
-type Event =
+export type Event =
 	| {
 			type:
 				| 'LOGOUT'
@@ -67,7 +62,7 @@ type Event =
 
 const initialData = { id: '', name: '' }
 
-export const Config: MachineConfig<AttendeeWithIsNext, StateSchema, Event> = {
+export const Config: MachineConfig<Attendee, StateSchema, Event> = {
 	id: 'attendee',
 	context: initialData,
 	initial: 'offline',
@@ -83,7 +78,6 @@ export const Config: MachineConfig<AttendeeWithIsNext, StateSchema, Event> = {
 		online: {
 			initial: 'unsubscribed',
 			on: {
-				JOIN: 'joining',
 				LOGOUT: {
 					target: 'offline',
 					actions: ['logout'],
@@ -100,22 +94,12 @@ export const Config: MachineConfig<AttendeeWithIsNext, StateSchema, Event> = {
 					states: {
 						absent: {
 							on: {
-								JOIN: 'joining',
-							},
-						},
-						joining: {
-							invoke: {
-								id: 'join',
-								src: join,
-								onDone: {
-									target: 'joined',
-								},
-								onError: {
-									target: 'joiningRejected',
+								JOIN: {
+									target: 'present',
 								},
 							},
 						},
-						joined: {
+						present: {
 							initial: 'idle',
 							on: {
 								LEAVE: 'leaving',
@@ -184,7 +168,7 @@ export const Config: MachineConfig<AttendeeWithIsNext, StateSchema, Event> = {
 	},
 }
 
-export const Options: Partial<MachineOptions<AttendeeWithIsNext, Event>> = {
+export const Options: Partial<MachineOptions<Attendee, Event>> = {
 	actions: {
 		login: assign((_context, event) => {
 			const { id, name } = event as JoinEvent
@@ -197,7 +181,7 @@ export const Options: Partial<MachineOptions<AttendeeWithIsNext, Event>> = {
 	},
 }
 
-type TMachine = TCreateContext<AttendeeWithIsNext, StateSchema, Event>
+type TMachine = TCreateContext<Attendee, StateSchema, Event>
 
 export const Context = createContext({} as TMachine)
 
@@ -205,7 +189,7 @@ export type State =
 	| keyof StateSchema['states']
 	| keyof StateSchema['states']['online']['states']
 	| keyof StateSchema['states']['online']['states']['subscribed']['states']
-	| keyof StateSchema['states']['online']['states']['subscribed']['states']['joined']['states']
-	| keyof StateSchema['states']['online']['states']['subscribed']['states']['joined']['states']['active']['states']
+	| keyof StateSchema['states']['online']['states']['subscribed']['states']['present']['states']
+	| keyof StateSchema['states']['online']['states']['subscribed']['states']['present']['states']['active']['states']
 	| 'next'
 	| 'up'

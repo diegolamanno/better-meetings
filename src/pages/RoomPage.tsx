@@ -11,7 +11,7 @@ import UserRoomState from '../components/UserRoomState'
 const RoomPage: FC<RouteComponentProps> = () => {
 	const roomMachine = useContext(RoomContext)
 	const attendeeMachine = useContext(AttendeeContext)
-	const roomId = roomMachine.context.id
+	const roomId = roomMachine.context.name
 	const parsedState = roomMachine.state
 		.toStrings()
 		.pop()!

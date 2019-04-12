@@ -11,7 +11,6 @@ export type Subscription = {
 }
 
 export interface Room {
-	id: string
 	name: string
 	attendees: Attendee[]
 	queue: Attendee[]
