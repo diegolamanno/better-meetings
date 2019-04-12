@@ -16,11 +16,13 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 	const stateClassNames = classNames('user-room-state', {
 		[state as string]: state,
 	})
+	// TODO: state description hides itself after a moment
 	return (
 		<div
 			className={stateClassNames}
 			css={css`
 				height: 100%;
+				position: relative;
 
 				&.up {
 					background-color: #fff;
@@ -67,14 +69,33 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 						}
 					}
 				}
+				.state-description {
+					color: white;
+					position: absolute;
+					bottom: 10px;
+					left: 10px;
+					width: 70%;
+					padding: 3px;
+					border-radius: 3px;
+					background-color: rgba(0, 0, 0, 0.6);
+					font-family: sans-serif;
+					font-size: 0.7em;
+					text-align: center;
+				}
 			`}
 		>
 			{state === 'up' && (
-				<Fragment>You're on stage. Tapping here transitions to idle.</Fragment>
+				<Fragment>
+					<div className="state-description">
+						You're on stage. Tapping transitions to idle.
+					</div>
+				</Fragment>
 			)}
 			{state === 'next' && (
 				<Fragment>
-					You're up next. Tapping here transitions to idle.
+					<div className="state-description">
+						You're up next. Tapping transitions to idle.
+					</div>
 					<div className="user-queue-container">
 						<div className="qi-circle" />
 					</div>
@@ -82,7 +103,9 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 			)}
 			{state === 'queued' && (
 				<Fragment>
-					You're in line. Tapping here transitions to idle.
+					<div className="state-description">
+						You're in line. Tapping transitions to idle.
+					</div>
 					<div className="user-queue-container">
 						{mockUserQueue.map(user => {
 							return (
@@ -93,7 +116,11 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 				</Fragment>
 			)}
 			{state === 'idle' && (
-				<Fragment>You're idle. Tapping here transitions to queued.</Fragment>
+				<Fragment>
+					<div className="state-description">
+						You're idle. Tapping transitions to queued.
+					</div>
+				</Fragment>
 			)}
 		</div>
 	)
