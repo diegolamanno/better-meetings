@@ -5,7 +5,6 @@ import { css, jsx } from '@emotion/core'
 import classNames from 'classnames'
 import { RouteComponentProps } from '@reach/router'
 import { State } from '../state/AttendeeMachine'
-import { string } from 'prop-types'
 
 type UserRoomStateProps = RouteComponentProps<{
 	state: State
@@ -84,8 +83,9 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 						}
 					}
 				}
+
 				.state-description {
-					color: white;
+					color: #fff;
 					position: absolute;
 					bottom: 10px;
 					left: 10px;
