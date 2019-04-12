@@ -1,7 +1,8 @@
 /** @jsx jsx */
 
-import { FC } from 'react'
+import { FC, Fragment } from 'react'
 import { css, jsx } from '@emotion/core'
+import classNames from 'classnames'
 import { RouteComponentProps } from '@reach/router'
 
 type UserRoomStateProps = RouteComponentProps<{
@@ -11,29 +12,33 @@ type UserRoomStateProps = RouteComponentProps<{
 const UserRoomState: FC<UserRoomStateProps> = props => {
 	const { state } = props
 	const mockUserQueue = ['u1', 'u2', 'u3', 'u4']
+	const stateClassNames = classNames('user-room-state', {
+		[state as string]: state,
+	})
 	return (
 		<div
+			className={stateClassNames}
 			css={css`
-				.user-room-state {
+				& {
 					height: 100%;
 				}
-				.user-room-state.stage {
+				&.stage {
 					background-color: white;
 					color: black;
 				}
-				.user-room-state.queued,
-				.user-room-state.idle {
+				&.queued,
+				&.idle {
 					background-color: black;
 					color: white;
 				}
-				.user-room-state.queued {
+				&.queued {
 					.qi-circle {
 						width: 10%;
 						padding-bottom: 10%;
 						background-color: white;
 					}
 				}
-				.user-room-state.next {
+				&.next {
 					background-color: #ff8f02;
 					color: black;
 
@@ -59,21 +64,19 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 			`}
 		>
 			{state === 'stage' && (
-				<div className="user-room-state stage">
-					You're on stage! Tapping here transitions to idle.
-				</div>
+				<Fragment>You're on stage. Tapping here transitions to idle.</Fragment>
 			)}
 			{state === 'next' && (
-				<div className="user-room-state next">
-					You're up next! Tapping here transitions to idle.
+				<Fragment>
+					You're up next. Tapping here transitions to idle.
 					<div className="user-queue-container">
 						<div className="qi-circle" />
 					</div>
-				</div>
+				</Fragment>
 			)}
 			{state === 'queued' && (
-				<div className="user-room-state queued">
-					You're in line! Tapping here transitions to idle.
+				<Fragment>
+					You're in line. Tapping here transitions to idle.
 					<div className="user-queue-container">
 						{mockUserQueue.map(user => {
 							return (
@@ -81,12 +84,10 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 							)
 						})}
 					</div>
-				</div>
+				</Fragment>
 			)}
 			{state === 'idle' && (
-				<div className="user-room-state idle">
-					You're idle! Tapping here transitions to queued.
-				</div>
+				<Fragment>You're idle. Tapping here transitions to queued.</Fragment>
 			)}
 		</div>
 	)
