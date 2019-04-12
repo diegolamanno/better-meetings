@@ -6,6 +6,11 @@
 		"quotemark": [true, "single", "jsx-double"],
 		"interface-name": false,
 		"import-name": false,
-		"variable-name": [true, "check-format", "allow-pascal-case"]
+		"variable-name": [
+			true,
+			"check-format",
+			"allow-pascal-case",
+			"allow-leading-underscore"
+		]
 	}
 }

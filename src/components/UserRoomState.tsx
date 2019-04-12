@@ -4,9 +4,10 @@ import { FC, Fragment } from 'react'
 import { css, jsx } from '@emotion/core'
 import classNames from 'classnames'
 import { RouteComponentProps } from '@reach/router'
+import { State } from '../state/participantMachine'
 
 type UserRoomStateProps = RouteComponentProps<{
-	state: 'stage' | 'next' | 'queued' | 'idle'
+	state: State
 }>
 
 const UserRoomState: FC<UserRoomStateProps> = props => {
@@ -19,43 +20,48 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 		<div
 			className={stateClassNames}
 			css={css`
-				& {
-					height: 100%;
+				height: 100%;
+
+				&.up {
+					background-color: #fff;
+					color: #000;
 				}
-				&.stage {
-					background-color: white;
-					color: black;
-				}
+
 				&.queued,
 				&.idle {
-					background-color: black;
-					color: white;
+					background-color: #000;
+					color: #fff;
 				}
+
 				&.queued {
 					.qi-circle {
 						width: 10%;
 						padding-bottom: 10%;
-						background-color: white;
+						background-color: #fff;
 					}
 				}
+
 				&.next {
 					background-color: #ff8f02;
-					color: black;
+					color: #000;
 
 					.qi-circle {
 						width: 30%;
 						padding-bottom: 30%;
-						background-color: black;
+						background-color: #000;
 					}
 				}
+
 				.user-queue-container {
 					display: flex;
 					flex-direction: column;
 					justify-content: center;
 					height: 100%;
+
 					.qi-circle {
 						border-radius: 50%;
 						margin: 0 auto 1.5em auto;
+
 						&:last-child {
 							margin-bottom: 0;
 						}
@@ -63,7 +69,7 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 				}
 			`}
 		>
-			{state === 'stage' && (
+			{state === 'up' && (
 				<Fragment>You're on stage. Tapping here transitions to idle.</Fragment>
 			)}
 			{state === 'next' && (
