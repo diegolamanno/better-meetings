@@ -1,6 +1,5 @@
 import React, { FC } from 'react'
 import { Link, RouteComponentProps } from '@reach/router'
-import Live from '../components/Live'
 
 const HomePage: FC<RouteComponentProps> = () => (
 	<>
@@ -12,7 +11,6 @@ const HomePage: FC<RouteComponentProps> = () => (
 			<li>
 				<Link to="/room/join">Join a Room</Link>
 			</li>
-			<Live />
 		</ul>
 	</>
 )
