@@ -6,12 +6,13 @@ import {
 	InputGroup,
 	Form,
 } from 'react-bootstrap'
+import { RouteComponentProps } from '@reach/router'
 import { ApolloConsumer, QueryResult } from 'react-apollo'
 import { getRoomQuery } from '../queries'
 
 type ResultData = any
 
-class JoinRoomPage extends Component {
+class JoinRoomPage extends Component<RouteComponentProps> {
 	state = {
 		searchText: '',
 		roomName: '',

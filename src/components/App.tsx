@@ -3,7 +3,7 @@ import { Global, css } from '@emotion/core'
 import { RouteComponentProps } from '@reach/router'
 import { isAuthenticated, login, logout } from '../auth/Auth'
 
-const App: FC<RouteComponentProps> = () => (
+const App: FC<RouteComponentProps> = ({ children }) => (
 	<>
 		<Global
 			styles={css`
@@ -34,6 +34,7 @@ const App: FC<RouteComponentProps> = () => (
 				)}
 			</span>
 		</div>
+		{children}
 	</>
 )
 
