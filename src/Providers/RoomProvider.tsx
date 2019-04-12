@@ -4,7 +4,7 @@ import { Subscription } from 'react-apollo'
 import { useMachine } from 'use-machine'
 import { assign } from 'xstate'
 import { Config, UpdateEvent, Context } from '../state/RoomMachine'
-import { Context as ParticipantContext } from '../state/ParticipantMachine'
+import { Context as AttendeeContext } from '../state/AttendeeMachine'
 import { Room } from '../state/types'
 
 const RoomProvider: FC<{
@@ -17,7 +17,7 @@ const RoomProvider: FC<{
 		},
 	})
 
-	const participantMachine = useContext(ParticipantContext)
+	const attendeeMachine = useContext(AttendeeContext)
 
 	const DUMMY_SUBSCRIPTION = gql`
 		subscription onCommentAdded($repoFullName: String!) {
@@ -38,8 +38,8 @@ const RoomProvider: FC<{
 					const newData = { ...data }
 
 					if (newData.queue[0]) {
-						if (newData.queue[0].id === participantMachine.context.id) {
-							participantMachine.send('NEXT')
+						if (newData.queue[0].id === attendeeMachine.context.id) {
+							attendeeMachine.send('NEXT')
 						}
 					}
 

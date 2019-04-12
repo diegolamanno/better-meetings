@@ -8,9 +8,9 @@ import {
 import { TCreateContext } from 'use-machine'
 import { join, queue, yieldTurn, leave } from '../client'
 import { retryTransition } from './utilities'
-import { Participant } from './types'
+import { Attendee } from './types'
 
-type ParticipantWithIsNext = Participant & {
+type AttendeeWithIsNext = Attendee & {
 	isNext?: boolean
 }
 
@@ -61,12 +61,8 @@ type Event =
 
 export const initialData = { id: '', name: '' }
 
-export const Config: MachineConfig<
-	ParticipantWithIsNext,
-	StateSchema,
-	Event
-> = {
-	id: 'participant',
+export const Config: MachineConfig<AttendeeWithIsNext, StateSchema, Event> = {
+	id: 'attendee',
 	context: initialData,
 	initial: 'absent',
 	states: {
@@ -161,7 +157,7 @@ export const Config: MachineConfig<
 	},
 }
 
-export const Options: Partial<MachineOptions<ParticipantWithIsNext, Event>> = {
+export const Options: Partial<MachineOptions<AttendeeWithIsNext, Event>> = {
 	actions: {
 		clearNext: assign(context => {
 			const newContext = { ...context }
@@ -176,7 +172,7 @@ export const Options: Partial<MachineOptions<ParticipantWithIsNext, Event>> = {
 	},
 }
 
-type TMachine = TCreateContext<ParticipantWithIsNext, StateSchema, Event>
+type TMachine = TCreateContext<AttendeeWithIsNext, StateSchema, Event>
 
 export const Context = createContext({} as TMachine)
 

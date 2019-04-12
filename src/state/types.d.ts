@@ -1,6 +1,6 @@
 import { StateSchema } from 'xstate'
 
-export interface Participant {
+export interface Attendee {
 	id: string
 	name: string
 }
@@ -13,7 +13,7 @@ export type Subscription = {
 export interface Room {
 	id: string
 	name: string
-	participants: Participant[]
-	queue: Participant[]
-	speaker?: Participant
+	attendees: Attendee[]
+	queue: Attendee[]
+	speaker?: Attendee
 }

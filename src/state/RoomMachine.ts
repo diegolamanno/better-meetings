@@ -24,7 +24,7 @@ export type Event =
 export const initialData: Room = {
 	id: '',
 	name: '',
-	participants: [],
+	attendees: [],
 	queue: [],
 }
 

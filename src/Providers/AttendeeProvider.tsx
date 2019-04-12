@@ -1,8 +1,8 @@
 import React, { FC, ReactNode } from 'react'
 import { useMachine } from 'use-machine'
-import { Config, Options, Context } from '../state/ParticipantMachine'
+import { Config, Options, Context } from '../state/AttendeeMachine'
 
-const ParticipantProvider: FC<{
+const AttendeeProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const machine = useMachine(Config, Options)
@@ -10,4 +10,4 @@ const ParticipantProvider: FC<{
 	return <Context.Provider value={machine}>{children}</Context.Provider>
 }
 
-export default ParticipantProvider
+export default AttendeeProvider
