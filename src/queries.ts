@@ -1,9 +1,20 @@
 import gql from 'graphql-tag'
 
-export const addRoomQuery = gql`
-	mutation CreateRoom($roomName: String!, $administrator: String!) {
-		insert_room(objects: [{ administrator: $administrator, name: $roomName }]) {
+export const addAndJoinRoomQuery = gql`
+	mutation CreateRoom($roomName: String, $administrator: String) {
+		insert_room(
+			objects: [
+				{
+					administrator: $administrator
+					name: $roomName
+					attendees: { data: [{ user_id: $administrator, remote: true }] }
+				}
+			]
+		) {
 			affected_rows
+			returning {
+				name
+			}
 		}
 	}
 `
@@ -28,11 +39,27 @@ export const addUser = gql`
 `
 
 export const addAttendeeToRoom = gql`
-	mutation($user: String!, $roomId: String!, $remote: boolean!) {
+	mutation($user: String!, $roomId: bigint!) {
 		insert_attendee(
-			objects: [{ user_id: $user, room_id: $roomId, remote: $remote }]
+			objects: [{ user_id: $user, room_id: $roomId, remote: true }]
 		) {
-			affected_rows
+			returning {
+				room {
+					name
+				}
+			}
+		}
+	}
+`
+export const subscribeToRoom = gql`
+	subscription($roomName: String!) {
+		room(where: { name: { _eq: $roomName } }) {
+			attendees {
+				user_id
+			}
+			queue {
+				user_id
+			}
 		}
 	}
 `

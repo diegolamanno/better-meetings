@@ -1,8 +1,8 @@
 import React, { FC, ReactNode } from 'react'
-import { gql } from 'apollo-boost'
 import { Subscription } from 'react-apollo'
 import { useMachine } from 'use-machine'
 import { Config, Options, Context } from '../state/RoomMachine'
+import { subscribeToRoom } from '../queries'
 import { Room } from '../state/types'
 
 const RoomProvider: FC<{
@@ -10,19 +10,18 @@ const RoomProvider: FC<{
 }> = ({ children }) => {
 	const machine = useMachine(Config, Options)
 
-	const DUMMY_SUBSCRIPTION = gql`
-		subscription onCommentAdded($repoFullName: String!) {
-			commentAdded(repoFullName: $repoFullName) {
-				id
-				content
-			}
-		}
-	`
+	const readyToSubscribe = machine.state.matches('readyToSubscribe')
 
-	return (
+	const Provider = () => (
+		<Context.Provider value={machine}>{children}</Context.Provider>
+	)
+
+	return !readyToSubscribe ? (
+		<Provider />
+	) : (
 		<Subscription<Room>
-			subscription={DUMMY_SUBSCRIPTION}
-			variables={{ foo: 'bar' }}
+			subscription={subscribeToRoom}
+			variables={{ roomName: machine.context.name }}
 		>
 			{({ loading, data, error }) => {
 				if (!loading && !error && data) {
@@ -32,9 +31,9 @@ const RoomProvider: FC<{
 						type: 'UPDATE',
 					})
 				} else {
-					machine.send({
-						type: 'UNSUBSCRIBE',
-					})
+					// machine.send({
+					// 	type: 'UNSUBSCRIBE',
+					// })
 				}
 				return <Context.Provider value={machine}>{children}</Context.Provider>
 			}}

@@ -11,6 +11,7 @@ import { Room } from './types'
 export interface StateSchema extends BaseStateSchema {
 	states: {
 		unsubscribed: {}
+		readyToSubscribe: {}
 		subscribed: {}
 	}
 }
@@ -20,11 +21,17 @@ type UpdateEvent = {
 	data: Room
 }
 
+type SubscribeEvent = {
+	type: 'SUBSCRIBE'
+	name: string
+}
+
 export type Event =
 	| {
 			type: 'UNSUBSCRIBE'
 	  }
 	| UpdateEvent
+	| SubscribeEvent
 
 const initialData: Room = {
 	name: '',
@@ -38,6 +45,14 @@ export const Config: MachineConfig<Room, StateSchema, Event> = {
 	initial: 'unsubscribed',
 	states: {
 		unsubscribed: {
+			on: {
+				SUBSCRIBE: {
+					target: 'readyToSubscribe',
+					actions: ['setRoomName'],
+				},
+			},
+		},
+		readyToSubscribe: {
 			on: {
 				UPDATE: {
 					target: 'subscribed',
@@ -61,6 +76,12 @@ export const Config: MachineConfig<Room, StateSchema, Event> = {
 
 export const Options: Partial<MachineOptions<Room, Event>> = {
 	actions: {
+		setRoomName: assign((context, event) => {
+			const newContext = { ...context }
+
+			newContext.name = (event as SubscribeEvent).name
+			return newContext
+		}),
 		update: assign((_context, event) => (event as UpdateEvent).data),
 		clear: assign(() => initialData),
 	},
