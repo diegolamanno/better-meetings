@@ -5,22 +5,39 @@ import { css, jsx } from '@emotion/core'
 import classNames from 'classnames'
 import { RouteComponentProps } from '@reach/router'
 import { State } from '../state/attendeeMachine'
+import { string } from 'prop-types'
 
 type UserRoomStateProps = RouteComponentProps<{
 	state: State
 }>
 
+interface StateDescriptionsObj {
+	up: string
+	next: string
+	queued: string
+	idle: string
+	[key: string]: string
+}
+
 const UserRoomState: FC<UserRoomStateProps> = props => {
 	const { state } = props
+	const stateDescriptions: StateDescriptionsObj = {
+		up: "You're on stage. Tapping transitions to idle.",
+		next: "You're up next. Tapping transitions to idle.",
+		queued: "You're in line. Tapping transitions to idle.",
+		idle: "You're idle. Tapping transitions to queued.",
+	}
 	const mockUserQueue = ['u1', 'u2', 'u3', 'u4']
 	const stateClassNames = classNames('user-room-state', {
 		[state as string]: state,
 	})
+	// TODO: state description hides itself after a moment
 	return (
 		<div
 			className={stateClassNames}
 			css={css`
 				height: 100%;
+				position: relative;
 
 				&.up {
 					background-color: #fff;
@@ -67,14 +84,28 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 						}
 					}
 				}
+				.state-description {
+					color: white;
+					position: absolute;
+					bottom: 10px;
+					left: 10px;
+					width: 70%;
+					padding: 3px;
+					border-radius: 3px;
+					background-color: rgba(0, 0, 0, 0.6);
+					font-family: sans-serif;
+					font-size: 0.7em;
+					text-align: center;
+				}
 			`}
 		>
-			{state === 'up' && (
-				<Fragment>You're on stage. Tapping here transitions to idle.</Fragment>
+			{stateDescriptions[state as string] && (
+				<div className="state-description">
+					{stateDescriptions[state as string]}
+				</div>
 			)}
 			{state === 'next' && (
 				<Fragment>
-					You're up next. Tapping here transitions to idle.
 					<div className="user-queue-container">
 						<div className="qi-circle" />
 					</div>
@@ -82,7 +113,6 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 			)}
 			{state === 'queued' && (
 				<Fragment>
-					You're in line. Tapping here transitions to idle.
 					<div className="user-queue-container">
 						{mockUserQueue.map(user => {
 							return (
@@ -91,9 +121,6 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 						})}
 					</div>
 				</Fragment>
-			)}
-			{state === 'idle' && (
-				<Fragment>You're idle. Tapping here transitions to queued.</Fragment>
 			)}
 		</div>
 	)
