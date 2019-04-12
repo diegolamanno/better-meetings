@@ -27,7 +27,7 @@ const RoomPage: FC<RoomProps> = props => {
 			>
 				<p>welcome to the room: {roomId}!</p>
 				<div className="state-container">
-					<UserRoomState state="idle" />
+					<UserRoomState state="next" />
 				</div>
 			</div>
 		</Fragment>
