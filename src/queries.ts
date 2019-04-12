@@ -26,3 +26,13 @@ export const addUser = gql`
 		}
 	}
 `
+
+export const addAttendeeToRoom = gql`
+	mutation($user: String!, $roomId: String!, $remote: boolean!) {
+		insert_attendee(
+			objects: [{ user_id: $user, room_id: $roomId, remote: $remote }]
+		) {
+			affected_rows
+		}
+	}
+`
