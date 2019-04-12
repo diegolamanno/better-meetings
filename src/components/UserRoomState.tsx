@@ -4,7 +4,7 @@ import { FC, Fragment } from 'react'
 import { css, jsx } from '@emotion/core'
 import classNames from 'classnames'
 import { RouteComponentProps } from '@reach/router'
-import { State } from '../state/participantMachine'
+import { State } from '../state/attendeeMachine'
 
 type UserRoomStateProps = RouteComponentProps<{
 	state: State

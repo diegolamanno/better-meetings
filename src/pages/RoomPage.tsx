@@ -4,16 +4,13 @@ import { FC, Fragment, useContext } from 'react'
 import { jsx, css, Global } from '@emotion/core'
 import { RouteComponentProps } from '@reach/router'
 import { Context as RoomContext } from '../state/RoomMachine'
-import {
-	Context as ParticipantContext,
-	State,
-} from '../state/participantMachine'
+import { Context as AttendeeContext, State } from '../state/attendeeMachine'
 
 import UserRoomState from '../components/UserRoomState'
 
 const RoomPage: FC<RouteComponentProps> = () => {
 	const roomMachine = useContext(RoomContext)
-	const participantMachine = useContext(ParticipantContext)
+	const attendeeMachine = useContext(AttendeeContext)
 	const roomId = roomMachine.context.id
 	const state = roomMachine.state
 		.toStrings()
@@ -40,7 +37,7 @@ const RoomPage: FC<RouteComponentProps> = () => {
 					<UserRoomState
 						state={
 							roomMachine.state.matches('subscribed') &&
-							participantMachine.context.isNext
+							attendeeMachine.context.isNext
 								? 'next'
 								: state
 						}
