@@ -287,6 +287,45 @@ $$;
 
 
 --
+-- Name: finish_speaking(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.finish_speaking() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    CHANGE_TIME timestamp;
+BEGIN
+    CHANGE_TIME := NOW();
+    -- Check whether the user has finished speaking
+    IF (NEW.finished_speaking_time IS NOT NULL) THEN
+        IF (OLD.finished_speaking_time IS NOT NULL) THEN
+            RAISE EXCEPTION 'User has already finished speaking';
+        ELSIF (OLD.started_speaking_time IS NULL) THEN
+            RAISE EXCEPTION 'User has not started speaking yet';
+        END IF;
+        -- Use a server timestamp
+        NEW.finished_speaking_time = CHANGE_TIME;
+        -- Allow the next user to start speaking
+        
+        WITH next_record AS
+            (SELECT id
+             FROM queue_record
+             WHERE left_time IS NULL
+             AND started_speaking_time IS NULL
+             ORDER BY joined_time ASC
+             LIMIT 1)
+        UPDATE queue_record r
+        SET started_speaking_time = CHANGE_TIME
+        FROM next_record
+        WHERE r.id = next_record.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: join_queue(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1133,6 +1172,13 @@ CREATE TRIGGER user__insert__public__user INSTEAD OF INSERT ON hdb_views.user__i
 --
 
 CREATE TRIGGER new_queue_record BEFORE INSERT ON public.queue_record FOR EACH ROW EXECUTE PROCEDURE public.join_queue();
+
+
+--
+-- Name: queue_record set_finished_speaking_time; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_finished_speaking_time BEFORE UPDATE ON public.queue_record FOR EACH ROW EXECUTE PROCEDURE public.finish_speaking();
 
 
 --
