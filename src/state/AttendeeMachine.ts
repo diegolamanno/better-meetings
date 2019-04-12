@@ -19,25 +19,30 @@ export interface StateSchema extends BaseStateSchema {
 		offline: {}
 		online: {
 			states: {
-				absent: {}
-				joining: {}
-				joined: {
+				unsubscribed: {}
+				subscribed: {
 					states: {
-						idle: {}
-						active: {
+						absent: {}
+						joining: {}
+						joined: {
 							states: {
-								queueing: {}
-								queued: {}
-								queueingRejected: {}
+								idle: {}
+								active: {
+									states: {
+										queueing: {}
+										queued: {}
+										queueingRejected: {}
+									}
+								}
+								yielding: {}
+								yeldingRejected: {}
 							}
 						}
-						yielding: {}
-						yeldingRejected: {}
+						leaving: {}
+						leavingRejected: {}
+						joiningRejected: {}
 					}
 				}
-				leaving: {}
-				leavingRejected: {}
-				joiningRejected: {}
 			}
 		}
 	}
@@ -49,7 +54,14 @@ export type JoinEvent = {
 
 type Event =
 	| {
-			type: 'LOGOUT' | 'JOIN' | 'QUEUE' | 'YIELD' | 'LEAVE' | 'RETRY'
+			type:
+				| 'LOGOUT'
+				| 'SUBSCRIBE'
+				| 'JOIN'
+				| 'QUEUE'
+				| 'YIELD'
+				| 'LEAVE'
+				| 'RETRY'
 	  }
 	| JoinEvent
 
@@ -69,7 +81,7 @@ export const Config: MachineConfig<AttendeeWithIsNext, StateSchema, Event> = {
 			},
 		},
 		online: {
-			initial: 'absent',
+			initial: 'unsubscribed',
 			on: {
 				JOIN: 'joining',
 				LOGOUT: {
@@ -78,85 +90,95 @@ export const Config: MachineConfig<AttendeeWithIsNext, StateSchema, Event> = {
 				},
 			},
 			states: {
-				absent: {
+				unsubscribed: {
 					on: {
-						JOIN: 'joining',
+						SUBSCRIBE: 'subscribed',
 					},
 				},
-				joining: {
-					invoke: {
-						id: 'join',
-						src: join,
-						onDone: {
-							target: 'joined',
-						},
-						onError: {
-							target: 'joiningRejected',
-						},
-					},
-				},
-				joined: {
-					initial: 'idle',
-					on: {
-						LEAVE: 'leaving',
-					},
+				subscribed: {
+					initial: 'absent',
 					states: {
-						idle: {
+						absent: {
 							on: {
-								QUEUE: 'active',
+								JOIN: 'joining',
 							},
 						},
-						active: {
-							initial: 'queueing',
+						joining: {
+							invoke: {
+								id: 'join',
+								src: join,
+								onDone: {
+									target: 'joined',
+								},
+								onError: {
+									target: 'joiningRejected',
+								},
+							},
+						},
+						joined: {
+							initial: 'idle',
 							on: {
-								YIELD: 'yielding',
+								LEAVE: 'leaving',
 							},
 							states: {
-								queueing: {
+								idle: {
+									on: {
+										QUEUE: 'active',
+									},
+								},
+								active: {
+									initial: 'queueing',
+									on: {
+										YIELD: 'yielding',
+									},
+									states: {
+										queueing: {
+											invoke: {
+												id: 'queue',
+												src: queue,
+												onDone: {
+													target: 'queued',
+												},
+												onError: {
+													target: 'queueingRejected',
+												},
+											},
+										},
+										queued: {},
+										queueingRejected: retryTransition('queueing'),
+									},
+								},
+								yielding: {
 									invoke: {
-										id: 'queue',
-										src: queue,
+										id: 'yield',
+										src: yieldTurn,
 										onDone: {
-											target: 'queued',
+											target: 'idle',
 										},
 										onError: {
-											target: 'queueingRejected',
+											target: 'yieldingRejected',
 										},
 									},
 								},
-								queued: {},
-								queueingRejected: retryTransition('queueing'),
+								yeldingRejected: retryTransition('yielding'),
 							},
 						},
-						yielding: {
+						leaving: {
 							invoke: {
-								id: 'yield',
-								src: yieldTurn,
+								id: 'leave',
+								src: leave,
 								onDone: {
-									target: 'idle',
+									target: 'online',
 								},
 								onError: {
-									target: 'yieldingRejected',
+									target: 'leavingRejected',
 								},
 							},
 						},
-						yeldingRejected: retryTransition('yielding'),
+						joiningRejected: retryTransition('joining'),
+						leavingRejected: retryTransition('leaving'),
 					},
 				},
-				leaving: {
-					invoke: {
-						id: 'leave',
-						src: leave,
-						onDone: {
-							target: 'online',
-						},
-						onError: {
-							target: 'leavingRejected',
-						},
-					},
-				},
-				joiningRejected: retryTransition('joining'),
-				leavingRejected: retryTransition('leaving'),
 			},
 		},
 	},
@@ -182,7 +204,8 @@ export const Context = createContext({} as TMachine)
 export type State =
 	| keyof StateSchema['states']
 	| keyof StateSchema['states']['online']['states']
-	| keyof StateSchema['states']['online']['states']['joined']['states']
-	| keyof StateSchema['states']['online']['states']['joined']['states']['active']['states']
+	| keyof StateSchema['states']['online']['states']['subscribed']['states']
+	| keyof StateSchema['states']['online']['states']['subscribed']['states']['joined']['states']
+	| keyof StateSchema['states']['online']['states']['subscribed']['states']['joined']['states']['active']['states']
 	| 'next'
 	| 'up'

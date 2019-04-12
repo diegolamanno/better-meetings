@@ -2,19 +2,13 @@ import React, { Component } from 'react'
 import { Global, css } from '@emotion/core'
 import { navigate, RouteComponentProps } from '@reach/router'
 import { isAuthenticated, login, logout } from '../auth/Auth'
-import { graphql } from 'react-apollo'
-import { addUser } from '../queries'
 
-interface Props extends RouteComponentProps {
-	children: any
-}
-class Login extends Component<Props> {
+class Login extends Component<RouteComponentProps> {
 	componentDidMount() {
 		isAuthenticated() && navigate('/home')
 	}
 
 	render() {
-		const { children } = this.props
 		return (
 			<>
 				<Global
@@ -46,10 +40,9 @@ class Login extends Component<Props> {
 						)}
 					</span>
 				</div>
-				{isAuthenticated() && children}
 			</>
 		)
 	}
 }
 
-export default graphql(addUser)(Login)
+export default Login
