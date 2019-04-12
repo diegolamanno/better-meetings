@@ -144,6 +144,48 @@ CREATE FUNCTION hdb_views.user__insert__public__attendee() RETURNS trigger
 
 
 --
+-- Name: user__insert__public__queue_record(); Type: FUNCTION; Schema: hdb_views; Owner: -
+--
+
+CREATE FUNCTION hdb_views.user__insert__public__queue_record() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $_$
+  DECLARE r "public"."queue_record"%ROWTYPE;
+  DECLARE conflict_clause jsonb;
+  DECLARE action text;
+  DECLARE constraint_name text;
+  DECLARE set_expression text;
+  BEGIN
+    conflict_clause = current_setting('hasura.conflict_clause')::jsonb;
+    IF ((EXISTS  (SELECT  1  FROM "public"."room" AS "_be_0_public_room" WHERE (((("_be_0_public_room"."id") = (NEW."room_id")) AND ('true')) AND ((EXISTS  (SELECT  1  FROM "public"."attendee" AS "_be_1_public_attendee" WHERE (((("_be_1_public_attendee"."room_id") = ("_be_0_public_room"."id")) AND ('true')) AND ((((("_be_1_public_attendee"."user_id") = (((current_setting('hasura.user')::json->>'x-hasura-user-id'))::text)) OR ((("_be_1_public_attendee"."user_id") IS NULL) AND ((((current_setting('hasura.user')::json->>'x-hasura-user-id'))::text) IS NULL))) AND ('true')) AND ('true')))     )) AND ('true')))     )) AND ('true')) THEN
+      CASE
+        WHEN conflict_clause = 'null'::jsonb THEN INSERT INTO "public"."queue_record" VALUES (NEW.*) RETURNING * INTO r;
+        ELSE
+          action = conflict_clause ->> 'action';
+          constraint_name = quote_ident(conflict_clause ->> 'constraint');
+          set_expression = conflict_clause ->> 'set_expression';
+          IF action is NOT NULL THEN
+            CASE
+              WHEN action = 'ignore'::text AND constraint_name IS NULL THEN
+                INSERT INTO "public"."queue_record" VALUES (NEW.*) ON CONFLICT DO NOTHING RETURNING * INTO r;
+              WHEN action = 'ignore'::text AND constraint_name is NOT NULL THEN
+                EXECUTE 'INSERT INTO "public"."queue_record" VALUES ($1.*) ON CONFLICT ON CONSTRAINT ' || constraint_name ||
+                           ' DO NOTHING RETURNING *' INTO r USING NEW;
+              ELSE
+                EXECUTE 'INSERT INTO "public"."queue_record" VALUES ($1.*) ON CONFLICT ON CONSTRAINT ' || constraint_name ||
+                           ' DO UPDATE ' || set_expression || ' RETURNING *' INTO r USING NEW;
+            END CASE;
+            ELSE
+              RAISE internal_error using message = 'action is not found'; RETURN NULL;
+          END IF;
+      END CASE;
+      IF r IS NULL THEN RETURN null; ELSE RETURN r; END IF;
+     ELSE RAISE check_violation using message = 'insert check constraint failed'; RETURN NULL;
+     END IF;
+  END $_$;
+
+
+--
 -- Name: user__insert__public__room(); Type: FUNCTION; Schema: hdb_views; Owner: -
 --
 
@@ -199,6 +241,30 @@ CREATE FUNCTION public.add_admin_to_attendees() RETURNS trigger
         END IF;
         RETURN NULL;
     END;
+$$;
+
+
+--
+-- Name: join_queue(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.join_queue() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    OPEN_RECORDS integer;
+BEGIN
+    -- Check whether there's an open record
+    OPEN_RECORDS := (SELECT COUNT(*)::int FROM queue_record WHERE user_id = NEW.user_id AND room_id = NEW.room_id AND (left_time IS NULL or started_speaking_time IS NULL));
+    IF (OPEN_RECORDS > 0) THEN
+        RAISE EXCEPTION 'Existing open record';
+    END IF;
+    NEW.joined_time = NOW();
+    NEW.left_time = NULL;
+    NEW.started_speaking_time = NULL;
+    NEW.finished_speaking_time = NULL;
+    RETURN NEW;
+END;
 $$;
 
 
@@ -592,6 +658,36 @@ CREATE VIEW hdb_views.user__insert__public__attendee AS
 
 
 --
+-- Name: queue_record; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.queue_record (
+    id bigint NOT NULL,
+    joined_time timestamp with time zone NOT NULL,
+    left_time timestamp with time zone,
+    started_speaking_time timestamp with time zone,
+    finished_speaking_time timestamp with time zone,
+    room_id bigint NOT NULL,
+    user_id text NOT NULL
+);
+
+
+--
+-- Name: user__insert__public__queue_record; Type: VIEW; Schema: hdb_views; Owner: -
+--
+
+CREATE VIEW hdb_views.user__insert__public__queue_record AS
+ SELECT queue_record.id,
+    queue_record.joined_time,
+    queue_record.left_time,
+    queue_record.started_speaking_time,
+    queue_record.finished_speaking_time,
+    queue_record.room_id,
+    queue_record.user_id
+   FROM public.queue_record;
+
+
+--
 -- Name: room; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -630,21 +726,6 @@ CREATE SEQUENCE public.attendee_id_seq
 --
 
 ALTER SEQUENCE public.attendee_id_seq OWNED BY public.attendee.id;
-
-
---
--- Name: queue_record; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.queue_record (
-    id bigint NOT NULL,
-    joined_time timestamp with time zone NOT NULL,
-    left_time timestamp with time zone,
-    started_speaking_time timestamp with time zone,
-    finished_speaking_time timestamp with time zone,
-    room_id bigint NOT NULL,
-    user_id text NOT NULL
-);
 
 
 --
@@ -716,6 +797,13 @@ ALTER TABLE ONLY hdb_catalog.remote_schemas ALTER COLUMN id SET DEFAULT nextval(
 --
 
 ALTER TABLE ONLY hdb_views.user__insert__public__attendee ALTER COLUMN id SET DEFAULT nextval('public.attendee_id_seq'::regclass);
+
+
+--
+-- Name: user__insert__public__queue_record id; Type: DEFAULT; Schema: hdb_views; Owner: -
+--
+
+ALTER TABLE ONLY hdb_views.user__insert__public__queue_record ALTER COLUMN id SET DEFAULT nextval('public.queue_record_id_seq'::regclass);
 
 
 --
@@ -941,10 +1029,24 @@ CREATE TRIGGER user__insert__public__attendee INSTEAD OF INSERT ON hdb_views.use
 
 
 --
+-- Name: user__insert__public__queue_record user__insert__public__queue_record; Type: TRIGGER; Schema: hdb_views; Owner: -
+--
+
+CREATE TRIGGER user__insert__public__queue_record INSTEAD OF INSERT ON hdb_views.user__insert__public__queue_record FOR EACH ROW EXECUTE PROCEDURE hdb_views.user__insert__public__queue_record();
+
+
+--
 -- Name: user__insert__public__room user__insert__public__room; Type: TRIGGER; Schema: hdb_views; Owner: -
 --
 
 CREATE TRIGGER user__insert__public__room INSTEAD OF INSERT ON hdb_views.user__insert__public__room FOR EACH ROW EXECUTE PROCEDURE hdb_views.user__insert__public__room();
+
+
+--
+-- Name: queue_record new_queue_record; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER new_queue_record BEFORE INSERT ON public.queue_record FOR EACH ROW EXECUTE PROCEDURE public.join_queue();
 
 
 --
