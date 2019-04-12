@@ -1,4 +1,5 @@
 import React, { FC, ReactNode, useContext } from 'react'
+import { gql } from 'apollo-boost'
 import { Subscription } from 'react-apollo'
 import { useMachine } from 'use-machine'
 import { assign } from 'xstate'
@@ -18,8 +19,20 @@ const RoomProvider: FC<{
 
 	const participantMachine = useContext(ParticipantContext)
 
+	const DUMMY_SUBSCRIPTION = gql`
+		subscription onCommentAdded($repoFullName: String!) {
+			commentAdded(repoFullName: $repoFullName) {
+				id
+				content
+			}
+		}
+	`
+
 	return (
-		<Subscription<Room>>
+		<Subscription<Room>
+			subscription={DUMMY_SUBSCRIPTION}
+			variables={{ foo: 'bar' }}
+		>
 			{({ loading, data, error }) => {
 				if (!loading && !error && data) {
 					const newData = { ...data }
