@@ -2,9 +2,10 @@ import React, { FC } from 'react'
 import { Global, css } from '@emotion/core'
 import { RouteComponentProps } from '@reach/router'
 import { isAuthenticated, login, logout } from '../auth/Auth'
+import AttendeeProvider from '../Providers/AttendeeProvider'
 
 const App: FC<RouteComponentProps> = ({ children }) => (
-	<>
+	<AttendeeProvider>
 		<Global
 			styles={css`
 				html {
@@ -35,7 +36,7 @@ const App: FC<RouteComponentProps> = ({ children }) => (
 			</span>
 		</div>
 		{children}
-	</>
+	</AttendeeProvider>
 )
 
 export default App

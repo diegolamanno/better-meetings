@@ -4,7 +4,7 @@ import { FC, Fragment } from 'react'
 import { css, jsx } from '@emotion/core'
 import classNames from 'classnames'
 import { RouteComponentProps } from '@reach/router'
-import { State } from '../state/attendeeMachine'
+import { State } from '../state/AttendeeMachine'
 import { string } from 'prop-types'
 
 type UserRoomStateProps = RouteComponentProps<{
@@ -22,10 +22,10 @@ interface StateDescriptionsObj {
 const UserRoomState: FC<UserRoomStateProps> = props => {
 	const { state } = props
 	const stateDescriptions: StateDescriptionsObj = {
-		up: "You're on stage. Tapping transitions to idle.",
-		next: "You're up next. Tapping transitions to idle.",
-		queued: "You're in line. Tapping transitions to idle.",
-		idle: "You're idle. Tapping transitions to queued.",
+		up: 'You\'re on stage. Tapping transitions to idle.',
+		next: 'You\'re up next. Tapping transitions to idle.',
+		queued: 'You\'re in line. Tapping transitions to idle.',
+		idle: 'You\'re idle. Tapping transitions to queued.',
 	}
 	const mockUserQueue = ['u1', 'u2', 'u3', 'u4']
 	const stateClassNames = classNames('user-room-state', {

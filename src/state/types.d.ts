@@ -15,5 +15,4 @@ export interface Room {
 	name: string
 	attendees: Attendee[]
 	queue: Attendee[]
-	speaker?: Attendee
 }

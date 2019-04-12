@@ -16,159 +16,162 @@ type AttendeeWithIsNext = Attendee & {
 
 export interface StateSchema extends BaseStateSchema {
 	states: {
-		absent: {}
-		joining: {}
-		joined: {
+		offline: {}
+		online: {
 			states: {
-				idle: {}
-				active: {
+				absent: {}
+				joining: {}
+				joined: {
 					states: {
-						queueing: {}
-						queued: {}
-						up: {}
-						queueingRejected: {}
+						idle: {}
+						active: {
+							states: {
+								queueing: {}
+								queued: {}
+								queueingRejected: {}
+							}
+						}
+						yielding: {}
+						yeldingRejected: {}
 					}
 				}
-				yielding: {}
-				yeldingRejected: {}
+				leaving: {}
+				leavingRejected: {}
+				joiningRejected: {}
 			}
 		}
-		leaving: {}
-		leavingRejected: {}
-		joiningRejected: {}
 	}
 }
 
-export enum Events {
-	JOIN = 'JOIN',
-	QUEUE = 'QUEUE',
-	YIELD = 'YIELD',
-	LEAVE = 'LEAVE',
-	RETRY = 'RETRY',
-	UP = 'UP',
-}
-
-export type NextEvent = {
-	type: 'NEXT'
-	isNext: boolean
-}
+export type JoinEvent = {
+	type: 'LOGIN'
+} & Attendee
 
 type Event =
 	| {
-			type: keyof typeof Events
+			type: 'LOGOUT' | 'JOIN' | 'QUEUE' | 'YIELD' | 'LEAVE' | 'RETRY'
 	  }
-	| NextEvent
+	| JoinEvent
 
-export const initialData = { id: '', name: '' }
+const initialData = { id: '', name: '' }
 
 export const Config: MachineConfig<AttendeeWithIsNext, StateSchema, Event> = {
 	id: 'attendee',
 	context: initialData,
-	initial: 'absent',
+	initial: 'offline',
 	states: {
-		absent: {
+		offline: {
+			on: {
+				LOGIN: {
+					target: 'online',
+					actions: ['login'],
+				},
+			},
+		},
+		online: {
+			initial: 'absent',
 			on: {
 				JOIN: 'joining',
-			},
-		},
-		joining: {
-			invoke: {
-				id: 'join',
-				src: join,
-				onDone: {
-					target: 'joined',
+				LOGOUT: {
+					target: 'offline',
+					actions: ['logout'],
 				},
-				onError: {
-					target: 'joiningRejected',
-				},
-			},
-		},
-		joined: {
-			initial: 'idle',
-			on: {
-				LEAVE: 'leaving',
 			},
 			states: {
-				idle: {
+				absent: {
 					on: {
-						QUEUE: 'active',
+						JOIN: 'joining',
 					},
 				},
-				active: {
-					initial: 'queueing',
-					onExit: ['clearNext'],
-					on: {
-						YIELD: 'yielding',
-					},
-					states: {
-						queueing: {
-							invoke: {
-								id: 'queue',
-								src: queue,
-								onDone: {
-									target: 'queued',
-								},
-								onError: {
-									target: 'queueingRejected',
-								},
-							},
-						},
-						queued: {
-							on: {
-								NEXT: {
-									actions: ['next'],
-								},
-								UP: 'up',
-							},
-						},
-						up: {},
-						queueingRejected: retryTransition('queueing'),
-					},
-				},
-				yielding: {
+				joining: {
 					invoke: {
-						id: 'yield',
-						src: yieldTurn,
+						id: 'join',
+						src: join,
 						onDone: {
-							target: 'idle',
+							target: 'joined',
 						},
 						onError: {
-							target: 'yieldingRejected',
+							target: 'joiningRejected',
 						},
 					},
 				},
-				yeldingRejected: retryTransition('yielding'),
+				joined: {
+					initial: 'idle',
+					on: {
+						LEAVE: 'leaving',
+					},
+					states: {
+						idle: {
+							on: {
+								QUEUE: 'active',
+							},
+						},
+						active: {
+							initial: 'queueing',
+							on: {
+								YIELD: 'yielding',
+							},
+							states: {
+								queueing: {
+									invoke: {
+										id: 'queue',
+										src: queue,
+										onDone: {
+											target: 'queued',
+										},
+										onError: {
+											target: 'queueingRejected',
+										},
+									},
+								},
+								queued: {},
+								queueingRejected: retryTransition('queueing'),
+							},
+						},
+						yielding: {
+							invoke: {
+								id: 'yield',
+								src: yieldTurn,
+								onDone: {
+									target: 'idle',
+								},
+								onError: {
+									target: 'yieldingRejected',
+								},
+							},
+						},
+						yeldingRejected: retryTransition('yielding'),
+					},
+				},
+				leaving: {
+					invoke: {
+						id: 'leave',
+						src: leave,
+						onDone: {
+							target: 'online',
+						},
+						onError: {
+							target: 'leavingRejected',
+						},
+					},
+				},
+				joiningRejected: retryTransition('joining'),
+				leavingRejected: retryTransition('leaving'),
 			},
 		},
-		leaving: {
-			invoke: {
-				id: 'leave',
-				src: leave,
-				onDone: {
-					target: 'absent',
-				},
-				onError: {
-					target: 'leavingRejected',
-				},
-			},
-		},
-		joiningRejected: retryTransition('joining'),
-		leavingRejected: retryTransition('leaving'),
 	},
 }
 
 export const Options: Partial<MachineOptions<AttendeeWithIsNext, Event>> = {
 	actions: {
-		clearNext: assign(context => {
-			const newContext = { ...context }
-			newContext.isNext = false
-			return newContext
+		login: assign((_context, event) => {
+			const { id, name } = event as JoinEvent
+			return {
+				id,
+				name,
+			}
 		}),
-		next: assign((context, event) => {
-			const newContext = { ...context }
-			newContext.isNext = (event as NextEvent).isNext
-			return newContext
-		}),
+		logout: assign(() => initialData),
 	},
 }
 
@@ -178,6 +181,8 @@ export const Context = createContext({} as TMachine)
 
 export type State =
 	| keyof StateSchema['states']
-	| keyof StateSchema['states']['joined']['states']
-	| keyof StateSchema['states']['joined']['states']['active']['states']
+	| keyof StateSchema['states']['online']['states']
+	| keyof StateSchema['states']['online']['states']['joined']['states']
+	| keyof StateSchema['states']['online']['states']['joined']['states']['active']['states']
 	| 'next'
+	| 'up'

@@ -6,9 +6,8 @@ import {
 	InputGroup,
 	Form,
 } from 'react-bootstrap'
-import { navigate } from '@reach/router'
+import { navigate, RouteComponentProps } from '@reach/router'
 import { Mutation } from 'react-apollo'
-import { RouteComponentProps } from '@reach/router'
 import { addRoomQuery } from '../queries'
 
 type State = {
@@ -28,7 +27,7 @@ class CreateRoomPage extends Component<RouteComponentProps, State> {
 
 	addRoom(insertRoom: any) {
 		const adminID = localStorage.getItem('sub')
-		this.setState({ administrator: adminID }, function() {
+		this.setState({ administrator: adminID }, () => {
 			insertRoom({
 				variables: this.state,
 			})
@@ -48,7 +47,7 @@ class CreateRoomPage extends Component<RouteComponentProps, State> {
 					console.log(data)
 					return (
 						<Form
-							onSubmit={e => {
+							onSubmit={(e: any) => {
 								e.preventDefault()
 								this.addRoom(insertRoom)
 								this.moveToCreatedRoom()
@@ -60,7 +59,7 @@ class CreateRoomPage extends Component<RouteComponentProps, State> {
 										type="text"
 										value={this.state.roomName}
 										placeholder="Create a room"
-										onChange={(e: { target: { value: any } }) =>
+										onChange={(e: any) =>
 											this.setState({ roomName: e.target.value })
 										}
 									/>

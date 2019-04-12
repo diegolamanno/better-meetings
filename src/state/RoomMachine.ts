@@ -1,5 +1,10 @@
 import { createContext } from 'react'
-import { MachineConfig, StateSchema as BaseStateSchema } from 'xstate'
+import {
+	MachineConfig,
+	MachineOptions,
+	assign,
+	StateSchema as BaseStateSchema,
+} from 'xstate'
 import { TCreateContext } from 'use-machine'
 import { Room } from './types'
 
@@ -10,7 +15,7 @@ export interface StateSchema extends BaseStateSchema {
 	}
 }
 
-export type UpdateEvent = {
+type UpdateEvent = {
 	type: 'UPDATE'
 	data: Room
 }
@@ -21,7 +26,7 @@ export type Event =
 	  }
 	| UpdateEvent
 
-export const initialData: Room = {
+const initialData: Room = {
 	id: '',
 	name: '',
 	attendees: [],
@@ -52,6 +57,13 @@ export const Config: MachineConfig<Room, StateSchema, Event> = {
 				},
 			},
 		},
+	},
+}
+
+export const Options: Partial<MachineOptions<Room, Event>> = {
+	actions: {
+		update: assign((_context, event) => (event as UpdateEvent).data),
+		clear: assign(() => initialData),
 	},
 }
 

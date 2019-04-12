@@ -7,10 +7,11 @@ import {
 	Form,
 } from 'react-bootstrap'
 import { RouteComponentProps } from '@reach/router'
-import { ApolloConsumer, QueryResult } from 'react-apollo'
+import { ApolloConsumer } from 'react-apollo'
+import { ApolloClient } from 'apollo-client'
 import { getRoomQuery } from '../queries'
 
-type ResultData = any
+// type ResultData = any
 
 class JoinRoomPage extends Component<RouteComponentProps> {
 	state = {
@@ -18,7 +19,7 @@ class JoinRoomPage extends Component<RouteComponentProps> {
 		roomName: '',
 	}
 
-	async searchRoom(client) {
+	async searchRoom(client: ApolloClient<any>) {
 		const { data } = await client.query({
 			query: getRoomQuery,
 			variables: { roomName: this.state.searchText },
@@ -35,7 +36,7 @@ class JoinRoomPage extends Component<RouteComponentProps> {
 				{client => {
 					return (
 						<Form
-							onSubmit={e => {
+							onSubmit={(e: any) => {
 								e.preventDefault()
 								this.searchRoom(client)
 							}}
@@ -46,7 +47,7 @@ class JoinRoomPage extends Component<RouteComponentProps> {
 										type="text"
 										value={this.state.searchText}
 										placeholder="Join a room"
-										onChange={(e: { target: { value: any } }) =>
+										onChange={(e: any) =>
 											this.setState({ searchText: e.target.value })
 										}
 									/>
