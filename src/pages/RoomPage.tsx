@@ -17,6 +17,13 @@ const RoomPage: FC<RouteComponentProps> = () => {
 		.pop()!
 		.split('.')
 		.pop() as State
+	const handleStateRepresenationTapped = (
+		e: SyntheticEvent<Element, Event>,
+	) => {
+		e.preventDefault()
+		// TODO handle user's state change
+		// console.log('received the request for state change')
+	}
 	return (
 		<Fragment>
 			<Global
@@ -33,7 +40,11 @@ const RoomPage: FC<RouteComponentProps> = () => {
 				`}
 			>
 				<p>welcome to the room: {roomId}!</p>
-				<div className="state-container">
+				<div
+					className="state-container"
+					onClick={handleStateRepresenationTapped}
+					onTouchEnd={handleStateRepresenationTapped}
+				>
 					<UserRoomState
 						state={
 							roomMachine.state.matches('subscribed') &&
