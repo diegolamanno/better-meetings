@@ -5,13 +5,28 @@ import { css, jsx } from '@emotion/core'
 import classNames from 'classnames'
 import { RouteComponentProps } from '@reach/router'
 import { State } from '../state/attendeeMachine'
+import { string } from 'prop-types'
 
 type UserRoomStateProps = RouteComponentProps<{
 	state: State
 }>
 
+interface StateDescriptionsObj {
+	up: string
+	next: string
+	queued: string
+	idle: string
+	[key: string]: string
+}
+
 const UserRoomState: FC<UserRoomStateProps> = props => {
 	const { state } = props
+	const stateDescriptions: StateDescriptionsObj = {
+		up: "You're on stage. Tapping transitions to idle.",
+		next: "You're up next. Tapping transitions to idle.",
+		queued: "You're in line. Tapping transitions to idle.",
+		idle: "You're idle. Tapping transitions to queued.",
+	}
 	const mockUserQueue = ['u1', 'u2', 'u3', 'u4']
 	const stateClassNames = classNames('user-room-state', {
 		[state as string]: state,
@@ -84,18 +99,13 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 				}
 			`}
 		>
-			{state === 'up' && (
-				<Fragment>
-					<div className="state-description">
-						You're on stage. Tapping transitions to idle.
-					</div>
-				</Fragment>
+			{stateDescriptions[state as string] && (
+				<div className="state-description">
+					{stateDescriptions[state as string]}
+				</div>
 			)}
 			{state === 'next' && (
 				<Fragment>
-					<div className="state-description">
-						You're up next. Tapping transitions to idle.
-					</div>
 					<div className="user-queue-container">
 						<div className="qi-circle" />
 					</div>
@@ -103,22 +113,12 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 			)}
 			{state === 'queued' && (
 				<Fragment>
-					<div className="state-description">
-						You're in line. Tapping transitions to idle.
-					</div>
 					<div className="user-queue-container">
 						{mockUserQueue.map(user => {
 							return (
 								<div className="qi-circle" data-user-qid={user} key={user} />
 							)
 						})}
-					</div>
-				</Fragment>
-			)}
-			{state === 'idle' && (
-				<Fragment>
-					<div className="state-description">
-						You're idle. Tapping transitions to queued.
 					</div>
 				</Fragment>
 			)}
