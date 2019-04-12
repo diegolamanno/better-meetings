@@ -228,6 +228,48 @@ CREATE FUNCTION hdb_views.user__insert__public__room() RETURNS trigger
 
 
 --
+-- Name: user__insert__public__user(); Type: FUNCTION; Schema: hdb_views; Owner: -
+--
+
+CREATE FUNCTION hdb_views.user__insert__public__user() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $_$
+  DECLARE r "public"."user"%ROWTYPE;
+  DECLARE conflict_clause jsonb;
+  DECLARE action text;
+  DECLARE constraint_name text;
+  DECLARE set_expression text;
+  BEGIN
+    conflict_clause = current_setting('hasura.conflict_clause')::jsonb;
+    IF (((((NEW."auth_id") = (((current_setting('hasura.user')::json->>'x-hasura-user-id'))::text)) OR (((NEW."auth_id") IS NULL) AND ((((current_setting('hasura.user')::json->>'x-hasura-user-id'))::text) IS NULL))) AND ('true')) AND ('true')) THEN
+      CASE
+        WHEN conflict_clause = 'null'::jsonb THEN INSERT INTO "public"."user" VALUES (NEW.*) RETURNING * INTO r;
+        ELSE
+          action = conflict_clause ->> 'action';
+          constraint_name = quote_ident(conflict_clause ->> 'constraint');
+          set_expression = conflict_clause ->> 'set_expression';
+          IF action is NOT NULL THEN
+            CASE
+              WHEN action = 'ignore'::text AND constraint_name IS NULL THEN
+                INSERT INTO "public"."user" VALUES (NEW.*) ON CONFLICT DO NOTHING RETURNING * INTO r;
+              WHEN action = 'ignore'::text AND constraint_name is NOT NULL THEN
+                EXECUTE 'INSERT INTO "public"."user" VALUES ($1.*) ON CONFLICT ON CONSTRAINT ' || constraint_name ||
+                           ' DO NOTHING RETURNING *' INTO r USING NEW;
+              ELSE
+                EXECUTE 'INSERT INTO "public"."user" VALUES ($1.*) ON CONFLICT ON CONSTRAINT ' || constraint_name ||
+                           ' DO UPDATE ' || set_expression || ' RETURNING *' INTO r USING NEW;
+            END CASE;
+            ELSE
+              RAISE internal_error using message = 'action is not found'; RETURN NULL;
+          END IF;
+      END CASE;
+      IF r IS NULL THEN RETURN null; ELSE RETURN r; END IF;
+     ELSE RAISE check_violation using message = 'insert check constraint failed'; RETURN NULL;
+     END IF;
+  END $_$;
+
+
+--
 -- Name: add_admin_to_attendees(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -263,6 +305,31 @@ BEGIN
     NEW.left_time = NULL;
     NEW.started_speaking_time = NULL;
     NEW.finished_speaking_time = NULL;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: leave_queue(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.leave_queue() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    -- Check whether the user has left the queue
+    IF (NEW.left_time IS NOT NULL) THEN
+        -- Check whether the record is still open
+        IF (OLD.left_time IS NOT NULL or OLD.started_speaking_time IS NOT NULL) THEN
+            RAISE EXCEPTION 'Record was already closed';
+        END IF;
+        -- Use a server timestamp rather than relying on the client reporting accurately
+        NEW.left_time = NOW();
+        -- Make sure the client isn't setting other timestamps
+        NEW.started_speaking_time = NULL;
+        NEW.finished_speaking_time = NULL;
+    END IF;
     RETURN NEW;
 END;
 $$;
@@ -710,6 +777,30 @@ CREATE VIEW hdb_views.user__insert__public__room AS
 
 
 --
+-- Name: user; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."user" (
+    name text NOT NULL,
+    email text NOT NULL,
+    avatar text NOT NULL,
+    auth_id text NOT NULL
+);
+
+
+--
+-- Name: user__insert__public__user; Type: VIEW; Schema: hdb_views; Owner: -
+--
+
+CREATE VIEW hdb_views.user__insert__public__user AS
+ SELECT "user".name,
+    "user".email,
+    "user".avatar,
+    "user".auth_id
+   FROM public."user";
+
+
+--
 -- Name: attendee_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -764,18 +855,6 @@ CREATE SEQUENCE public.room_id_seq
 --
 
 ALTER SEQUENCE public.room_id_seq OWNED BY public.room.id;
-
-
---
--- Name: user; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public."user" (
-    name text NOT NULL,
-    email text NOT NULL,
-    avatar text NOT NULL,
-    auth_id text NOT NULL
-);
 
 
 --
@@ -1043,10 +1122,24 @@ CREATE TRIGGER user__insert__public__room INSTEAD OF INSERT ON hdb_views.user__i
 
 
 --
+-- Name: user__insert__public__user user__insert__public__user; Type: TRIGGER; Schema: hdb_views; Owner: -
+--
+
+CREATE TRIGGER user__insert__public__user INSTEAD OF INSERT ON hdb_views.user__insert__public__user FOR EACH ROW EXECUTE PROCEDURE hdb_views.user__insert__public__user();
+
+
+--
 -- Name: queue_record new_queue_record; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER new_queue_record BEFORE INSERT ON public.queue_record FOR EACH ROW EXECUTE PROCEDURE public.join_queue();
+
+
+--
+-- Name: queue_record set_queue_left_time; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_queue_left_time BEFORE UPDATE ON public.queue_record FOR EACH ROW EXECUTE PROCEDURE public.leave_queue();
 
 
 --
