@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 
 export const addRoomQuery = gql`
-	mutation CreateRoom($roomName: String!, $administrator: bigint!) {
+	mutation CreateRoom($roomName: String!, $administrator: String!) {
 		insert_room(
 			objects: [{ administrator: $administrator, room_name: $roomName }]
 		) {

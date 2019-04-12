@@ -1,27 +1,9 @@
 import React, { FC } from 'react'
 import { Global, css } from '@emotion/core'
-import { gql } from 'apollo-boost'
-import { Query, QueryResult } from 'react-apollo'
 import { RouteComponentProps } from '@reach/router'
 import { isAuthenticated, login, logout } from '../auth/Auth'
 
-const GET_MEETINGS = gql`
-	query {
-		meeting {
-			id
-			name
-		}
-	}
-`
-
-type ResultData = {
-	meeting: {
-		id: number
-		name: string
-	}[]
-}
-
-const App: FC<RouteComponentProps> = props => (
+const App: FC<RouteComponentProps> = () => (
 	<>
 		<Global
 			styles={css`
@@ -52,23 +34,6 @@ const App: FC<RouteComponentProps> = props => (
 				)}
 			</span>
 		</div>
-		{isAuthenticated() && (
-			<>
-				<Query query={GET_MEETINGS}>
-					{({ loading, error, data }: QueryResult<ResultData>) => {
-						if (loading) return <div>Loading...</div>
-						if (error || !data) {
-							return <div>Error :(</div>
-						}
-						console.log(data.meeting)
-						return data.meeting.map(meet => (
-							<span key={meet.id}>{meet.name} - </span>
-						))
-					}}
-				</Query>
-				{props.children}
-			</>
-		)}
 	</>
 )
 

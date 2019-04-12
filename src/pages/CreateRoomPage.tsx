@@ -8,17 +8,16 @@ import {
 } from 'react-bootstrap'
 import { navigate } from '@reach/router'
 import { Mutation } from 'react-apollo'
+import { RouteComponentProps } from '@reach/router'
 import { addRoomQuery } from '../queries'
 
 type State = {
 	roomName: string
-	administrator: number | null
+	administrator: string | null
 }
 
-type Props = {}
-
-class CreateRoomPage extends Component<Props, State> {
-	constructor(props: Props) {
+class CreateRoomPage extends Component<RouteComponentProps, State> {
+	constructor(props: RouteComponentProps) {
 		super(props)
 
 		this.state = {
@@ -27,9 +26,9 @@ class CreateRoomPage extends Component<Props, State> {
 		}
 	}
 
-	addRoom(insertRoom) {
-		// const administrator = localStorage.getItem('sub')
-		this.setState({ administrator: 2 }, function() {
+	addRoom(insertRoom: any) {
+		const adminID = localStorage.getItem('sub')
+		this.setState({ administrator: adminID }, function() {
 			insertRoom({
 				variables: this.state,
 			})
@@ -45,7 +44,7 @@ class CreateRoomPage extends Component<Props, State> {
 	render() {
 		return (
 			<Mutation mutation={addRoomQuery}>
-				{(insertRoom, data) => {
+				{(insertRoom: any, data: any) => {
 					console.log(data)
 					return (
 						<Form
