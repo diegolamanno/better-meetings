@@ -1,6 +1,6 @@
 /** @jsx jsx */
 
-import { FC, Fragment, useContext } from 'react'
+import { FC, Fragment, useContext, SyntheticEvent } from 'react'
 import { jsx, css, Global } from '@emotion/core'
 import { RouteComponentProps } from '@reach/router'
 import { Context as RoomContext } from '../state/RoomMachine'
