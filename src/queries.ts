@@ -10,7 +10,8 @@ export const addRoomQuery = gql`
 export const getRoomQuery = gql`
 	query($roomName: String) {
 		room(where: { name: { _eq: $roomName } }) {
-			room_name
+			id
+			name
 			administrator
 		}
 	}
