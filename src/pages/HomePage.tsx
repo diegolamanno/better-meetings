@@ -1,13 +1,13 @@
 import React, { FC, useContext } from 'react'
 import { Link, RouteComponentProps } from '@reach/router'
-import { Context } from '../state/AttendeeMachine'
+import { Context } from '../providers/AttendeeProvider'
 
 const HomePage: FC<RouteComponentProps> = () => {
-	const attendeeMachine = useContext(Context)
+	const { state: attendeeState } = useContext(Context)
 
 	return (
 		<>
-			<h2>Welcome, {attendeeMachine.context.name}. let's get you started.</h2>
+			<h2>Welcome, {attendeeState.context.userId}. let's get you started.</h2>
 			<ul>
 				<li>
 					<Link to="/room/create">Create a Room</Link>

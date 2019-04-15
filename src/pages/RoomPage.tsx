@@ -3,16 +3,17 @@
 import { FC, Fragment, useContext, SyntheticEvent } from 'react'
 import { jsx, css, Global } from '@emotion/core'
 import { RouteComponentProps } from '@reach/router'
-import { Context as RoomContext } from '../state/RoomMachine'
-import { Context as AttendeeContext, State } from '../state/AttendeeMachine'
+import { Context as RoomContext } from '../providers/RoomProvider'
+import { Context as AttendeeContext } from '../providers/AttendeeProvider'
+import { State } from '../state/AttendeeMachine'
 
 import UserRoomState from '../components/UserRoomState'
 
 const RoomPage: FC<RouteComponentProps> = () => {
-	const roomMachine = useContext(RoomContext)
-	const attendeeMachine = useContext(AttendeeContext)
-	const roomId = roomMachine.context.name
-	const parsedState = roomMachine.state
+	const room = useContext(RoomContext)
+	const { state: attendeeState } = useContext(AttendeeContext)
+	const roomId = room.name
+	const stateString = attendeeState
 		.toStrings()
 		.pop()!
 		.split('.')
@@ -23,18 +24,6 @@ const RoomPage: FC<RouteComponentProps> = () => {
 		e.preventDefault()
 		// TODO handle user's state change
 		// console.log('received the request for state change')
-	}
-
-	let state = parsedState
-	if (roomMachine.state.matches('queued')) {
-		if (roomMachine.context.attendees[0].id === attendeeMachine.context.id) {
-			state = 'up'
-		} else if (
-			roomMachine.context.attendees.length >= 2 &&
-			roomMachine.context.attendees[1].id === attendeeMachine.context.id
-		) {
-			state = 'next'
-		}
 	}
 
 	return (
@@ -58,7 +47,7 @@ const RoomPage: FC<RouteComponentProps> = () => {
 					onClick={handleStateRepresenationTapped}
 					onTouchEnd={handleStateRepresenationTapped}
 				>
-					<UserRoomState state={state} />
+					<UserRoomState state={stateString} />
 				</div>
 			</div>
 		</Fragment>

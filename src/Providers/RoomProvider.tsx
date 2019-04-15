@@ -1,44 +1,61 @@
-import React, { FC, ReactNode } from 'react'
+import React, {
+	FC,
+	ReactNode,
+	useContext,
+	useState,
+	createContext,
+} from 'react'
 import { Subscription } from 'react-apollo'
-import { useMachine } from 'use-machine'
-import { Config, Options, Context } from '../state/RoomMachine'
-import { subscribeToRoom } from '../queries'
-import { Room } from '../state/types'
+import { Context as AttendeeContext } from '../providers/AttendeeProvider'
+import { subscribeToRoom } from '../gql/queries'
+import { Room } from '../types'
+import { Subscription_Root } from '../gql/types'
+import { roomSubscription } from '../gql/converters'
+
+export const Context = createContext({} as Room)
+
+const Provider: FC<{
+	room: Room
+	children: ReactNode
+}> = ({ room, children }) => (
+	<Context.Provider value={room}>{children}</Context.Provider>
+)
 
 const RoomProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
-	const machine = useMachine(Config, Options)
-
-	const readyToSubscribe = machine.state.matches('readyToSubscribe')
-
-	const Provider = () => (
-		<Context.Provider value={machine}>{children}</Context.Provider>
+	const { state: attendeeState, send: attendeeSend } = useContext(
+		AttendeeContext,
+	)
+	const [prevQueuePosition, setCurrentQueuePosition] = useState<number | null>(
+		null,
 	)
 
-	return !readyToSubscribe ? (
-		<Provider />
-	) : (
-		<Subscription<Room>
+	return attendeeState.matches('authenticated.present') ? (
+		<Subscription<Subscription_Root>
 			subscription={subscribeToRoom}
-			variables={{ roomName: machine.context.name }}
+			variables={{ roomName: attendeeState.context.roomName }}
 		>
 			{({ loading, data, error }) => {
+				let room = {} as Room
 				if (!loading && !error && data) {
-					const newData = { ...data }
-					machine.send({
-						data: newData,
-						type: 'UPDATE',
-					})
-				} else {
-					// machine.send({
-					// 	type: 'UNSUBSCRIBE',
-					// })
+					room = roomSubscription(data)[0]
+					const currentQueuePosition = room.queue.findIndex(
+						attendee => attendee === attendeeState.context.userId,
+					)
+					if (currentQueuePosition !== prevQueuePosition) {
+						attendeeSend({
+							type: 'QUEUE_POSITION_CHANGED',
+							newPosition: currentQueuePosition,
+						})
+					}
+					setCurrentQueuePosition(currentQueuePosition)
 				}
-				return <Context.Provider value={machine}>{children}</Context.Provider>
+				return <Provider room={room}>{children}</Provider>
 			}}
 		</Subscription>
+	) : (
+		<Provider room={{} as Room}>{children}</Provider>
 	)
 }
-
 export default RoomProvider

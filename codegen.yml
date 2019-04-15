@@ -1,0 +1,6 @@
+overwrite: true
+schema: 'https://hth5-better-meetings.herokuapp.com/v1alpha1/graphql'
+documents: '**/*.graphql'
+generates:
+  src/gql/types.d.ts:
+    - typescript

@@ -9,59 +9,30 @@ import {
 import { RouteComponentProps } from '@reach/router'
 import { ApolloConsumer } from 'react-apollo'
 import { ApolloClient } from 'apollo-client'
-import {
-	getRoomQuery,
-	addAndJoinRoomQuery,
-	addAttendeeToRoom,
-} from '../queries'
-import { Context as AttendeeContext } from '../state/AttendeeMachine'
-import { Context as RoomContext } from '../state/RoomMachine'
+import { getRoomQuery } from '../gql/queries'
+import { Context as AttendeeContext } from '../providers/AttendeeProvider'
 
 const JoinRoomPage: FC<RouteComponentProps> = () => {
-	const attendeeMachine = useContext(AttendeeContext)
-	const roomMachine = useContext(RoomContext)
-	const [state, setState] = useState('')
+	const { send: attendeeSend } = useContext(AttendeeContext)
+	const [roomName, setRoomName] = useState('')
 
 	const searchRoom = async (client: ApolloClient<any>) => {
 		try {
 			const { data: searchResult } = await client.query({
 				query: getRoomQuery,
-				variables: { roomName: state },
+				variables: { roomName },
 			})
 			if (searchResult.room.length) {
-				try {
-					await client.mutate({
-						mutation: addAttendeeToRoom,
-						variables: {
-							user: attendeeMachine.context.name,
-							roomId: searchResult.room[0].id,
-						},
-					})
-
-					roomMachine.send({
-						type: 'SUBSCRIBE',
-						name: state,
-					})
-				} catch (e) {
-					console.error('join error', e)
-				}
+				attendeeSend({
+					roomName,
+					type: 'JOIN',
+					roomId: searchResult.room[0].id,
+				})
 			} else {
-				try {
-					const { data: addAndJoinResult } = await client.mutate({
-						mutation: addAndJoinRoomQuery,
-						variables: {
-							roomName: state,
-							administrator: attendeeMachine.context.name,
-						},
-					})
-
-					roomMachine.send({
-						type: 'SUBSCRIBE',
-						name: addAndJoinResult.name,
-					})
-				} catch (e) {
-					console.error('add and join error', e)
-				}
+				attendeeSend({
+					roomName,
+					type: 'CREATE',
+				})
 			}
 		} catch (e) {
 			console.error('search error', e)
@@ -81,8 +52,8 @@ const JoinRoomPage: FC<RouteComponentProps> = () => {
 						<FormGroup controlId="CreateRoom">
 							<InputGroup>
 								<FormControl
-									value={state}
-									onChange={(e: any) => setState(e.target.value)}
+									value={roomName}
+									onChange={(e: any) => setRoomName(e.target.value)}
 									type="text"
 									placeholder="Join a room"
 								/>

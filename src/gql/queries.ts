@@ -1,19 +1,32 @@
 import gql from 'graphql-tag'
 
-export const addAndJoinRoomQuery = gql`
-	mutation CreateRoom($roomName: String, $administrator: String) {
+export const addAttendeeToRoom = gql`
+	mutation($userId: String!, $roomId: bigint!) {
+		insert_attendee(
+			objects: [{ user_id: $userId, room_id: $roomId, remote: true }]
+		) {
+			returning {
+				room {
+					name
+				}
+			}
+		}
+	}
+`
+
+export const addAttendeeToNewRoom = gql`
+	mutation($roomName: String, $userId: String) {
 		insert_room(
 			objects: [
 				{
-					administrator: $administrator
+					administrator: $userId
 					name: $roomName
-					attendees: { data: [{ user_id: $administrator, remote: true }] }
+					attendees: { data: [{ user_id: $userId, remote: true }] }
 				}
 			]
 		) {
-			affected_rows
 			returning {
-				name
+				id
 			}
 		}
 	}
@@ -38,19 +51,6 @@ export const addUser = gql`
 	}
 `
 
-export const addAttendeeToRoom = gql`
-	mutation($user: String!, $roomId: bigint!) {
-		insert_attendee(
-			objects: [{ user_id: $user, room_id: $roomId, remote: true }]
-		) {
-			returning {
-				room {
-					name
-				}
-			}
-		}
-	}
-`
 export const subscribeToRoom = gql`
 	subscription($roomName: String!) {
 		room(where: { name: { _eq: $roomName } }) {
@@ -63,3 +63,17 @@ export const subscribeToRoom = gql`
 		}
 	}
 `
+
+export type AttendeeData = {
+	user_id: string
+}
+
+export type RooomData = {
+	attendees: AttendeeData[]
+}
+
+export const addAttendeeToQueue = ``
+
+export const removeAttendeeFromQueue = ''
+
+export const removeAttendeeFromRoom = ''

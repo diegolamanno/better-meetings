@@ -2,12 +2,12 @@ import React, { FC } from 'react'
 import { Global, css } from '@emotion/core'
 import { RouteComponentProps } from '@reach/router'
 import { isAuthenticated, login, logout } from '../auth/Auth'
-import AttendeeProvider from '../Providers/AttendeeProvider'
-import RoomProvider from '../Providers/RoomProvider'
+import AttendeeProvider from '../providers/AttendeeProvider'
+import RoomProvider from '../providers/RoomProvider'
 
 const App: FC<RouteComponentProps> = ({ children }) => (
-	<RoomProvider>
-		<AttendeeProvider>
+	<AttendeeProvider>
+		<RoomProvider>
 			<Global
 				styles={css`
 					html {
@@ -38,8 +38,8 @@ const App: FC<RouteComponentProps> = ({ children }) => (
 				</span>
 			</div>
 			{children}
-		</AttendeeProvider>
-	</RoomProvider>
+		</RoomProvider>
+	</AttendeeProvider>
 )
 
 export default App

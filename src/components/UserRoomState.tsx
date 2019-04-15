@@ -104,7 +104,7 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 					{stateDescriptions[state as string]}
 				</div>
 			)}
-			{state === 'next' && (
+			{state === 'nextUp' && (
 				<Fragment>
 					<div className="user-queue-container">
 						<div className="qi-circle" />
