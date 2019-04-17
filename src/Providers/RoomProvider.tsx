@@ -5,7 +5,7 @@ import React, {
 	useState,
 	createContext,
 } from 'react'
-import { Subscription } from 'react-apollo'
+import Subscription from 'react-apollo/Subscriptions'
 import { Context as AttendeeContext } from '../providers/AttendeeProvider'
 import { subscribeToRoom } from '../gql/queries'
 import { Room } from '../types'
@@ -27,9 +27,7 @@ const RoomProvider: FC<{
 	const { state: attendeeState, send: attendeeSend } = useContext(
 		AttendeeContext,
 	)
-	const [prevQueuePosition, setCurrentQueuePosition] = useState<number | null>(
-		null,
-	)
+	const [prevQueuePosition, setCurrentQueuePosition] = useState<number>(-1)
 
 	return attendeeState.matches('authenticated.present') ? (
 		<Subscription<Subscription_Root>
@@ -43,7 +41,10 @@ const RoomProvider: FC<{
 					const currentQueuePosition = room.queue.findIndex(
 						attendee => attendee === attendeeState.context.userId,
 					)
-					if (currentQueuePosition !== prevQueuePosition) {
+					if (
+						currentQueuePosition !== -1 &&
+						currentQueuePosition !== prevQueuePosition
+					) {
 						attendeeSend({
 							type: 'QUEUE_POSITION_CHANGED',
 							newPosition: currentQueuePosition,

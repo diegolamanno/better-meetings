@@ -10,6 +10,15 @@ module.exports = merge(common, {
 	devtool: 'source-map',
 	optimization: {
 		minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
+		splitChunks: {
+			cacheGroups: {
+				commons: {
+					test: /[\\/]node_modules[\\/]/,
+					name: 'vendors',
+					chunks: 'all',
+				},
+			},
+		},
 	},
 	output: {
 		pathinfo: true,

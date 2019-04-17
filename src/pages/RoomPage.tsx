@@ -1,29 +1,43 @@
 /** @jsx jsx */
 
-import { FC, Fragment, useContext, SyntheticEvent } from 'react'
+import { FC, Fragment, useContext, MouseEvent, TouchEvent } from 'react'
 import { jsx, css, Global } from '@emotion/core'
-import { RouteComponentProps } from '@reach/router'
+import { navigate } from '@reach/router'
 import { Context as RoomContext } from '../providers/RoomProvider'
 import { Context as AttendeeContext } from '../providers/AttendeeProvider'
 import { State } from '../state/AttendeeMachine'
 
 import UserRoomState from '../components/UserRoomState'
 
-const RoomPage: FC<RouteComponentProps> = () => {
+const RoomPage: FC<import('@reach/router').RouteComponentProps> = () => {
 	const room = useContext(RoomContext)
-	const { state: attendeeState } = useContext(AttendeeContext)
+	const { state: attendeeState, send: attendeeSend } = useContext(
+		AttendeeContext,
+	)
 	const roomId = room.name
 	const stateString = attendeeState
 		.toStrings()
 		.pop()!
 		.split('.')
 		.pop() as State
+
 	const handleStateRepresenationTapped = (
-		e: SyntheticEvent<Element, Event>,
+		e: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
 	) => {
 		e.preventDefault()
-		// TODO handle user's state change
-		// console.log('received the request for state change')
+		if (attendeeState.matches('authenticated.present')) {
+			attendeeSend(
+				attendeeState.matches('authenticated.present.idle') ? 'QUEUE' : 'YIELD',
+			)
+		}
+	}
+
+	const handleLeaveRoom = () => {
+		attendeeSend('LEAVE')
+	}
+
+	if (!attendeeState.matches('authenticated.present')) {
+		navigate('/home/room/join')
 	}
 
 	return (
@@ -50,6 +64,9 @@ const RoomPage: FC<RouteComponentProps> = () => {
 					<UserRoomState state={stateString} />
 				</div>
 			</div>
+			<button type="button" onClick={handleLeaveRoom}>
+				Leave room
+			</button>
 		</Fragment>
 	)
 }

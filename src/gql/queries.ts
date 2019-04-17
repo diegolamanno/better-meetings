@@ -72,8 +72,30 @@ export type RooomData = {
 	attendees: AttendeeData[]
 }
 
-export const addAttendeeToQueue = ``
+export const addAttendeeToQueue = gql`
+	mutation($userId: String, $roomId: bigint!) {
+		insert_queue_record(objects: { room_id: $roomId, user_id: $userId }) {
+			affected_rows
+		}
+	}
+`
 
-export const removeAttendeeFromQueue = ''
+export const removeAttendeeFromQueue = gql`
+	mutation($userId: String, $roomId: bigint!) {
+		delete_queue_record(
+			where: { room_id: { _eq: $roomId }, user_id: { _eq: $userId } }
+		) {
+			affected_rows
+		}
+	}
+`
 
-export const removeAttendeeFromRoom = ''
+export const removeAttendeeFromRoom = gql`
+	mutation($userId: String, $roomId: bigint!) {
+		delete_attendee(
+			where: { room_id: { _eq: $roomId }, user_id: { _eq: $userId } }
+		) {
+			affected_rows
+		}
+	}
+`

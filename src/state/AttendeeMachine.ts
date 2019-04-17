@@ -1,10 +1,4 @@
-import {
-	Machine,
-	MachineConfig,
-	StateSchema,
-	MachineOptions,
-	assign,
-} from 'xstate'
+import { Machine, assign } from 'xstate'
 import client from '../client'
 import {
 	addAttendeeToRoom,
@@ -14,6 +8,8 @@ import {
 	removeAttendeeFromRoom,
 } from '../gql/queries'
 import { Attendee, Room } from '../types'
+
+type StateSchema = import('xstate').StateSchema
 
 export interface Schema extends StateSchema {
 	states: {
@@ -101,7 +97,7 @@ export type Event<
 			type: E
 	  }
 
-export const config: MachineConfig<Context, Schema, Event> = {
+export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 	id: 'attendee',
 	initial: 'unauthenticated',
 	context: { userId: '', token: '', roomId: 0, roomName: '' },
@@ -169,24 +165,20 @@ export const config: MachineConfig<Context, Schema, Event> = {
 							initial: 'queued',
 							on: {
 								YIELD: 'yielding',
+								QUEUE_POSITION_CHANGED: [
+									{
+										target: '#attendee.authenticated.present.active.nextUp',
+										cond: 'isSecondInQueue',
+									},
+									{
+										target: '#attendee.authenticated.present.active.hasFloor',
+										cond: 'isFirstInQueue',
+									},
+								],
 							},
 							states: {
-								queued: {
-									on: {
-										QUEUE_POSITION_CHANGED: {
-											target: 'nextUp',
-											cond: 'isSecondInQueue',
-										},
-									},
-								},
-								nextUp: {
-									on: {
-										QUEUE_POSITION_CHANGED: {
-											target: 'hasFloor',
-											cond: 'isFirstInQueue',
-										},
-									},
-								},
+								queued: {},
+								nextUp: {},
 								hasFloor: {},
 								lastQueuePosition: {
 									type: 'history',
@@ -217,32 +209,29 @@ export const config: MachineConfig<Context, Schema, Event> = {
 	},
 }
 
-export const options: Partial<MachineOptions<Context, Event>> = {
+export const options: Partial<
+	import('xstate').MachineOptions<Context, Event>
+> = {
 	actions: {
-		setUserDetails: assign(
-			(context, { userId, token }: Event<'DID_AUTHENTICATE'>) => ({
-				...context,
-				userId,
-				token,
-			}),
-		),
-		setAllRoomDetails: assign(
-			(context, { roomId, roomName }: Event<'JOIN'>) => ({
-				...context,
-				roomId,
-				roomName,
-			}),
-		),
-		setNewRoomName: assign((context, { roomName }: Event<'CREATE'>) => ({
+		setUserDetails: assign((context, event) => ({
 			...context,
-			roomName,
+			userId: (event as Event<'DID_AUTHENTICATE'>).userId,
+			token: (event as Event<'DID_AUTHENTICATE'>).token,
 		})),
-		setNewRoomId: assign(
-			(context, { data }: Event<'done.invoke.addAttendeeToNewRoom'>) => ({
-				...context,
-				roomId: data.data.insert_room.returning[0].id,
-			}),
-		),
+		setAllRoomDetails: assign((context, event) => ({
+			...context,
+			roomId: (event as Event<'JOIN'>).roomId,
+			roomName: (event as Event<'JOIN'>).roomName,
+		})),
+		setNewRoomName: assign((context, event) => ({
+			...context,
+			roomName: (event as Event<'CREATE'>).roomName,
+		})),
+		setNewRoomId: assign((context, event) => ({
+			...context,
+			roomId: (event as Event<'done.invoke.addAttendeeToNewRoom'>).data.data
+				.insert_room.returning[0].id,
+		})),
 	},
 	services: {
 		addAttendeeToRoom: ({ userId, roomId }) =>

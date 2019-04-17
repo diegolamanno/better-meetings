@@ -1,6 +1,5 @@
 import merge = require('webpack-merge')
 import CleanWebpackPlugin from 'clean-webpack-plugin'
-
 import common = require('./webpack.common')
 import paths from './paths'
 

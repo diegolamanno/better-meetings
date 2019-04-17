@@ -3,32 +3,25 @@
 import { FC, Fragment } from 'react'
 import { css, jsx } from '@emotion/core'
 import classNames from 'classnames'
-import { RouteComponentProps } from '@reach/router'
 import { State } from '../state/AttendeeMachine'
 
-type UserRoomStateProps = RouteComponentProps<{
+type UserRoomStateProps = import('@reach/router').RouteComponentProps & {
 	state: State
-}>
-
-interface StateDescriptionsObj {
-	up: string
-	next: string
-	queued: string
-	idle: string
-	[key: string]: string
 }
+
+type StateDescriptionsObj = Partial<{ [key in State]: string }>
 
 const UserRoomState: FC<UserRoomStateProps> = props => {
 	const { state } = props
 	const stateDescriptions: StateDescriptionsObj = {
-		up: 'You\'re on stage. Tapping transitions to idle.',
-		next: 'You\'re up next. Tapping transitions to idle.',
+		hasFloor: 'You\'re on stage. Tapping transitions to idle.',
+		nextUp: 'You\'re up next. Tapping transitions to idle.',
 		queued: 'You\'re in line. Tapping transitions to idle.',
 		idle: 'You\'re idle. Tapping transitions to queued.',
 	}
 	const mockUserQueue = ['u1', 'u2', 'u3', 'u4']
 	const stateClassNames = classNames('user-room-state', {
-		[state as string]: state,
+		[state]: state,
 	})
 	// TODO: state description hides itself after a moment
 	return (
@@ -38,7 +31,7 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 				height: 100%;
 				position: relative;
 
-				&.up {
+				&.hasFloor {
 					background-color: #fff;
 					color: #000;
 				}
@@ -57,7 +50,7 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 					}
 				}
 
-				&.next {
+				&.nextUp {
 					background-color: #ff8f02;
 					color: #000;
 
@@ -99,10 +92,8 @@ const UserRoomState: FC<UserRoomStateProps> = props => {
 				}
 			`}
 		>
-			{stateDescriptions[state as string] && (
-				<div className="state-description">
-					{stateDescriptions[state as string]}
-				</div>
+			{stateDescriptions[state] && (
+				<div className="state-description">{stateDescriptions[state]}</div>
 			)}
 			{state === 'nextUp' && (
 				<Fragment>

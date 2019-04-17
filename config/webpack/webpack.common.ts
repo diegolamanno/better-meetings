@@ -36,8 +36,9 @@ module.exports = {
 				test: /\.tsx?$/,
 				loader: 'awesome-typescript-loader',
 				options: {
+					transpileOnly: true,
 					getCustomTransformers: () => ({
-						before: [createEmotionPlugin()], // <------------------- here
+						before: [createEmotionPlugin()],
 					}),
 				},
 			},

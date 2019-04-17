@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { handleAuthentication } from '../auth/Auth'
-import { RouteComponentProps } from '@reach/router'
+
+type RouteComponentProps = import('@reach/router').RouteComponentProps
 
 interface Props extends RouteComponentProps {
 	path: string

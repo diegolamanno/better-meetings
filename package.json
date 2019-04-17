@@ -3,15 +3,17 @@
 	"version": "1.0.0",
 	"description": "Be nice. Share space. Have better meetings.",
 	"scripts": {
-		"start": "webpack-dev-server --config config/webpack/webpack.dev.ts",
-		"build": "webpack --config config/webpack/webpack.prod.ts",
+		"start": "yarn run webpack-dev-server --config config/webpack/webpack.dev.ts",
+		"build": "yarn run webpack --config config/webpack/webpack.prod.ts",
 		"serve": "serve -s build",
 		"test": "jest",
 		"test:coverage": "yarn test --coverage",
 		"lint:css": "stylelint './src/**/*.tsx'",
 		"lint:ts": "tslint --project .",
 		"lint": "yarn lint:css && yarn lint:ts",
-		"gen-gql-types": "graphql-codegen --config codegen.yml"
+		"gen-gql-types": "graphql-codegen --config codegen.yml",
+		"webpack": "cross-env TS_NODE_PROJECT=\"tsconfig-for-webpack-config.json\" webpack",
+		"webpack-dev-server": "cross-env TS_NODE_PROJECT=\"tsconfig-for-webpack-config.json\" webpack-dev-server"
 	},
 	"repository": {
 		"type": "git",
@@ -58,6 +60,7 @@
 		"auth0-js": "^9.10.1",
 		"awesome-typescript-loader": "^5.2.1",
 		"classnames": "^2.2.6",
+		"cross-env": "^5.2.0",
 		"css-loader": "^2.1.1",
 		"dotenv": "^7.0.0",
 		"emotion-ts-plugin": "^0.3.0",
@@ -90,6 +93,7 @@
 		"ts-jest": "^24.0.2",
 		"ts-loader": "^5.3.3",
 		"ts-node": "^8.0.3",
+		"tsconfig-paths": "^3.8.0",
 		"tslint": "^5.15.0",
 		"tslint-config-airbnb": "^5.11.1",
 		"tslint-config-prettier": "^1.18.0",

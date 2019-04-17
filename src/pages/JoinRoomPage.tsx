@@ -6,14 +6,16 @@ import {
 	InputGroup,
 	Form,
 } from 'react-bootstrap'
-import { RouteComponentProps } from '@reach/router'
-import { ApolloConsumer } from 'react-apollo'
-import { ApolloClient } from 'apollo-client'
+import { RouteComponentProps, navigate } from '@reach/router'
+import ApolloConsumer from 'react-apollo/ApolloConsumer'
+import ApolloClient from 'apollo-client/ApolloClient'
 import { getRoomQuery } from '../gql/queries'
 import { Context as AttendeeContext } from '../providers/AttendeeProvider'
 
 const JoinRoomPage: FC<RouteComponentProps> = () => {
-	const { send: attendeeSend } = useContext(AttendeeContext)
+	const { state: attendeeState, send: attendeeSend } = useContext(
+		AttendeeContext,
+	)
 	const [roomName, setRoomName] = useState('')
 
 	const searchRoom = async (client: ApolloClient<any>) => {
@@ -37,6 +39,10 @@ const JoinRoomPage: FC<RouteComponentProps> = () => {
 		} catch (e) {
 			console.error('search error', e)
 		}
+	}
+
+	if (attendeeState.matches('authenticated.present')) {
+		navigate(`:${attendeeState.context.roomId}`)
 	}
 
 	return (

@@ -1,20 +1,23 @@
 import React, { FC, ReactNode, createContext } from 'react'
 import { useMachine } from '@xstate/react'
-import { ApolloConsumer } from 'react-apollo'
+import ApolloConsumer from 'react-apollo/ApolloConsumer'
+import { navigate } from '@reach/router'
 import attendeeMachine, {
 	Schema,
 	Context as AttendeeContext,
 	Event,
 } from '../state/AttendeeMachine'
 import { isAuthenticated } from '../auth/Auth'
-import { State, OmniEvent } from 'xstate'
-import { Interpreter } from 'xstate/lib/interpreter'
-import { navigate } from '@reach/router'
+
 import { addUser } from '../gql/queries'
 
-type AttendeeState = State<AttendeeContext, Event>
-type AttendeeOmniEvent = OmniEvent<Event>
-type AttendeeSend = Interpreter<AttendeeContext, Schema, Event>['send']
+type AttendeeState = import('xstate').State<AttendeeContext, Event>
+type AttendeeOmniEvent = import('xstate').OmniEvent<Event>
+type AttendeeSend = import('xstate/lib/interpreter').Interpreter<
+	AttendeeContext,
+	Schema,
+	Event
+>['send']
 
 export const Context = createContext({
 	state: {} as AttendeeState,

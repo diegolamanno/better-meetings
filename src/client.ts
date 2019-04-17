@@ -1,10 +1,9 @@
-import { OperationDefinitionNode } from 'graphql'
-import { InMemoryCache } from 'apollo-cache-inmemory'
-import { WebSocketLink } from 'apollo-link-ws'
+import { InMemoryCache } from 'apollo-cache-inmemory/lib/inMemoryCache'
+import { WebSocketLink } from 'apollo-link-ws/lib/webSocketLink'
 import { onError } from 'apollo-link-error'
-import { HttpLink } from 'apollo-link-http'
-import { getMainDefinition } from 'apollo-utilities'
-import { from, split } from 'apollo-link'
+import { HttpLink } from 'apollo-link-http/lib/httpLink'
+import { getMainDefinition } from 'apollo-utilities/lib/getFromAST'
+import { from, split } from 'apollo-link/lib/link'
 import ApolloClient from 'apollo-client/ApolloClient'
 
 const graphqlUri = 'https://hth5-better-meetings.herokuapp.com/v1alpha1/graphql'
@@ -38,7 +37,7 @@ const link = split(
 	({ query }) => {
 		const { kind, operation } = getMainDefinition(
 			query,
-		) as OperationDefinitionNode
+		) as import('graphql/language/ast').OperationDefinitionNode
 		return kind === 'OperationDefinition' && operation === 'subscription'
 	},
 	wsLink,
