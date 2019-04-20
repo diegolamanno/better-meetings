@@ -1,6 +1,6 @@
-[![Logo](./src/images/logo.png)](https://TBD.io/)
+[![Logo](./src/images/banner.png)](https://TBD.io/)
 
-# Better Meetings 🙋🏻‍♀️🙋🏻‍♂️ 
+# Better Meetings 👩‍💻👨‍💻 
 
 ---
 
