@@ -3,6 +3,7 @@ import { Global, css } from '@emotion/core'
 import { isAuthenticated, login, logout } from '../auth/Auth'
 import AttendeeProvider from '../providers/AttendeeProvider'
 import RoomProvider from '../providers/RoomProvider'
+import globalStyles from '../styles/variables'
 
 const App: FC<import('@reach/router').RouteComponentProps> = ({ children }) => (
 	<AttendeeProvider>
@@ -18,12 +19,14 @@ const App: FC<import('@reach/router').RouteComponentProps> = ({ children }) => (
 					*::after {
 						box-sizing: inherit;
 					}
+
+					body {
+						background-color: ${globalStyles.palette.primary};
+					}
 				`}
 			/>
 			<div className="navbar">
 				<span>
-					<a href="#">Auth0 - React</a>
-
 					{!isAuthenticated() && (
 						<button className="btn-margin" onClick={() => login()}>
 							Log In
