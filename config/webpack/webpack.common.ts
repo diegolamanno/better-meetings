@@ -46,6 +46,10 @@ module.exports = {
 				test: /\.css$/,
 				use: ['style-loader', 'css-loader'],
 			},
+			{
+				test: /\.(png|svg|jpg|gif)$/,
+				use: ['file-loader'],
+			},
 		],
 	},
 	plugins: [
@@ -72,6 +76,7 @@ module.exports = {
 					content: 'ie=edge',
 				},
 			},
+			favicon: 'src/images/favicon.png',
 		}),
 		new webpack.DefinePlugin(envKeys),
 	],
