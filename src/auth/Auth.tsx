@@ -45,7 +45,7 @@ export const handleAuthentication = () => {
 		} else if (err) {
 			console.error(err)
 		}
-		navigate('/home')
+		navigate('/home/room/join')
 	})
 }
 
