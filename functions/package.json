@@ -1,0 +1,21 @@
+{
+	"name": "functions",
+	"engines": {
+		"node": "10"
+	},
+	"main": "lib/index.js",
+	"scripts": {
+		"serve": "firebase serve -p 5000 --only functions"
+	},
+	"dependencies": {
+		"cors": "^2.8.5",
+		"firebase-admin": "~7.0.0",
+		"firebase-functions": "^2.3.0"
+	},
+	"devDependencies": {
+		"@google-cloud/functions-emulator": "^1.0.0-beta.6",
+		"firebase": "^5.11.1",
+		"firebase-tools": "^6.8.0"
+	},
+	"private": true
+}

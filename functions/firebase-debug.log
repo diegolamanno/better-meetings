@@ -1,0 +1,32 @@
+[debug] [2019-05-05T22:58:47.192Z] ----------------------------------------------------------------------
+[debug] [2019-05-05T22:58:47.195Z] Command:       /Users/sine.g/.nvm/versions/node/v10.15.3/bin/node /Users/sine.g/projects/better-meetings/functions/node_modules/.bin/firebase serve -p 5000 --only functions
+[debug] [2019-05-05T22:58:47.195Z] CLI Version:   6.8.0
+[debug] [2019-05-05T22:58:47.195Z] Platform:      darwin
+[debug] [2019-05-05T22:58:47.195Z] Node Version:  v10.15.3
+[debug] [2019-05-05T22:58:47.196Z] Time:          Sun May 05 2019 18:58:47 GMT-0400 (Eastern Daylight Time)
+[debug] [2019-05-05T22:58:47.196Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2019-05-05T22:58:47.212Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-05-05T22:58:47.213Z] > authorizing via signed-in user
+[debug] [2019-05-05T22:58:47.214Z] [iam] checking project better-meetings-a24e7 for permissions ["firebase.projects.get"]
+[debug] [2019-05-05T22:58:47.218Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2019-05-05T22:58:47.219Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2019-05-05T22:58:47.453Z] <<< HTTP RESPONSE 200
+[debug] [2019-05-05T22:58:47.471Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/better-meetings-a24e7:testIamPermissions  
+
+[debug] [2019-05-05T22:58:47.775Z] <<< HTTP RESPONSE 200
+[debug] [2019-05-05T22:58:47.777Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/better-meetings-a24e7  
+ 
+[debug] [2019-05-05T22:58:48.489Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/sine.g/projects/better-meetings'...
+[info] 
+[info] i  functions: Preparing to emulate functions.
+[debug] [2019-05-05T22:58:49.313Z] Fetching environment
+[debug] [2019-05-05T22:58:49.315Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/754316304166:getServerAppConfig  
+ 
+[debug] [2019-05-05T22:58:49.562Z] <<< HTTP RESPONSE 200
+[debug] [2019-05-05T22:58:49.563Z] Starting @google-cloud/functions-emulator
+[debug] [2019-05-05T22:58:51.211Z] Parsing function triggers
+[info] ✔  functions: helloWorld: http://localhost:5000/better-meetings-a24e7/us-central1/helloWorld

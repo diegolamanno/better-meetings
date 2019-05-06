@@ -1,0 +1,9 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"module": "commonjs",
+		"outDir": "./functions/lib",
+		"target": "es2017"
+	},
+	"include": ["./functions/src/**/*"]
+}
