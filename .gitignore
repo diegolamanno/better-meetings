@@ -1,6 +1,7 @@
 node_modules
 build
+functinos/lib
 reports
-yarn-error.log
 .DS_Store
 .env
+*.log

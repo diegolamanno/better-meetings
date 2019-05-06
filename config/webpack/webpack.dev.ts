@@ -1,5 +1,6 @@
 import merge = require('webpack-merge')
 import CleanWebpackPlugin from 'clean-webpack-plugin'
+import config from 'config'
 import common = require('./webpack.common')
 import paths from './paths'
 
@@ -10,6 +11,7 @@ module.exports = merge(common, {
 		contentBase: paths.build,
 		hot: true,
 		historyApiFallback: true,
+		port: config.get('devServerPort'),
 	},
 	resolve: {
 		alias: {

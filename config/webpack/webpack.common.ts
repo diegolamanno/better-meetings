@@ -1,22 +1,9 @@
 import HtmlWebpackPlugin = require('html-webpack-plugin')
 import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
-import dotenv, { DotenvParseOutput } from 'dotenv'
+const ConfigWebpackPlugin = require('config-webpack')
 import { GenerateSW } from 'workbox-webpack-plugin'
 import { createEmotionPlugin } from 'emotion-ts-plugin'
 import paths from './paths'
-import webpack = require('webpack')
-
-const env = dotenv.config().parsed as DotenvParseOutput
-
-type PrevKey = {
-	[key: string]: string
-}
-
-// reduce it to a nice object, the same as before
-const envKeys = Object.keys(env).reduce((prev: PrevKey, next: string) => {
-	prev[`process.env.${next}`] = JSON.stringify(env[next])
-	return prev
-}, {})
 
 module.exports = {
 	context: paths.app,
@@ -68,7 +55,7 @@ module.exports = {
 			],
 		}),
 		new HtmlWebpackPlugin({
-			title: 'Good Time',
+			title: 'Better Meetings',
 			meta: {
 				viewport: 'width=device-width, initial-scale=1.0',
 				'X-UA-Compatible': {
@@ -78,6 +65,6 @@ module.exports = {
 			},
 			favicon: 'src/images/favicon.png',
 		}),
-		new webpack.DefinePlugin(envKeys),
+		new ConfigWebpackPlugin(),
 	],
 }

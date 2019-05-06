@@ -16,12 +16,7 @@ export const logout = () => {
 }
 
 const auth0 = new WebAuth({
-	domain: process.env.REACT_APP_DOMAIN!,
-	clientID: process.env.REACT_APP_CLIENTID!,
-	redirectUri: process.env.REACT_APP_REDIRECTURI,
-	audience: `https://${process.env.REACT_APP_DOMAIN}/userinfo`,
-	responseType: 'token id_token',
-	scope: 'openid',
+	...CONFIG.auth,
 })
 
 const setSession = (idToken: string, sub: string, expiresIn?: number) => {

@@ -2,7 +2,6 @@
 	"extends": ["tslint-config-airbnb", "tslint-config-prettier"],
 	"rules": {
 		"arrow-parens": [true, "ban-single-arg-parens"],
-		"no-use-before-declare": false,
 		"quotemark": [true, "single", "jsx-double"],
 		"interface-name": false,
 		"import-name": false,
@@ -11,6 +10,12 @@
 			"check-format",
 			"allow-pascal-case",
 			"allow-leading-underscore"
-		]
+		],
+		"no-unnecessary-type-assertion": true,
+		"no-construct": true,
+		"no-duplicate-super": true,
+		"no-empty": [true, "allow-empty-catch"],
+		"no-floating-promises": true,
+		"no-string-throw": true
 	}
 }
