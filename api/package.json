@@ -1,0 +1,12 @@
+{
+	"name": "better-meetings",
+	"version": "1.0.0",
+	"license": "ISC",
+	"scripts": {
+		"start": "micro"
+	},
+	"dependencies": {
+		"@types/micro": "^7.3.3",
+		"micro": "^9.3.4"
+	}
+}

@@ -11,7 +11,7 @@ module.exports = {
 		app: './src/index.tsx',
 	},
 	output: {
-		path: paths.build,
+		path: paths.dist,
 		publicPath: paths.publicPath,
 	},
 	resolve: {

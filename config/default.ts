@@ -15,6 +15,10 @@ const config = {
 			scope: 'openid',
 		}
 	},
+	pusher: {
+		appKey: '006074710cec8f7745ba',
+		cluster: 'us2',
+	}
 }
 
 export default config

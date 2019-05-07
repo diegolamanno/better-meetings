@@ -4,7 +4,7 @@ const app = resolve(__dirname, '../../')
 
 export default {
 	app,
-	build: `${app}/build`,
+	dist: `${app}/dist`,
 	nodeModules: `${app}/node_modules`,
 	publicPath: '/',
 }

@@ -1,5 +1,5 @@
 node_modules
-build
+dist
 functinos/lib
 reports
 .DS_Store

@@ -8,7 +8,7 @@ module.exports = merge(common, {
 	mode: 'development',
 	devtool: 'inline-source-map',
 	devServer: {
-		contentBase: paths.build,
+		contentBase: paths.dist,
 		hot: true,
 		historyApiFallback: true,
 		port: config.get('devServerPort'),
@@ -18,7 +18,5 @@ module.exports = merge(common, {
 			'react-dom': '@hot-loader/react-dom',
 		},
 	},
-	plugins: [
-		new CleanWebpackPlugin({ cleanOnceBeforeBuildPatterns: ['build'] }),
-	],
+	plugins: [new CleanWebpackPlugin({ cleanOnceBeforeBuildPatterns: ['dist'] })],
 })
