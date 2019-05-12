@@ -3,8 +3,9 @@
 	"version": "1.0.0",
 	"description": "Be nice. Share space. Have better meetings.",
 	"scripts": {
-		"start": "yarn run webpack-dev-server --config config/webpack/webpack.dev.ts",
-		"now-build": "yarn run webpack --config config/webpack/webpack.prod.ts",
+		"start": "TS_NODE_PROJECT='tsconfig-for-webpack-config.json' webpack-dev-server --config config/webpack/webpack.dev.ts",
+		"now-build": "TS_NODE_PROJECT='tsconfig-for-webpack-config.json' webpack --config config/webpack/webpack.prod.ts",
+		"build": "now-build",
 		"serve": "serve -s dist",
 		"test": "jest",
 		"test:coverage": "yarn test --coverage",
@@ -13,8 +14,6 @@
 		"lint:api": "concurrently 'cd api/helloWorld && tsc'",
 		"lint": "yarn lint:css && yarn lint:ts",
 		"gen-gql-types": "graphql-codegen --config codegen.yml",
-		"webpack": "cross-env TS_NODE_PROJECT=\"tsconfig-for-webpack-config.json\" webpack",
-		"webpack-dev-server": "cross-env TS_NODE_PROJECT=\"tsconfig-for-webpack-config.json\" webpack-dev-server",
 		"now": "now",
 		"start:now": "cd now && yarn ngrok && yarn dev"
 	},
