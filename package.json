@@ -3,19 +3,18 @@
 	"version": "1.0.0",
 	"description": "Be nice. Share space. Have better meetings.",
 	"scripts": {
-		"start": "TS_NODE_PROJECT='tsconfig-for-webpack-config.json' webpack-dev-server --config config/webpack/webpack.dev.ts",
-		"now-build": "TS_NODE_PROJECT='tsconfig-for-webpack-config.json' webpack --config config/webpack/webpack.prod.ts",
-		"build": "now-build",
+		"start": "TS_NODE_PROJECT='tsconfig-for-webpack-config.json' webpack-dev-server --config build-config/webpack/webpack.dev.ts",
+		"build": "TS_NODE_PROJECT='tsconfig-for-webpack-config.json' webpack --config build-config/webpack/webpack.prod.ts",
+		"now-build": "yarn build",
+		"now-dev": "yarn start --port $PORT",
 		"serve": "serve -s dist",
 		"test": "jest",
 		"test:coverage": "yarn test --coverage",
 		"lint:css": "stylelint './src/**/*.tsx'",
 		"lint:ts": "tslint --project .",
-		"lint:api": "concurrently 'cd api/helloWorld && tsc'",
-		"lint": "yarn lint:css && yarn lint:ts",
-		"gen-gql-types": "graphql-codegen --config codegen.yml",
-		"now": "now",
-		"start:now": "cd now && yarn ngrok && yarn dev"
+		"lint:api": "cd api&& tslint --project .",
+		"lint": "yarn lint:css && yarn lint:ts && yarn lint:api",
+		"gen-gql-types": "graphql-codegen --config codegen.yml"
 	},
 	"repository": {
 		"type": "git",
@@ -126,11 +125,9 @@
 		"@graphql-codegen/typescript-operations": "^1.0.7",
 		"@graphql-codegen/typescript-react-apollo": "^1.0.7",
 		"@hot-loader/react-dom": "^16.8.6",
-		"@types/micro": "^7.3.3",
 		"@types/webpack-bundle-analyzer": "^2.13.1",
 		"@types/webpack-dev-server": "^3.1.5",
 		"clean-webpack-plugin": "^2.0.1",
-		"micro": "^9.3.4",
 		"now": "^15.2.0",
 		"react-hot-loader": "^4.8.3",
 		"serve": "^11.0.0",
@@ -143,7 +140,7 @@
 			"jest-emotion"
 		],
 		"setupFiles": [
-			"<rootDir>/config/jest/setup.ts"
+			"<rootDir>/build-config/jest/setup.ts"
 		]
 	}
 }

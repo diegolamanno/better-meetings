@@ -21,7 +21,7 @@ type AttendeeSend = import('xstate/lib/interpreter').Interpreter<
 
 export const Context = createContext({
 	state: {} as AttendeeState,
-	send: ((_event: AttendeeOmniEvent) => {}) as AttendeeSend,
+	send: ((_event: AttendeeOmniEvent) => ({})) as AttendeeSend,
 })
 
 const AttendeeProvider: FC<{

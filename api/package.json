@@ -2,13 +2,21 @@
 	"name": "better-meetings",
 	"version": "1.0.0",
 	"license": "ISC",
+	"main": "src/index.ts",
 	"scripts": {
-		"start": "micro"
+		"start": "micro",
+		"now-build": "NODE_APP_INSTANCE='api' ts-node scripts/config-to-json.ts",
+		"now-dev": "yarn now-build"
 	},
 	"dependencies": {
+		"@types/co-body": "^0.0.3",
 		"@types/config": "^0.0.34",
 		"@types/micro": "^7.3.3",
+		"co-body": "^6.0.0",
 		"config": "^3.1.0",
-		"micro": "^9.3.4"
+		"micro": "^9.3.4",
+		"pusher": "^2.2.0",
+		"ts-node": "^8.1.0",
+		"typescript": "^3.4.5"
 	}
 }

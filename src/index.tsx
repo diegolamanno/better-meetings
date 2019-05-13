@@ -17,10 +17,11 @@ document.body.appendChild(root)
 
 render(ApolloApp(), root)
 
-const pusher = new Pusher(CONFIG.pusher.appKey, {
+const pusher = new Pusher(CONFIG.pusher.key, {
 	cluster: CONFIG.pusher.cluster,
 	forceTLS: true,
 	disableStats: true,
+	authEndpoint: CONFIG.pusher.authEndpoint,
 })
 
-pusher.subscribe('my-channel')
+pusher.subscribe('presence-room')

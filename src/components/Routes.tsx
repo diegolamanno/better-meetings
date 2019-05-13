@@ -1,7 +1,6 @@
 import React, { FC } from 'react'
 import { hot } from 'react-hot-loader'
-import { Router } from '@reach/router'
-import { RouteComponentProps } from '@reach/router'
+import { Router, RouteComponentProps } from '@reach/router'
 import App from './App'
 import Callback from './Callback'
 import Login from './Login'

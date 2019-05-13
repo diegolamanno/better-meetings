@@ -16,9 +16,13 @@ const config = {
 		}
 	},
 	pusher: {
-		appKey: '006074710cec8f7745ba',
+		appId: '1210',
+		key: '006074710cec8f7745ba',
 		cluster: 'us2',
-	}
+		authEndpoint: '/api/auth',
+	},
 }
 
 export default config
+
+export type Config = typeof config

@@ -15,7 +15,6 @@
 		"no-construct": true,
 		"no-duplicate-super": true,
 		"no-empty": [true, "allow-empty-catch"],
-		"no-floating-promises": true,
 		"no-string-throw": true
 	}
 }
