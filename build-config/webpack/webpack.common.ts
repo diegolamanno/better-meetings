@@ -1,5 +1,4 @@
 import HtmlWebpackPlugin = require('html-webpack-plugin')
-import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const ConfigWebpackPlugin = require('config-webpack')
 import { GenerateSW } from 'workbox-webpack-plugin'
 import { createEmotionPlugin } from 'emotion-ts-plugin'
@@ -40,7 +39,6 @@ module.exports = {
 		],
 	},
 	plugins: [
-		new ForkTsCheckerWebpackPlugin(),
 		new GenerateSW({
 			clientsClaim: true,
 			exclude: [/\.map$/, /asset-manifest\.json$/],

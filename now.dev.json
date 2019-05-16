@@ -1,0 +1,26 @@
+{
+	"version": 2,
+	"builds": [{ "src": "./api/src/**/*", "use": "@now/node" }],
+	"routes": [
+		{ "src": "/api/(.*)", "dest": "/api/src/$1.ts" },
+		{
+			"src": "/service-worker.js",
+			"headers": { "cache-control": "s-maxage=0" },
+			"dest": "/service-worker.js"
+		},
+		{
+			"src": "/([^/]+\\.[^/]+)",
+			"dest": "/$1"
+		},
+		{
+			"src": "/(.*)",
+			"headers": { "cache-control": "s-maxage=0" },
+			"dest": "/index.html"
+		}
+	],
+	"build": {
+		"env": {
+			"PUSHER_SECRET": "@pusher-secret"
+		}
+	}
+}

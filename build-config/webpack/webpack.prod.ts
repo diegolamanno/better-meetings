@@ -1,5 +1,6 @@
 import TerserJSPlugin = require('terser-webpack-plugin')
 import OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import paths from './paths'
 import merge = require('webpack-merge')
@@ -24,6 +25,7 @@ module.exports = merge(common, {
 		pathinfo: true,
 	},
 	plugins: [
+		new ForkTsCheckerWebpackPlugin(),
 		new BundleAnalyzerPlugin({
 			analyzerMode: 'static',
 			openAnalyzer: false,
