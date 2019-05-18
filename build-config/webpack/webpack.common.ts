@@ -1,5 +1,6 @@
 import HtmlWebpackPlugin = require('html-webpack-plugin')
 import { DefinePlugin } from 'webpack'
+import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 import { GenerateSW } from 'workbox-webpack-plugin'
 import { createEmotionPlugin } from 'emotion-ts-plugin'
 import paths from './paths'
@@ -20,7 +21,7 @@ module.exports = {
 		rules: [
 			{
 				test: /\.tsx?$/,
-				loader: 'awesome-typescript-loader',
+				loader: 'ts-loader',
 				options: {
 					transpileOnly: true,
 					getCustomTransformers: () => ({
@@ -39,6 +40,7 @@ module.exports = {
 		],
 	},
 	plugins: [
+		new ForkTsCheckerWebpackPlugin(),
 		new GenerateSW({
 			clientsClaim: true,
 			exclude: [/\.map$/, /asset-manifest\.json$/],

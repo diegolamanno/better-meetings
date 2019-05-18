@@ -65,7 +65,6 @@
 		"apollo-link-ws": "^1.0.17",
 		"apollo-utilities": "^1.2.1",
 		"auth0-js": "^9.10.1",
-		"awesome-typescript-loader": "^5.2.1",
 		"classnames": "^2.2.6",
 		"concurrently": "^4.1.0",
 		"config": "^3.1.0",
