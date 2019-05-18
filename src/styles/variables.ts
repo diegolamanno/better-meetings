@@ -1,4 +1,4 @@
-const globalStyles = {
+export default {
 	palette: {
 		primary: '#83bcff',
 		secondary: '#80ffe8',
@@ -8,5 +8,3 @@ const globalStyles = {
 		max: '768px',
 	},
 }
-
-export default globalStyles

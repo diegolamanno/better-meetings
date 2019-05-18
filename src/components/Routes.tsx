@@ -1,24 +1,17 @@
 import React, { FC } from 'react'
-import { hot } from 'react-hot-loader'
-import { Router, RouteComponentProps } from '@reach/router'
-import App from './App'
+import { Router } from '@reach/router'
 import Callback from './Callback'
-import Login from './Login'
-import JoinRoomPage from '../pages/JoinRoomPage'
-import RoomPage from '../pages/RoomPage'
 
-const NotFound: FC<RouteComponentProps> = () => <div>Sorry, nothing here.</div>
+import { Home, Room, Join, NotFound } from '../pages'
 
-const Routes = () => (
+const Routes: FC = () => (
 	<Router>
+		<Home path="/" />
+		<Join path="/join" />
+		<Room path="/room/:roomId" />
 		<Callback path="/callback" />
-		<Login path="/" />
-		<App path="home">
-			<JoinRoomPage path="room/join" />
-			<RoomPage path="room/:roomId" />
-		</App>
 		<NotFound default />
 	</Router>
 )
 
-export default hot(module)(Routes)
+export default Routes

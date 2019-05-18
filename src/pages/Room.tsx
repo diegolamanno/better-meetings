@@ -9,7 +9,7 @@ import { State } from '../state/AttendeeMachine'
 
 import UserRoomState from '../components/UserRoomState'
 
-const RoomPage: FC<import('@reach/router').RouteComponentProps> = () => {
+const Room: FC<import('@reach/router').RouteComponentProps> = () => {
 	const room = useContext(RoomContext)
 	const { state: attendeeState, send: attendeeSend } = useContext(
 		AttendeeContext,
@@ -71,4 +71,4 @@ const RoomPage: FC<import('@reach/router').RouteComponentProps> = () => {
 	)
 }
 
-export default RoomPage
+export default Room

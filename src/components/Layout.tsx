@@ -1,6 +1,8 @@
 import React, { FC } from 'react'
 import { Global, css } from '@emotion/core'
 import globalStyles from '../styles/variables'
+import NavBar from './Navbar'
+import ContentContainer from './ContentContainer'
 
 const Layout: FC = ({ children }) => (
 	<>
@@ -21,7 +23,8 @@ const Layout: FC = ({ children }) => (
 				}
 			`}
 		/>
-		<section data-section="main-area">{children}</section>
+		<NavBar />
+		<ContentContainer data-section="main-area">{children}</ContentContainer>
 	</>
 )
 

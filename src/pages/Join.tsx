@@ -12,7 +12,7 @@ import ApolloClient from 'apollo-client/ApolloClient'
 import { getRoomQuery } from '../gql/queries'
 import { Context as AttendeeContext } from '../providers/AttendeeProvider'
 
-const JoinRoomPage: FC<RouteComponentProps> = () => {
+const Join: FC<RouteComponentProps> = () => {
 	const { state: attendeeState, send: attendeeSend } = useContext(
 		AttendeeContext,
 	)
@@ -75,4 +75,4 @@ const JoinRoomPage: FC<RouteComponentProps> = () => {
 	)
 }
 
-export default JoinRoomPage
+export default Join
