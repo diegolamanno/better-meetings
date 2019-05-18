@@ -1,5 +1,5 @@
 import HtmlWebpackPlugin = require('html-webpack-plugin')
-const ConfigWebpackPlugin = require('config-webpack')
+import { DefinePlugin } from 'webpack'
 import { GenerateSW } from 'workbox-webpack-plugin'
 import { createEmotionPlugin } from 'emotion-ts-plugin'
 import paths from './paths'
@@ -63,6 +63,6 @@ module.exports = {
 			},
 			favicon: 'src/images/favicon.png',
 		}),
-		new ConfigWebpackPlugin(),
+		new DefinePlugin({ CONFIG: JSON.stringify(require('config')) }),
 	],
 }

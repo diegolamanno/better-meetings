@@ -7,5 +7,3 @@ declare type RecursivePartial<T> = {
 }
 
 declare var CONFIG: typeof import('../config/default').default
-
-declare module 'config-webpack'
