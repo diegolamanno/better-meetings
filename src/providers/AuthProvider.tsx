@@ -1,60 +1,146 @@
-import { WebAuth } from 'auth0-js'
-import { navigate } from '@reach/router'
-import jwt_decode from 'jwt-decode'
+import React, { FC, useState, useEffect, createContext, ReactNode } from 'react'
+import { WebAuth, Auth0DecodedHash, Auth0Error } from 'auth0-js'
+import jwtDecode from 'jwt-decode'
+import { JWT } from '../types'
 
-export const login = () => {
-	auth0.authorize()
+const STORAGE_KEY = 'auth'
+
+const { callbackPath, returnTo, ...auth0Config } = CONFIG.auth
+
+const auth0 = new WebAuth(auth0Config)
+
+const setSession = (jwt: string) => {
+	localStorage.setItem(STORAGE_KEY, jwt)
 }
 
-export const logout = () => {
-	// Clear Access Token and ID Token from local storage
-	localStorage.removeItem('id_token')
-	localStorage.removeItem('expires_at')
-	localStorage.removeItem('sub')
-	// navigate to the home route
-	navigate('/')
-}
-
-const auth0 = new WebAuth({
-	...CONFIG.auth,
-})
-
-const setSession = (idToken: string, sub: string, expiresIn?: number) => {
-	localStorage.setItem('id_token', idToken)
-	localStorage.setItem('sub', sub)
-	if (expiresIn) {
-		// Set the time that the Access Token will expire at
-		const expiresAt = JSON.stringify(expiresIn * 1000 + new Date().getTime())
-		localStorage.setItem('expires_at', expiresAt)
+const getSession = () => {
+	const value = localStorage.getItem(STORAGE_KEY)
+	if (value) {
+		return jwtDecode<JWT>(value)
 	}
 }
 
-export const handleAuthentication = () => {
-	auth0.parseHash((err, authResult) => {
-		if (authResult && authResult.idToken) {
-			setSession(
-				authResult.idToken,
-				authResult.idTokenPayload.sub,
-				authResult.expiresIn,
-			)
-		} else if (err) {
-			console.error(err)
-		}
-		navigate('/')
+type UnauthenticatedState = {
+	jwt?: JWT
+	isAuthenticated: false
+}
+
+type AuthenticatedState = {
+	jwt: JWT
+	isAuthenticated: true
+	accessToken: string
+	renewalTimer: number
+}
+
+type State = UnauthenticatedState | AuthenticatedState
+
+type UnauthenticatedContextType = UnauthenticatedState & {
+	login: () => void
+	handleAuthentication: () => void
+}
+
+type AuthenticatedContextType = AuthenticatedState & {
+	logout: (err?: Auth0Error | null) => void
+}
+
+type ContextType = UnauthenticatedContextType | AuthenticatedContextType
+
+export const AuthContext = createContext<ContextType>({
+	isAuthenticated: false,
+	login: () => {},
+	handleAuthentication: () => {},
+})
+
+const AuthProvider: FC<{
+	children: ReactNode
+}> = ({ children }) => {
+	const [state, setState] = useState<State>({
+		isAuthenticated: false,
+		jwt: getSession(),
 	})
+
+	useEffect(() => {
+		if (!state.isAuthenticated && state.jwt) {
+			renewTokens()
+		}
+	}, [state.isAuthenticated])
+
+	useEffect(
+		() => () => {
+			logout()
+		},
+		[],
+	)
+
+	const login: UnauthenticatedContextType['login'] = () => {
+		auth0.authorize()
+	}
+
+	const handleAuthentication: UnauthenticatedContextType['handleAuthentication'] = () => {
+		auth0.parseHash(processsAuthResult)
+	}
+
+	const renewTokens = () => {
+		auth0.checkSession({}, processsAuthResult)
+	}
+
+	const processsAuthResult = (
+		err: Auth0Error | null,
+		authResult: Auth0DecodedHash | null,
+	) => {
+		if (
+			authResult &&
+			authResult.idToken &&
+			authResult.idTokenPayload &&
+			authResult.accessToken &&
+			authResult.expiresIn
+		) {
+			setSession(authResult.idToken)
+			setState({
+				isAuthenticated: true,
+				accessToken: authResult.accessToken,
+				jwt: authResult.idTokenPayload as JWT,
+				renewalTimer: scheduleRenewal(authResult.expiresIn),
+			})
+		} else {
+			logout(err)
+		}
+	}
+
+	const scheduleRenewal = (expiresIn: number) =>
+		window.setTimeout(renewTokens, expiresIn * 1000)
+
+	const logout: AuthenticatedContextType['logout'] = err => {
+		// Clear Access Token and ID Token from local storage
+		localStorage.removeItem(STORAGE_KEY)
+		if (state.isAuthenticated) {
+			window.clearTimeout(state.renewalTimer)
+			setState({
+				isAuthenticated: false,
+			})
+		}
+
+		if (!err) {
+			auth0.logout({
+				returnTo,
+			})
+		}
+	}
+
+	const contextValue = state.isAuthenticated
+		? {
+				...state,
+				logout,
+		  }
+		: {
+				...state,
+				login,
+				handleAuthentication,
+		  }
+
+	return (
+		<AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+	)
 }
 
-export const isAuthenticated = () => {
-	// Check whether the current time is past the
-	// Access Token's expiry time
-	const idToken = localStorage.getItem('id_token')
-	const expiresAt = localStorage.getItem('expires_at')
-	return idToken && (!expiresAt || new Date().getTime() < JSON.parse(expiresAt))
-}
-
-export const getUserData = () => {
-	const idToken = localStorage.getItem('id_token')
-	// we only really care about given_name, family_name, nickname, name, picture, gender, sub
-	// and could destructure those jwt_decode(idToken) from here.
-	return idToken ? jwt_decode(idToken) : null
-}
+export default AuthProvider
