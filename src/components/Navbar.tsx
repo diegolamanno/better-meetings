@@ -1,7 +1,7 @@
-import React, { FC } from 'react'
+import React, { FC, useContext } from 'react'
 import styled from '@emotion/styled'
 import variables from '../styles/variables'
-import { isAuthenticated, login, logout } from '../auth/Auth'
+import { AuthContext } from '../providers/AuthProvider'
 
 const Nav = styled.nav`
 	width: 100%;
@@ -9,14 +9,32 @@ const Nav = styled.nav`
 	padding: 10px;
 `
 
-const NavBar: FC = () => (
-	<Nav>
-		{isAuthenticated() ? (
-			<button onClick={logout}>Logout</button>
-		) : (
-			<button onClick={login}>Login</button>
-		)}
-	</Nav>
-)
+const NavBar: FC = () => {
+	const authContext = useContext(AuthContext)
+
+	return (
+		<Nav>
+			{authContext.isAuthenticated ? (
+				<button
+					onClick={() => {
+						authContext.logout()
+					}}
+				>
+					Logout
+				</button>
+			) : !authContext.isAuthenticated && !authContext.jwt ? (
+				<button
+					onClick={() => {
+						authContext.login()
+					}}
+				>
+					Login
+				</button>
+			) : (
+				<button disabled>Loading...</button>
+			)}
+		</Nav>
+	)
+}
 
 export default NavBar

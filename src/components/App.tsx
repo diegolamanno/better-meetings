@@ -4,19 +4,19 @@ import { hot } from 'react-hot-loader'
 import Client from '../client'
 import AttendeeProvider from '../providers/AttendeeProvider'
 import RoomProvider from '../providers/RoomProvider'
-import Layout from './Layout'
+import AuthProvider from '../providers/AuthProvider'
 import Routes from './Routes'
 
 const App: FC = () => (
-	<ApolloProvider client={Client}>
-		<AttendeeProvider>
-			<RoomProvider>
-				<Layout>
+	<AuthProvider>
+		<ApolloProvider client={Client}>
+			<AttendeeProvider>
+				<RoomProvider>
 					<Routes />
-				</Layout>
-			</RoomProvider>
-		</AttendeeProvider>
-	</ApolloProvider>
+				</RoomProvider>
+			</AttendeeProvider>
+		</ApolloProvider>
+	</AuthProvider>
 )
 
 export default hot(module)(App)

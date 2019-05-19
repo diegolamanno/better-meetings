@@ -1,13 +1,13 @@
-import React, { FC, ReactNode, createContext } from 'react'
+import React, { FC, ReactNode, createContext, useContext } from 'react'
 import { useMachine } from '@xstate/react'
 import ApolloConsumer from 'react-apollo/ApolloConsumer'
 import { navigate } from '@reach/router'
+import { AuthContext } from './AuthProvider'
 import attendeeMachine, {
 	Schema,
 	Context as AttendeeContext,
 	Event,
 } from '../state/AttendeeMachine'
-import { isAuthenticated } from '../auth/Auth'
 
 import { addUser } from '../gql/queries'
 
@@ -28,10 +28,11 @@ const AttendeeProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const [attendeeState, attendeeSend] = useMachine(attendeeMachine)
+	const { isAuthenticated } = useContext(AuthContext)
 	return (
 		<ApolloConsumer>
 			{client => {
-				if (attendeeState.matches('unauthenticated') && isAuthenticated()) {
+				if (attendeeState.matches('unauthenticated') && isAuthenticated) {
 					const jwt = localStorage.getItem('id_token') as string
 					const sub = localStorage.getItem('sub') as string
 
@@ -47,15 +48,12 @@ const AttendeeProvider: FC<{
 							variables: { jwt, user: sub, email: 'foo', avatar: 'foo' },
 						})
 						.then(() => {
-							navigate('/home')
+							navigate('/')
 						})
 						.catch(() => {
 							// already subscribed
 						})
-				} else if (
-					attendeeState.matches('authenticated') &&
-					!isAuthenticated()
-				) {
+				} else if (attendeeState.matches('authenticated') && !isAuthenticated) {
 					attendeeSend('DID_DEAUTHENTICATE')
 				}
 				return (
