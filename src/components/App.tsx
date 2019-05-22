@@ -1,7 +1,6 @@
 import React, { FC } from 'react'
-import ApolloProvider from 'react-apollo/ApolloProvider'
 import { hot } from 'react-hot-loader'
-import Client from '../client'
+import ApolloProvider from '../providers/ApolloProvider'
 import AttendeeProvider from '../providers/AttendeeProvider'
 import RoomProvider from '../providers/RoomProvider'
 import AuthProvider from '../providers/AuthProvider'
@@ -9,7 +8,7 @@ import Routes from './Routes'
 
 const App: FC = () => (
 	<AuthProvider>
-		<ApolloProvider client={Client}>
+		<ApolloProvider>
 			<AttendeeProvider>
 				<RoomProvider>
 					<Routes />

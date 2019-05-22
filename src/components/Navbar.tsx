@@ -22,7 +22,7 @@ const NavBar: FC = () => {
 				>
 					Logout
 				</button>
-			) : !authContext.isAuthenticated && !authContext.jwt ? (
+			) : !authContext.isAuthenticated && !authContext.idToken ? (
 				<button
 					onClick={() => {
 						authContext.login()

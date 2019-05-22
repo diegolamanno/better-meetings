@@ -1,7 +1,7 @@
 import React, { FC, useState, useEffect, createContext, ReactNode } from 'react'
 import { WebAuth, Auth0DecodedHash, Auth0Error } from 'auth0-js'
 import jwtDecode from 'jwt-decode'
-import { JWT } from '../types'
+import { JWTPayload } from '../types'
 
 const STORAGE_KEY = 'auth'
 
@@ -9,26 +9,27 @@ const { callbackPath, returnTo, ...auth0Config } = CONFIG.auth
 
 const auth0 = new WebAuth(auth0Config)
 
-const setSession = (jwt: string) => {
-	localStorage.setItem(STORAGE_KEY, jwt)
+const setSession = (idToken: string) => {
+	localStorage.setItem(STORAGE_KEY, idToken)
 }
 
 const getSession = () => {
 	const value = localStorage.getItem(STORAGE_KEY)
 	if (value) {
-		return jwtDecode<JWT>(value)
+		return value
 	}
 }
 
 type UnauthenticatedState = {
-	jwt?: JWT
 	isAuthenticated: false
+	idToken?: string
+	userData?: JWTPayload
 }
 
 type AuthenticatedState = {
-	jwt: JWT
+	idToken: string
 	isAuthenticated: true
-	accessToken: string
+	userData: JWTPayload
 	renewalTimer: number
 }
 
@@ -39,7 +40,7 @@ type UnauthenticatedContextType = UnauthenticatedState & {
 	handleAuthentication: () => void
 }
 
-type AuthenticatedContextType = AuthenticatedState & {
+export type AuthenticatedContextType = AuthenticatedState & {
 	logout: (err?: Auth0Error | null) => void
 }
 
@@ -54,23 +55,19 @@ export const AuthContext = createContext<ContextType>({
 const AuthProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
+	const idToken = getSession()
+	const userData = idToken ? jwtDecode<JWTPayload>(idToken) : undefined
 	const [state, setState] = useState<State>({
 		isAuthenticated: false,
-		jwt: getSession(),
+		idToken,
+		userData,
 	})
 
 	useEffect(() => {
-		if (!state.isAuthenticated && state.jwt) {
+		if (!state.isAuthenticated && state.idToken) {
 			renewTokens()
 		}
 	}, [state.isAuthenticated])
-
-	useEffect(
-		() => () => {
-			logout()
-		},
-		[],
-	)
 
 	const login: UnauthenticatedContextType['login'] = () => {
 		auth0.authorize()
@@ -92,14 +89,13 @@ const AuthProvider: FC<{
 			authResult &&
 			authResult.idToken &&
 			authResult.idTokenPayload &&
-			authResult.accessToken &&
 			authResult.expiresIn
 		) {
 			setSession(authResult.idToken)
 			setState({
 				isAuthenticated: true,
-				accessToken: authResult.accessToken,
-				jwt: authResult.idTokenPayload as JWT,
+				userData: authResult.idTokenPayload,
+				idToken: authResult.idToken,
 				renewalTimer: scheduleRenewal(authResult.expiresIn),
 			})
 		} else {
@@ -112,6 +108,7 @@ const AuthProvider: FC<{
 
 	const logout: AuthenticatedContextType['logout'] = err => {
 		// Clear Access Token and ID Token from local storage
+		debugger
 		localStorage.removeItem(STORAGE_KEY)
 		if (state.isAuthenticated) {
 			window.clearTimeout(state.renewalTimer)

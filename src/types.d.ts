@@ -2,18 +2,17 @@ import * as GQL from './gql/types'
 import { Auth0UserProfile } from 'auth0-js'
 
 export interface Attendee {
-	userId: string
-	token: string
+	userID: GQL.User['auth_id']
 }
 
 export interface Room {
-	name: string
-	id: any
-	attendees: Attendee['userId'][]
-	queue: Attendee['userId'][]
+	name: GQL.Room['name']
+	id: GQL.Room['id']
+	attendees: Attendee['userID'][]
+	queue: Attendee['userID'][]
 }
 
-export type JWT = {
+export type JWTPayload = {
 	iss: string
 	sub: string
 	aud: string
@@ -21,3 +20,9 @@ export type JWT = {
 } & Auth0UserProfile
 
 export { GQL }
+
+export type MutationResult<
+	T extends keyof GQL.Mutation_Root
+> = GQL.Mutation_Root[T]
+
+export type Query<T extends keyof GQL.Query_Root> = Pick<GQL.Query_Root, T>

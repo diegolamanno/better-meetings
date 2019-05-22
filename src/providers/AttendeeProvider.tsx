@@ -1,71 +1,78 @@
-import React, { FC, ReactNode, createContext, useContext } from 'react'
+import React, {
+	FC,
+	ReactNode,
+	createContext,
+	useContext,
+	useEffect,
+} from 'react'
 import { useMachine } from '@xstate/react'
-import ApolloConsumer from 'react-apollo/ApolloConsumer'
-import { navigate } from '@reach/router'
 import { AuthContext } from './AuthProvider'
-import attendeeMachine, {
+import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
+import { useApolloClient } from 'react-apollo-hooks'
+import {
+	createAttendeeMachine,
 	Schema,
 	Context as AttendeeContext,
 	Event,
 } from '../state/AttendeeMachine'
 
-import { addUser } from '../gql/queries'
+import { getUser, addUser } from '../gql/queries'
+import { MutationResult, Query } from '../types'
 
 type AttendeeState = import('xstate').State<AttendeeContext, Event>
-type AttendeeOmniEvent = import('xstate').OmniEvent<Event>
 type AttendeeSend = import('xstate/lib/interpreter').Interpreter<
 	AttendeeContext,
 	Schema,
 	Event
 >['send']
 
-export const Context = createContext({
-	state: {} as AttendeeState,
-	send: ((_event: AttendeeOmniEvent) => ({})) as AttendeeSend,
-})
+type ContextType = {
+	state: AttendeeState
+	send: AttendeeSend
+}
+
+export const Context = createContext<ContextType>({} as ContextType)
 
 const AttendeeProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
-	const [attendeeState, attendeeSend] = useMachine(attendeeMachine)
-	const { isAuthenticated } = useContext(AuthContext)
-	return (
-		<ApolloConsumer>
-			{client => {
-				if (attendeeState.matches('unauthenticated') && isAuthenticated) {
-					const jwt = localStorage.getItem('id_token') as string
-					const sub = localStorage.getItem('sub') as string
+	const authContext = useContext(AuthContext)
+	const apolloClient = useApolloClient<NormalizedCacheObject>()
 
-					attendeeSend({
-						type: 'DID_AUTHENTICATE',
-						userId: sub,
-						token: jwt,
-					})
+	const [state, send] = useMachine(createAttendeeMachine(apolloClient))
 
-					client
-						.mutate({
+	useEffect(() => {
+		if (state.matches('unauthenticated') && authContext.isAuthenticated) {
+			apolloClient
+				.query<Query<'user'>>({
+					query: getUser,
+					variables: {
+						authID: authContext.userData.sub,
+					},
+				})
+				.then(async result => {
+					if (!result.data.user.length) {
+						await apolloClient.mutate<MutationResult<'insert_user'>>({
 							mutation: addUser,
-							variables: { jwt, user: sub, email: 'foo', avatar: 'foo' },
+							variables: {
+								authID: authContext.userData.sub,
+								avatar: authContext.userData.picture,
+								name: authContext.userData.name,
+							},
 						})
-						.then(() => {
-							navigate('/')
-						})
-						.catch(() => {
-							// already subscribed
-						})
-				} else if (attendeeState.matches('authenticated') && !isAuthenticated) {
-					attendeeSend('DID_DEAUTHENTICATE')
-				}
-				return (
-					<Context.Provider
-						value={{ state: attendeeState, send: attendeeSend }}
-					>
-						{children}
-					</Context.Provider>
-				)
-			}}
-		</ApolloConsumer>
-	)
+					}
+
+					send({
+						type: 'DID_AUTHENTICATE',
+						userID: authContext.userData.sub,
+					})
+				})
+		} else if (state.matches('authenticated') && !authContext.isAuthenticated) {
+			send('DID_DEAUTHENTICATE')
+		}
+	}, [state.value, authContext.isAuthenticated])
+
+	return <Context.Provider value={{ state, send }}>{children}</Context.Provider>
 }
 
 export default AttendeeProvider

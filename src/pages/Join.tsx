@@ -1,4 +1,4 @@
-import React, { FC, useContext, useState } from 'react'
+import React, { FC, useContext, useState, useEffect } from 'react'
 import {
 	FormGroup,
 	FormControl,
@@ -7,71 +7,50 @@ import {
 	Form,
 } from 'react-bootstrap'
 import { RouteComponentProps, navigate } from '@reach/router'
-import ApolloConsumer from 'react-apollo/ApolloConsumer'
-import ApolloClient from 'apollo-client/ApolloClient'
-import { getRoomQuery } from '../gql/queries'
 import { Context as AttendeeContext } from '../providers/AttendeeProvider'
 
 const Join: FC<RouteComponentProps> = () => {
-	const { state: attendeeState, send: attendeeSend } = useContext(
-		AttendeeContext,
-	)
-	const [roomName, setRoomName] = useState('')
+	const attendeeMachine = useContext(AttendeeContext)
+	const [searchValue, setSearchValue] = useState('')
 
-	const searchRoom = async (client: ApolloClient<any>) => {
-		try {
-			const { data: searchResult } = await client.query({
-				query: getRoomQuery,
-				variables: { roomName },
-			})
-			if (searchResult.room.length) {
-				attendeeSend({
-					roomName,
-					type: 'JOIN',
-					roomId: searchResult.room[0].id,
-				})
-			} else {
-				attendeeSend({
-					roomName,
-					type: 'CREATE',
-				})
-			}
-		} catch (e) {
-			console.error('search error', e)
+	useEffect(() => {
+		if (attendeeMachine.state.matches('authenticated.present')) {
+			navigate(`/room`)
 		}
+	}, [attendeeMachine.state.value])
+
+	const joinRoom = () => {
+		attendeeMachine.send({
+			type: 'JOIN',
+			roomName: searchValue,
+		})
 	}
 
-	if (attendeeState.matches('authenticated.present')) {
-		navigate(`:${attendeeState.context.roomId}`)
+	if (!attendeeMachine.state.matches('authenticated')) {
+		return <div>loading...</div>
 	}
 
 	return (
-		<ApolloConsumer>
-			{client => {
-				return (
-					<Form
-						onSubmit={(e: any) => {
-							e.preventDefault()
-							searchRoom(client)
-						}}
-					>
-						<FormGroup controlId="CreateRoom">
-							<InputGroup>
-								<FormControl
-									value={roomName}
-									onChange={(e: any) => setRoomName(e.target.value)}
-									type="text"
-									placeholder="Join a room"
-								/>
-								<InputGroup>
-									<Button type="submit">+</Button>
-								</InputGroup>
-							</InputGroup>
-						</FormGroup>
-					</Form>
-				)
+		<Form
+			onSubmit={(e: any) => {
+				e.preventDefault()
+				joinRoom()
 			}}
-		</ApolloConsumer>
+		>
+			<FormGroup controlId="CreateRoom">
+				<InputGroup>
+					<FormControl
+						value={searchValue}
+						onChange={(e: any) => setSearchValue(e.target.value)}
+						type="text"
+						placeholder="Join a room"
+					/>
+					<InputGroup>
+						<Button type="submit">+</Button>
+					</InputGroup>
+				</InputGroup>
+			</FormGroup>
+		</Form>
 	)
 }
 

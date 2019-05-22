@@ -1,9 +1,17 @@
 import gql from 'graphql-tag'
 
+export const getUser = gql`
+	query($authID: String!) {
+		user(where: { auth_id: { _eq: $authID } }) {
+			auth_id
+		}
+	}
+`
+
 export const addAttendeeToRoom = gql`
-	mutation($userId: String!, $roomId: bigint!) {
+	mutation($userID: String!, $roomID: bigint!) {
 		insert_attendee(
-			objects: [{ user_id: $userId, room_id: $roomId, remote: true }]
+			objects: [{ user_id: $userID, room_id: $roomID, remote: true }]
 		) {
 			returning {
 				room {
@@ -14,17 +22,9 @@ export const addAttendeeToRoom = gql`
 	}
 `
 
-export const addAttendeeToNewRoom = gql`
-	mutation($roomName: String, $userId: String) {
-		insert_room(
-			objects: [
-				{
-					administrator: $userId
-					name: $roomName
-					attendees: { data: [{ user_id: $userId, remote: true }] }
-				}
-			]
-		) {
+export const createRoom = gql`
+	mutation($name: String) {
+		insert_room(objects: [{ name: $name }]) {
 			returning {
 				id
 			}
@@ -32,28 +32,25 @@ export const addAttendeeToNewRoom = gql`
 	}
 `
 export const getRoomQuery = gql`
-	query($roomName: String) {
-		room(where: { name: { _eq: $roomName } }) {
+	query($name: String) {
+		room(where: { name: { _eq: $name } }) {
 			id
 			name
-			administrator
 		}
 	}
 `
 
 export const addUser = gql`
-	mutation($user: String, $jwt: String!, $email: String!, $avatar: String!) {
-		insert_user(
-			objects: [{ auth_id: $user, name: $jwt, email: $email, avatar: $avatar }]
-		) {
+	mutation($authID: String!, $name: String, $avatar: String) {
+		insert_user(objects: [{ auth_id: $authID, name: $name, avatar: $avatar }]) {
 			affected_rows
 		}
 	}
 `
 
 export const subscribeToRoom = gql`
-	subscription($roomName: String!) {
-		room(where: { name: { _eq: $roomName } }) {
+	subscription($name: String!) {
+		room(where: { name: { _eq: $name } }) {
 			attendees {
 				user_id
 			}
@@ -64,26 +61,18 @@ export const subscribeToRoom = gql`
 	}
 `
 
-export type AttendeeData = {
-	user_id: string
-}
-
-export type RooomData = {
-	attendees: AttendeeData[]
-}
-
 export const addAttendeeToQueue = gql`
-	mutation($userId: String, $roomId: bigint!) {
-		insert_queue_record(objects: { room_id: $roomId, user_id: $userId }) {
+	mutation($userID: String, $roomID: bigint!) {
+		insert_queue_record(objects: { room_id: $roomID, user_id: $userID }) {
 			affected_rows
 		}
 	}
 `
 
 export const removeAttendeeFromQueue = gql`
-	mutation($userId: String, $roomId: bigint!) {
+	mutation($userID: String, $roomID: bigint!) {
 		delete_queue_record(
-			where: { room_id: { _eq: $roomId }, user_id: { _eq: $userId } }
+			where: { room_id: { _eq: $roomID }, user_id: { _eq: $userID } }
 		) {
 			affected_rows
 		}
@@ -91,9 +80,9 @@ export const removeAttendeeFromQueue = gql`
 `
 
 export const removeAttendeeFromRoom = gql`
-	mutation($userId: String, $roomId: bigint!) {
+	mutation($userID: String, $roomID: bigint!) {
 		delete_attendee(
-			where: { room_id: { _eq: $roomId }, user_id: { _eq: $userId } }
+			where: { room_id: { _eq: $roomID }, user_id: { _eq: $userID } }
 		) {
 			affected_rows
 		}

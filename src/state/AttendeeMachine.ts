@@ -1,13 +1,15 @@
 import { Machine, assign } from 'xstate'
-import client from '../client'
+import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
 import {
+	getRoomQuery,
 	addAttendeeToRoom,
-	addAttendeeToNewRoom,
+	createRoom,
 	addAttendeeToQueue,
 	removeAttendeeFromQueue,
 	removeAttendeeFromRoom,
 } from '../gql/queries'
-import { Attendee, Room } from '../types'
+import { Attendee, Room, Query, MutationResult } from '../types'
+import ApolloClient from 'apollo-client'
 
 type StateSchema = import('xstate').StateSchema
 
@@ -18,7 +20,6 @@ export interface Schema extends StateSchema {
 			states: {
 				absent: {}
 				joining: {}
-				creating: {}
 				present: {
 					states: {
 						idle: {}
@@ -43,16 +44,16 @@ export interface Schema extends StateSchema {
 }
 
 export type Context = Attendee & {
-	roomId: Room['id']
+	roomID: Room['id']
 	roomName: Room['name']
+	client: ApolloClient<NormalizedCacheObject>
 }
 
 export type Event<
 	E =
 		| `DID_AUTHENTICATE`
 		| 'JOIN'
-		| 'CREATE'
-		| 'done.invoke.addAttendeeToNewRoom'
+		| 'done.invoke.addAttendeeToRoom'
 		| 'QUEUE'
 		| 'QUEUE_POSITION_CHANGED'
 		| 'YIELD'
@@ -61,16 +62,9 @@ export type Event<
 > = E extends 'DID_AUTHENTICATE'
 	? {
 			type: E
-			userId: string
-			token: string
+			userID: string
 	  }
 	: E extends 'JOIN'
-	? {
-			type: E
-			roomId: number
-			roomName: string
-	  }
-	: E extends 'CREATE'
 	? {
 			type: E
 			roomName: string
@@ -80,18 +74,10 @@ export type Event<
 			type: E
 			newPosition: number
 	  }
-	: E extends 'done.invoke.addAttendeeToNewRoom'
+	: E extends 'done.invoke.addAttendeeToRoom'
 	? {
 			type: E
-			data: {
-				data: {
-					insert_room: {
-						returning: {
-							id: number
-						}[]
-					}
-				}
-			}
+			roomID: Room['id']
 	  }
 	: {
 			type: E
@@ -100,13 +86,12 @@ export type Event<
 export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 	id: 'attendee',
 	initial: 'unauthenticated',
-	context: { userId: '', token: '', roomId: 0, roomName: '' },
 	states: {
 		unauthenticated: {
 			on: {
 				DID_AUTHENTICATE: {
 					target: 'authenticated',
-					actions: ['setUserDetails'],
+					actions: ['setUserID'],
 				},
 			},
 		},
@@ -117,28 +102,16 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 					on: {
 						JOIN: {
 							target: 'joining',
-							actions: ['setAllRoomDetails'],
-						},
-						CREATE: {
-							target: 'creating',
-							actions: ['setNewRoomName'],
+							actions: ['setRoomName'],
 						},
 					},
 				},
 				joining: {
 					invoke: {
 						src: 'addAttendeeToRoom',
-						onDone: 'present',
-						onError: 'absent',
-					},
-				},
-				creating: {
-					invoke: {
-						id: 'addAttendeeToNewRoom',
-						src: 'addAttendeeToNewRoom',
 						onDone: {
 							target: 'present',
-							actions: ['setNewRoomId'],
+							actions: ['setRoomID'],
 						},
 						onError: 'absent',
 					},
@@ -213,66 +186,80 @@ export const options: Partial<
 	import('xstate').MachineOptions<Context, Event>
 > = {
 	actions: {
-		setUserDetails: assign((context, event) => ({
+		setUserID: assign((context, event) => ({
 			...context,
-			userId: (event as Event<'DID_AUTHENTICATE'>).userId,
-			token: (event as Event<'DID_AUTHENTICATE'>).token,
+			userID: (event as Event<'DID_AUTHENTICATE'>).userID,
 		})),
-		setAllRoomDetails: assign((context, event) => ({
+		setRoomName: assign((context, event) => ({
 			...context,
-			roomId: (event as Event<'JOIN'>).roomId,
 			roomName: (event as Event<'JOIN'>).roomName,
 		})),
-		setNewRoomName: assign((context, event) => ({
+		setRoomID: assign((context, event) => ({
 			...context,
-			roomName: (event as Event<'CREATE'>).roomName,
-		})),
-		setNewRoomId: assign((context, event) => ({
-			...context,
-			roomId: (event as Event<'done.invoke.addAttendeeToNewRoom'>).data.data
-				.insert_room.returning[0].id,
+			roomID: (event as Event<'done.invoke.addAttendeeToRoom'>).roomID,
 		})),
 	},
 	services: {
-		addAttendeeToRoom: ({ userId, roomId }) =>
-			client.mutate({
+		addAttendeeToRoom: async ({ userID, roomName, client }) => {
+			let roomID
+
+			const result = await client.query<Query<'room'>>({
+				query: getRoomQuery,
+				variables: { name: roomName },
+			})
+
+			if (result.data.room.length) {
+				roomID = result.data.room[0].id
+			} else {
+				const newRoom = await client.mutate<MutationResult<'insert_room'>>({
+					mutation: createRoom,
+					variables: {
+						name: roomName,
+					},
+				})
+
+				if (!newRoom.data) {
+					throw new Error()
+				}
+
+				roomID = newRoom.data.returning[0].id
+			}
+			const room = await client.mutate<MutationResult<'insert_attendee'>>({
 				mutation: addAttendeeToRoom,
 				variables: {
-					userId,
-					roomId,
-				},
-			}),
-		addAttendeeToNewRoom: ({ userId }, event) => {
-			return client.mutate({
-				mutation: addAttendeeToNewRoom,
-				variables: {
-					userId,
-					roomName: (event as Event<'CREATE'>).roomName,
+					userID,
+					roomID,
 				},
 			})
+
+			if (!room.data) {
+				throw new Error()
+			}
+
+			return roomID
 		},
-		addAttendeeToQueue: ({ userId, roomId }) =>
+		addAttendeeToQueue: ({ userID, roomID, client }) =>
 			client.mutate({
 				mutation: addAttendeeToQueue,
 				variables: {
-					userId,
-					roomId,
+					userID,
+					roomID,
 				},
 			}),
-		removeAttendeeFromQueue: ({ userId, roomId }) =>
+		removeAttendeeFromQueue: ({ userID, roomID, client }) =>
 			client.mutate({
 				mutation: removeAttendeeFromQueue,
 				variables: {
-					userId,
-					roomId,
+					userID,
+					roomID,
 				},
 			}),
-		removeAttendeeFromRoom: ({ userId, roomId }) =>
+		removeAttendeeFromRoom: ({ userID, roomID, client }) =>
 			client.mutate({
 				mutation: removeAttendeeFromRoom,
 				variables: {
-					userId,
-					roomId,
+					userID,
+					roomID,
 				},
 			}),
 	},
@@ -285,6 +272,14 @@ export const options: Partial<
 }
 
 export default Machine(config, options)
+
+export const createAttendeeMachine = (client: Context['client']) =>
+	Machine(config, options, {
+		userID: '',
+		roomID: '',
+		roomName: '',
+		client,
+	})
 
 export type State =
 	| keyof Schema['states']

@@ -13,7 +13,7 @@ const Routes: FC = () => (
 	<Router>
 		<Home path="/" />
 		<Join path="/join" />
-		<Room path="/room/:roomId" />
+		<Room path="/room" />
 		<Callback path={`/${CONFIG.auth.callbackPath}`} />
 		<NotFound default />
 	</Router>

@@ -39,7 +39,7 @@ const RoomProvider: FC<{
 				if (!loading && !error && data) {
 					room = roomSubscription(data)[0]
 					const currentQueuePosition = room.queue.findIndex(
-						attendee => attendee === attendeeState.context.userId,
+						attendee => attendee === attendeeState.context.userID,
 					)
 					if (
 						currentQueuePosition !== -1 &&

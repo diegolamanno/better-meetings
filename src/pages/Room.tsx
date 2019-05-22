@@ -14,7 +14,7 @@ const Room: FC<import('@reach/router').RouteComponentProps> = () => {
 	const { state: attendeeState, send: attendeeSend } = useContext(
 		AttendeeContext,
 	)
-	const roomId = room.name
+	const roomID = room.name
 	const stateString = attendeeState
 		.toStrings()
 		.pop()!
@@ -37,7 +37,7 @@ const Room: FC<import('@reach/router').RouteComponentProps> = () => {
 	}
 
 	if (!attendeeState.matches('authenticated.present')) {
-		navigate('/home/room/join')
+		navigate('/')
 	}
 
 	return (
@@ -55,7 +55,7 @@ const Room: FC<import('@reach/router').RouteComponentProps> = () => {
 					background-color: #f00;
 				`}
 			>
-				<p>welcome to the room: {roomId}!</p>
+				<p>welcome to the room: {roomID}!</p>
 				<div
 					className="state-container"
 					onClick={handleStateRepresenationTapped}

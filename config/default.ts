@@ -27,6 +27,9 @@ const config = {
 		cluster: 'us2',
 		authEndpoint: '/api/auth',
 	},
+	hasura: {
+		graphqlUri: 'https://hth5-better-meetings.herokuapp.com/v1alpha1/graphql',
+	},
 }
 
 export default config
