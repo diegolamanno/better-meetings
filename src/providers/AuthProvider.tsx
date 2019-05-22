@@ -108,7 +108,6 @@ const AuthProvider: FC<{
 
 	const logout: AuthenticatedContextType['logout'] = err => {
 		// Clear Access Token and ID Token from local storage
-		debugger
 		localStorage.removeItem(STORAGE_KEY)
 		if (state.isAuthenticated) {
 			window.clearTimeout(state.renewalTimer)

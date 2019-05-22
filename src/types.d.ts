@@ -21,8 +21,9 @@ export type JWTPayload = {
 
 export { GQL }
 
-export type MutationResult<
-	T extends keyof GQL.Mutation_Root
-> = GQL.Mutation_Root[T]
+export type MutationResult<T extends keyof GQL.Mutation_Root> = Pick<
+	GQL.Mutation_Root,
+	T
+>
 
 export type Query<T extends keyof GQL.Query_Root> = Pick<GQL.Query_Root, T>

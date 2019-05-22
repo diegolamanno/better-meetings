@@ -102,7 +102,9 @@ export enum Attendee_Constraint {
   /** unique or primary key constraint */
   AttendeePkey = 'attendee_pkey',
   /** unique or primary key constraint */
-  UserIdRoomId = 'user_id_room_id'
+  AttendeeRoomIdKey = 'attendee_room_id_key',
+  /** unique or primary key constraint */
+  AttendeeUserIdKey = 'attendee_user_id_key'
 }
 
 /** input type for incrementing integer columne in table "attendee" */
@@ -1041,6 +1043,8 @@ export type Room_Bool_Exp = {
 /** unique or primary key constraints on table "room" */
 export enum Room_Constraint {
   /** unique or primary key constraint */
+  RoomIdKey = 'room_id_key',
+  /** unique or primary key constraint */
   RoomNameKey = 'room_name_key',
   /** unique or primary key constraint */
   RoomPkey = 'room_pkey'
@@ -1371,8 +1375,8 @@ export type Timestamptz_Comparison_Exp = {
 /** columns and relationships of "user" */
 export type User = {
   auth_id: Scalars['String'],
-  avatar: Scalars['String'],
-  name: Scalars['String'],
+  avatar?: Maybe<Scalars['String']>,
+  name?: Maybe<Scalars['String']>,
 };
 
 /** aggregated selection of "user" */

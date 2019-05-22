@@ -77,7 +77,7 @@ export type Event<
 	: E extends 'done.invoke.addAttendeeToRoom'
 	? {
 			type: E
-			roomID: Room['id']
+			data: Room['id']
 	  }
 	: {
 			type: E
@@ -196,7 +196,7 @@ export const options: Partial<
 		})),
 		setRoomID: assign((context, event) => ({
 			...context,
-			roomID: (event as Event<'done.invoke.addAttendeeToRoom'>).roomID,
+			roomID: (event as Event<'done.invoke.addAttendeeToRoom'>).data,
 		})),
 	},
 	services: {
@@ -218,11 +218,11 @@ export const options: Partial<
 					},
 				})
 
-				if (!newRoom.data) {
+				if (!newRoom.data || !newRoom.data.insert_room) {
 					throw new Error()
 				}
 
-				roomID = newRoom.data.returning[0].id
+				roomID = newRoom.data.insert_room.returning[0].id
 			}
 			const room = await client.mutate<MutationResult<'insert_attendee'>>({
 				mutation: addAttendeeToRoom,
