@@ -4,6 +4,7 @@ import React, {
 	ReactNode,
 	createContext,
 	useState,
+	useEffect,
 } from 'react'
 
 import { InMemoryCache } from 'apollo-cache-inmemory/lib/inMemoryCache'
@@ -71,6 +72,18 @@ const getApolloLink = (getToken: () => string) => {
 	)
 }
 
+type TokenStore = {
+	token: string
+	getToken: () => TokenStore['token']
+}
+
+const tokenStore: TokenStore = {
+	token: '',
+	getToken(this: typeof tokenStore) {
+		return this.token
+	},
+}
+
 type ContextType = ApolloClient<NormalizedCacheObject>
 
 export const ApolloContext = createContext<ContextType>({} as ContextType)
@@ -81,10 +94,16 @@ const ApolloProvider: FC<{
 	const authContext = useContext(AuthContext)
 	const [client] = useState(
 		new ApolloClient({
-			link: getApolloLink(() => authContext.idToken || ''),
+			link: getApolloLink(() => tokenStore.getToken()),
 			cache: new InMemoryCache(),
 		}),
 	)
+
+	useEffect(() => {
+		if (authContext.idToken) {
+			tokenStore.token = authContext.idToken
+		}
+	}, [authContext.idToken])
 
 	return (
 		<ReactApolloProvider client={client}>

@@ -21,11 +21,16 @@ const config = {
 			returnTo: `${appBaseUrl}`,
 		}
 	},
-	pusher: {
-		appId: '776717',
-		key: '006074710cec8f7745ba',
-		cluster: 'us2',
-		authEndpoint: '/api/auth',
+	api: {
+		baseURL: '/api',
+	},
+	get pusher(this: typeof config) {
+		return {
+			appId: '776717',
+			key: '006074710cec8f7745ba',
+			cluster: 'us2',
+			authEndpoint: `${this.api.baseURL}/auth`,
+		}
 	},
 	hasura: {
 		graphqlUri: 'https://hth5-better-meetings.herokuapp.com/v1alpha1/graphql',

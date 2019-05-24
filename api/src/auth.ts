@@ -1,5 +1,7 @@
 import { form } from 'co-body'
 import Pusher = require('pusher')
+import jwt = require('jsonwebtoken')
+import fetch from 'node-fetch'
 const config: import('../../config/default-api').Config = require('../config.json')
 
 const pusher = new Pusher(config.pusher)
@@ -10,20 +12,18 @@ type AjaxAuthRequest = {
 }
 
 const app: import('http').RequestListener = async (req, res) => {
-	const body = (await form(req)) as AjaxAuthRequest
-	const timestamp = new Date().toISOString()
-	const presenceData = {
-		user_id: `user-${timestamp}`,
-		user_info: {
-			name: 'Pusherino',
-			twitter_id: '@pusher',
-		},
+	const pem = await (await fetch(`https://${config.auth.domain}/pem`)).text()
+
+	if (
+		req.headers.Authorization &&
+		typeof req.headers.Authorization === 'string'
+	) {
+		console.log(jwt.verify(req.headers.Authorization, pem))
 	}
-	const auth = pusher.authenticate(
-		body.socket_id,
-		body.channel_name,
-		presenceData,
-	)
+
+	const body = (await form(req)) as AjaxAuthRequest
+
+	const auth = pusher.authenticate(body.socket_id, body.channel_name)
 
 	res.end(JSON.stringify(auth))
 }

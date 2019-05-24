@@ -1,5 +1,6 @@
 import { Machine, assign } from 'xstate'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
+import ApolloClient from 'apollo-client'
 import {
 	getRoomQuery,
 	addAttendeeToRoom,
@@ -8,8 +9,8 @@ import {
 	removeAttendeeFromQueue,
 	removeAttendeeFromRoom,
 } from '../gql/queries'
+import pusher from '../pusher'
 import { Attendee, Room, Query, MutationResult } from '../types'
-import ApolloClient from 'apollo-client'
 
 type StateSchema = import('xstate').StateSchema
 
@@ -111,7 +112,7 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 						src: 'addAttendeeToRoom',
 						onDone: {
 							target: 'present',
-							actions: ['setRoomID'],
+							actions: ['setRoomID', 'subscribeToPusher'],
 						},
 						onError: 'absent',
 					},
@@ -198,6 +199,7 @@ export const options: Partial<
 			...context,
 			roomID: (event as Event<'done.invoke.addAttendeeToRoom'>).data,
 		})),
+		subscribeToPusher: ({ roomID }) => pusher.subscribe(`presence-${roomID}`),
 	},
 	services: {
 		addAttendeeToRoom: async ({ userID, roomName, client }) => {
