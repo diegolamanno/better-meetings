@@ -275,10 +275,10 @@ export default Machine(config, options)
 
 export const createAttendeeMachine = (client: Context['client']) =>
 	Machine(config, options, {
+		client,
 		userID: '',
 		roomID: '',
 		roomName: '',
-		client,
 	})
 
 export type State =

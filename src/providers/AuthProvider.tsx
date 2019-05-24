@@ -58,9 +58,9 @@ const AuthProvider: FC<{
 	const idToken = getSession()
 	const userData = idToken ? jwtDecode<JWTPayload>(idToken) : undefined
 	const [state, setState] = useState<State>({
-		isAuthenticated: false,
 		idToken,
 		userData,
+		isAuthenticated: false,
 	})
 
 	useEffect(() => {

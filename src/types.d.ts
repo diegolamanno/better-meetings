@@ -26,4 +26,9 @@ export type MutationResult<T extends keyof GQL.Mutation_Root> = Pick<
 	T
 >
 
+export type SubscriptionData<T extends keyof GQL.Subscription_Root> = Pick<
+	GQL.Subscription_Root,
+	T
+>
+
 export type Query<T extends keyof GQL.Query_Root> = Pick<GQL.Query_Root, T>

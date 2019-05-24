@@ -33,7 +33,11 @@ const Room: FC<import('@reach/router').RouteComponentProps> = () => {
 	}
 
 	const handleLeaveRoom = () => {
-		attendeeSend('LEAVE')
+		if (attendeeState.matches('authenticated.present.active')) {
+			attendeeSend(['YIELD', 'LEAVE'])
+		} else {
+			attendeeSend('LEAVE')
+		}
 	}
 
 	if (!attendeeState.matches('authenticated.present')) {

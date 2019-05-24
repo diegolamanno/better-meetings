@@ -82,7 +82,7 @@ export const removeAttendeeFromQueue = gql`
 export const removeAttendeeFromRoom = gql`
 	mutation($userID: String, $roomID: bigint!) {
 		delete_attendee(
-			where: { room_id: { _eq: $roomID }, user_id: { _eq: $userID } }
+			where: { user_id: { _eq: $userID }, room: { id: { _eq: $roomID } } }
 		) {
 			affected_rows
 		}

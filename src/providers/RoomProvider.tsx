@@ -8,8 +8,7 @@ import React, {
 import Subscription from 'react-apollo/Subscriptions'
 import { Context as AttendeeContext } from '../providers/AttendeeProvider'
 import { subscribeToRoom } from '../gql/queries'
-import { Room } from '../types'
-import { Subscription_Root } from '../gql/types'
+import { Room, SubscriptionData } from '../types'
 import { roomSubscription } from '../gql/converters'
 
 export const Context = createContext({} as Room)
@@ -30,9 +29,9 @@ const RoomProvider: FC<{
 	const [prevQueuePosition, setCurrentQueuePosition] = useState<number>(-1)
 
 	return attendeeState.matches('authenticated.present') ? (
-		<Subscription<Subscription_Root>
+		<Subscription<SubscriptionData<'room'>>
 			subscription={subscribeToRoom}
-			variables={{ roomName: attendeeState.context.roomName }}
+			variables={{ name: attendeeState.context.roomName }}
 		>
 			{({ loading, data, error }) => {
 				let room = {} as Room

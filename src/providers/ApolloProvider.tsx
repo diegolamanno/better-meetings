@@ -4,8 +4,8 @@ import React, {
 	ReactNode,
 	createContext,
 	useState,
-	useEffect,
 } from 'react'
+
 import { InMemoryCache } from 'apollo-cache-inmemory/lib/inMemoryCache'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
 import { WebSocketLink } from 'apollo-link-ws/lib/webSocketLink'
@@ -19,77 +19,72 @@ import ReactApolloProvider from 'react-apollo/ApolloProvider'
 import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks'
 import { AuthContext } from '../providers/AuthProvider'
 
-const graphqlUri = CONFIG.hasura.graphqlUri
+const getApolloLink = (getToken: () => string) => {
+	const [, endpoint] = CONFIG.hasura.graphqlUri.split('//')
+	const httpLinkWithoutAuth = from([
+		onError(({ graphQLErrors, networkError }) => {
+			if (graphQLErrors) {
+				graphQLErrors.map(({ message, locations, path }) =>
+					console.log(
+						`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+					),
+				)
+			}
+			if (networkError) console.log(`[Network error]: ${networkError}`)
+		}),
+		new HttpLink({
+			uri: `https://${endpoint}`,
+		}),
+	])
 
-const splitUri = graphqlUri.split('//')
-const wsLink = new WebSocketLink({
-	uri: `wss://${splitUri[1]}`,
-	options: {
-		reconnect: true,
-		lazy: true,
-	},
-})
+	const authLink = setContext((_, { headers }) => ({
+		headers: {
+			...headers,
+			Authorization: `Bearer ${getToken()}`,
+		},
+	}))
 
-const httpLink = from([
-	onError(({ graphQLErrors, networkError }) => {
-		if (graphQLErrors) {
-			graphQLErrors.map(({ message, locations, path }) =>
-				console.log(
-					`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-				),
-			)
-		}
-		if (networkError) console.log(`[Network error]: ${networkError}`)
-	}),
-	new HttpLink({
-		uri: graphqlUri,
-	}),
-])
+	const httpLink = authLink.concat(httpLinkWithoutAuth)
 
-const link = split(
-	({ query }) => {
-		const { kind, operation } = getMainDefinition(
-			query,
-		) as import('graphql/language/ast').OperationDefinitionNode
-		return kind === 'OperationDefinition' && operation === 'subscription'
-	},
-	wsLink,
-	httpLink,
-)
+	const wsLink = new WebSocketLink({
+		uri: `wss://${endpoint}`,
+		options: {
+			reconnect: true,
+			lazy: true,
+			connectionParams: () => ({
+				headers: {
+					Authorization: `Bearer ${getToken()}`,
+				},
+			}),
+		},
+	})
+
+	return split(
+		({ query }) => {
+			const { kind, operation } = getMainDefinition(
+				query,
+			) as import('graphql/language/ast').OperationDefinitionNode
+			return kind === 'OperationDefinition' && operation === 'subscription'
+		},
+		wsLink,
+		httpLink,
+	)
+}
 
 type ContextType = ApolloClient<NormalizedCacheObject>
 
 export const ApolloContext = createContext<ContextType>({} as ContextType)
 
-const TokenStore: {
-	token: string
-} = {
-	token: '',
-}
-
 const ApolloProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const authContext = useContext(AuthContext)
-	const [tokenStore] = useState(TokenStore)
 	const [client] = useState(
 		new ApolloClient({
-			link: setContext((_, { headers }) => {
-				return {
-					headers: {
-						...headers,
-						authorization: `Bearer ${tokenStore.token}`,
-					},
-				}
-			}).concat(link),
+			link: getApolloLink(() => authContext.idToken || ''),
 			cache: new InMemoryCache(),
 		}),
 	)
-	useEffect(() => {
-		if (authContext.idToken) {
-			tokenStore.token = authContext.idToken
-		}
-	}, [authContext.idToken])
 
 	return (
 		<ReactApolloProvider client={client}>
