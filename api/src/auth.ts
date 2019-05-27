@@ -1,31 +1,43 @@
-import { form } from 'co-body'
+import { json } from 'micro'
+import cors = require('micro-cors')
 import Pusher = require('pusher')
 import jwt = require('jsonwebtoken')
-import fetch from 'node-fetch'
+import {
+	JWTPayload,
+	PusherAuthRequestData,
+	PresenceUserData,
+} from '../../src/types'
 const config: import('../../config/default-api').Config = require('../config.json')
 
-const pusher = new Pusher(config.pusher)
-
-type AjaxAuthRequest = {
-	socket_id: string
-	channel_name: string
-}
-
 const app: import('http').RequestListener = async (req, res) => {
-	const pem = await (await fetch(`https://${config.auth.domain}/pem`)).text()
-
-	if (
-		req.headers.Authorization &&
-		typeof req.headers.Authorization === 'string'
-	) {
-		console.log(jwt.verify(req.headers.Authorization, pem))
+	if (req.method === 'OPTIONS') {
+		return res.end('ok!')
 	}
+	console.log('Pusher auth starts')
+	try {
+		const decoded = jwt.verify(
+			(req.headers.authorization as string).replace(/^Bearer /, ''),
+			config.auth.pem,
+		) as JWTPayload
+		console.log('Token verification successful')
 
-	const body = (await form(req)) as AjaxAuthRequest
+		const userData: PresenceUserData = {
+			user_id: (decoded as JWTPayload).sub,
+		}
+		const body = (await json(req)) as PusherAuthRequestData
 
-	const auth = pusher.authenticate(body.socket_id, body.channel_name)
-
-	res.end(JSON.stringify(auth))
+		const auth = new Pusher(config.pusher).authenticate(
+			body.socket_id,
+			body.channel_name,
+			userData,
+		)
+		console.log('sending response')
+		return res.end(JSON.stringify(auth))
+	} catch (e) {
+		console.error('auth failed', e)
+		res.statusCode = 403
+		return res.end(e)
+	}
 }
 
-export default app
+export default cors()(app)

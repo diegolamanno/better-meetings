@@ -4,17 +4,20 @@ import ApolloProvider from '../providers/ApolloProvider'
 import AttendeeProvider from '../providers/AttendeeProvider'
 import RoomProvider from '../providers/RoomProvider'
 import AuthProvider from '../providers/AuthProvider'
+import PusherProvider from '../providers/PusherProvider'
 import Routes from './Routes'
 
 const App: FC = () => (
 	<AuthProvider>
-		<ApolloProvider>
-			<AttendeeProvider>
-				<RoomProvider>
-					<Routes />
-				</RoomProvider>
-			</AttendeeProvider>
-		</ApolloProvider>
+		<PusherProvider>
+			<ApolloProvider>
+				<AttendeeProvider>
+					<RoomProvider>
+						<Routes />
+					</RoomProvider>
+				</AttendeeProvider>
+			</ApolloProvider>
+		</PusherProvider>
 	</AuthProvider>
 )
 

@@ -6,3 +6,4 @@ reports
 .env
 .env.*
 *.log
+api/config.json

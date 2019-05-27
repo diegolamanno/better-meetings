@@ -6,7 +6,7 @@ import { plugin as typescriptPlugin } from '@graphql-codegen/typescript'
 import { plugin as typescriptOperationsPlugin } from '@graphql-codegen/typescript-operations'
 import { printSchema, parse, GraphQLSchema } from 'graphql'
 
-require('dotenv').config()
+require('dotenv').config({ path: `${__dirname}/../.env.build` })
 const config = require('config')
 
 loadSchema(config.get('hasura.graphqlUri'), {

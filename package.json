@@ -4,7 +4,8 @@
 	"description": "Be nice. Share space. Have better meetings.",
 	"scripts": {
 		"with-node-tsconfig": "TS_NODE_PROJECT='tsconfig-for-node.json'",
-		"start": "yarn with-node-tsconfig webpack-dev-server --config build-config/webpack/webpack.dev.ts",
+		"start": "concurrently 'yarn start:app' 'yarn start:api'",
+		"start:app": "yarn with-node-tsconfig webpack-dev-server --config build-config/webpack/webpack.dev.ts",
 		"build": "yarn with-node-tsconfig webpack --config build-config/webpack/webpack.prod.ts",
 		"now-build": "yarn build",
 		"start:api": "now -A now.dev.json dev",
@@ -15,8 +16,8 @@
 		"lint:ts": "tslint --project .",
 		"lint:api": "cd api&& tslint --project .",
 		"lint": "yarn lint:css && yarn lint:ts && yarn lint:api",
-		"gen-gql-types": "yarn with-hasura-config ts-node scripts/gen-gql-types.ts",
-		"with-hasura-config": "NODE_APP_INSTANCE='hasura' yarn with-node-tsconfig"
+		"gen-gql-types": "yarn with-api-config ts-node scripts/gen-gql-types.ts",
+		"with-api-config": "NODE_APP_INSTANCE='api' yarn with-node-tsconfig"
 	},
 	"repository": {
 		"type": "git",

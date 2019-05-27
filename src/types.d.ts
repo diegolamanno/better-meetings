@@ -32,3 +32,27 @@ export type SubscriptionData<T extends keyof GQL.Subscription_Root> = Pick<
 >
 
 export type Query<T extends keyof GQL.Query_Root> = Pick<GQL.Query_Root, T>
+
+export type TokenStore = {
+	token: string
+	getToken: () => TokenStore['token']
+}
+
+export type PusherAuthRequestData = {
+	socket_id: string
+	channel_name: string
+}
+
+export type PresenceUserData = {
+	user_id: string
+}
+
+export type PresenceEvent = {
+	channel: string
+	name: string
+} & PresenceUserData
+
+export type PresenceNotification = {
+	time_ms: number
+	events: PresenceEvent[]
+}

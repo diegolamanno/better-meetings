@@ -1,4 +1,3 @@
-
 export type Maybe<T> = T | null;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -13,6 +12,7 @@ export type Scalars = {
 
 /** columns and relationships of "attendee" */
 export type Attendee = {
+  __typename?: 'attendee',
   id: Scalars['bigint'],
   remote: Scalars['Boolean'],
   /** An object relationship */
@@ -25,12 +25,14 @@ export type Attendee = {
 
 /** aggregated selection of "attendee" */
 export type Attendee_Aggregate = {
+  __typename?: 'attendee_aggregate',
   aggregate?: Maybe<Attendee_Aggregate_Fields>,
   nodes: Array<Attendee>,
 };
 
 /** aggregate fields of "attendee" */
 export type Attendee_Aggregate_Fields = {
+  __typename?: 'attendee_aggregate_fields',
   avg?: Maybe<Attendee_Avg_Fields>,
   count?: Maybe<Scalars['Int']>,
   max?: Maybe<Attendee_Max_Fields>,
@@ -74,6 +76,7 @@ export type Attendee_Arr_Rel_Insert_Input = {
 
 /** aggregate avg on columns */
 export type Attendee_Avg_Fields = {
+  __typename?: 'attendee_avg_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -125,6 +128,7 @@ export type Attendee_Insert_Input = {
 
 /** aggregate max on columns */
 export type Attendee_Max_Fields = {
+  __typename?: 'attendee_max_fields',
   id?: Maybe<Scalars['bigint']>,
   room_id?: Maybe<Scalars['bigint']>,
   user_id?: Maybe<Scalars['String']>,
@@ -139,6 +143,7 @@ export type Attendee_Max_Order_By = {
 
 /** aggregate min on columns */
 export type Attendee_Min_Fields = {
+  __typename?: 'attendee_min_fields',
   id?: Maybe<Scalars['bigint']>,
   room_id?: Maybe<Scalars['bigint']>,
   user_id?: Maybe<Scalars['String']>,
@@ -153,6 +158,7 @@ export type Attendee_Min_Order_By = {
 
 /** response of any mutation on the table "attendee" */
 export type Attendee_Mutation_Response = {
+  __typename?: 'attendee_mutation_response',
   /** number of affected rows by the mutation */
   affected_rows: Scalars['Int'],
   /** data of the affected rows by the mutation */
@@ -203,6 +209,7 @@ export type Attendee_Set_Input = {
 
 /** aggregate stddev on columns */
 export type Attendee_Stddev_Fields = {
+  __typename?: 'attendee_stddev_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -215,6 +222,7 @@ export type Attendee_Stddev_Order_By = {
 
 /** aggregate stddev_pop on columns */
 export type Attendee_Stddev_Pop_Fields = {
+  __typename?: 'attendee_stddev_pop_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -227,6 +235,7 @@ export type Attendee_Stddev_Pop_Order_By = {
 
 /** aggregate stddev_samp on columns */
 export type Attendee_Stddev_Samp_Fields = {
+  __typename?: 'attendee_stddev_samp_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -239,6 +248,7 @@ export type Attendee_Stddev_Samp_Order_By = {
 
 /** aggregate sum on columns */
 export type Attendee_Sum_Fields = {
+  __typename?: 'attendee_sum_fields',
   id?: Maybe<Scalars['bigint']>,
   room_id?: Maybe<Scalars['bigint']>,
 };
@@ -263,6 +273,7 @@ export enum Attendee_Update_Column {
 
 /** aggregate var_pop on columns */
 export type Attendee_Var_Pop_Fields = {
+  __typename?: 'attendee_var_pop_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -275,6 +286,7 @@ export type Attendee_Var_Pop_Order_By = {
 
 /** aggregate var_samp on columns */
 export type Attendee_Var_Samp_Fields = {
+  __typename?: 'attendee_var_samp_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -287,6 +299,7 @@ export type Attendee_Var_Samp_Order_By = {
 
 /** aggregate variance on columns */
 export type Attendee_Variance_Fields = {
+  __typename?: 'attendee_variance_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -334,6 +347,7 @@ export enum Conflict_Action {
 
 /** mutation root */
 export type Mutation_Root = {
+  __typename?: 'mutation_root',
   /** delete data from the table: "attendee" */
   delete_attendee?: Maybe<Attendee_Mutation_Response>,
   /** delete data from the table: "queue_record" */
@@ -461,6 +475,7 @@ export enum Order_By {
 
 /** query root */
 export type Query_Root = {
+  __typename?: 'query_root',
   /** fetch data from the table: "attendee" */
   attendee: Array<Attendee>,
   /** fetch aggregated fields from the table: "attendee" */
@@ -593,6 +608,7 @@ export type Query_RootUser_By_PkArgs = {
 
 /** columns and relationships of "queue_record" */
 export type Queue_Record = {
+  __typename?: 'queue_record',
   finished_speaking_time?: Maybe<Scalars['timestamptz']>,
   id: Scalars['bigint'],
   joined_time: Scalars['timestamptz'],
@@ -608,12 +624,14 @@ export type Queue_Record = {
 
 /** aggregated selection of "queue_record" */
 export type Queue_Record_Aggregate = {
+  __typename?: 'queue_record_aggregate',
   aggregate?: Maybe<Queue_Record_Aggregate_Fields>,
   nodes: Array<Queue_Record>,
 };
 
 /** aggregate fields of "queue_record" */
 export type Queue_Record_Aggregate_Fields = {
+  __typename?: 'queue_record_aggregate_fields',
   avg?: Maybe<Queue_Record_Avg_Fields>,
   count?: Maybe<Scalars['Int']>,
   max?: Maybe<Queue_Record_Max_Fields>,
@@ -657,6 +675,7 @@ export type Queue_Record_Arr_Rel_Insert_Input = {
 
 /** aggregate avg on columns */
 export type Queue_Record_Avg_Fields = {
+  __typename?: 'queue_record_avg_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -710,6 +729,7 @@ export type Queue_Record_Insert_Input = {
 
 /** aggregate max on columns */
 export type Queue_Record_Max_Fields = {
+  __typename?: 'queue_record_max_fields',
   finished_speaking_time?: Maybe<Scalars['timestamptz']>,
   id?: Maybe<Scalars['bigint']>,
   joined_time?: Maybe<Scalars['timestamptz']>,
@@ -732,6 +752,7 @@ export type Queue_Record_Max_Order_By = {
 
 /** aggregate min on columns */
 export type Queue_Record_Min_Fields = {
+  __typename?: 'queue_record_min_fields',
   finished_speaking_time?: Maybe<Scalars['timestamptz']>,
   id?: Maybe<Scalars['bigint']>,
   joined_time?: Maybe<Scalars['timestamptz']>,
@@ -754,6 +775,7 @@ export type Queue_Record_Min_Order_By = {
 
 /** response of any mutation on the table "queue_record" */
 export type Queue_Record_Mutation_Response = {
+  __typename?: 'queue_record_mutation_response',
   /** number of affected rows by the mutation */
   affected_rows: Scalars['Int'],
   /** data of the affected rows by the mutation */
@@ -816,6 +838,7 @@ export type Queue_Record_Set_Input = {
 
 /** aggregate stddev on columns */
 export type Queue_Record_Stddev_Fields = {
+  __typename?: 'queue_record_stddev_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -828,6 +851,7 @@ export type Queue_Record_Stddev_Order_By = {
 
 /** aggregate stddev_pop on columns */
 export type Queue_Record_Stddev_Pop_Fields = {
+  __typename?: 'queue_record_stddev_pop_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -840,6 +864,7 @@ export type Queue_Record_Stddev_Pop_Order_By = {
 
 /** aggregate stddev_samp on columns */
 export type Queue_Record_Stddev_Samp_Fields = {
+  __typename?: 'queue_record_stddev_samp_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -852,6 +877,7 @@ export type Queue_Record_Stddev_Samp_Order_By = {
 
 /** aggregate sum on columns */
 export type Queue_Record_Sum_Fields = {
+  __typename?: 'queue_record_sum_fields',
   id?: Maybe<Scalars['bigint']>,
   room_id?: Maybe<Scalars['bigint']>,
 };
@@ -882,6 +908,7 @@ export enum Queue_Record_Update_Column {
 
 /** aggregate var_pop on columns */
 export type Queue_Record_Var_Pop_Fields = {
+  __typename?: 'queue_record_var_pop_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -894,6 +921,7 @@ export type Queue_Record_Var_Pop_Order_By = {
 
 /** aggregate var_samp on columns */
 export type Queue_Record_Var_Samp_Fields = {
+  __typename?: 'queue_record_var_samp_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -906,6 +934,7 @@ export type Queue_Record_Var_Samp_Order_By = {
 
 /** aggregate variance on columns */
 export type Queue_Record_Variance_Fields = {
+  __typename?: 'queue_record_variance_fields',
   id?: Maybe<Scalars['Float']>,
   room_id?: Maybe<Scalars['Float']>,
 };
@@ -918,6 +947,7 @@ export type Queue_Record_Variance_Order_By = {
 
 /** columns and relationships of "room" */
 export type Room = {
+  __typename?: 'room',
   /** An array relationship */
   attendees: Array<Attendee>,
   /** An aggregated array relationship */
@@ -972,12 +1002,14 @@ export type RoomQueue_AggregateArgs = {
 
 /** aggregated selection of "room" */
 export type Room_Aggregate = {
+  __typename?: 'room_aggregate',
   aggregate?: Maybe<Room_Aggregate_Fields>,
   nodes: Array<Room>,
 };
 
 /** aggregate fields of "room" */
 export type Room_Aggregate_Fields = {
+  __typename?: 'room_aggregate_fields',
   avg?: Maybe<Room_Avg_Fields>,
   count?: Maybe<Scalars['Int']>,
   max?: Maybe<Room_Max_Fields>,
@@ -1021,6 +1053,7 @@ export type Room_Arr_Rel_Insert_Input = {
 
 /** aggregate avg on columns */
 export type Room_Avg_Fields = {
+  __typename?: 'room_avg_fields',
   id?: Maybe<Scalars['Float']>,
 };
 
@@ -1065,6 +1098,7 @@ export type Room_Insert_Input = {
 
 /** aggregate max on columns */
 export type Room_Max_Fields = {
+  __typename?: 'room_max_fields',
   id?: Maybe<Scalars['bigint']>,
   name?: Maybe<Scalars['String']>,
 };
@@ -1077,6 +1111,7 @@ export type Room_Max_Order_By = {
 
 /** aggregate min on columns */
 export type Room_Min_Fields = {
+  __typename?: 'room_min_fields',
   id?: Maybe<Scalars['bigint']>,
   name?: Maybe<Scalars['String']>,
 };
@@ -1089,6 +1124,7 @@ export type Room_Min_Order_By = {
 
 /** response of any mutation on the table "room" */
 export type Room_Mutation_Response = {
+  __typename?: 'room_mutation_response',
   /** number of affected rows by the mutation */
   affected_rows: Scalars['Int'],
   /** data of the affected rows by the mutation */
@@ -1131,6 +1167,7 @@ export type Room_Set_Input = {
 
 /** aggregate stddev on columns */
 export type Room_Stddev_Fields = {
+  __typename?: 'room_stddev_fields',
   id?: Maybe<Scalars['Float']>,
 };
 
@@ -1141,6 +1178,7 @@ export type Room_Stddev_Order_By = {
 
 /** aggregate stddev_pop on columns */
 export type Room_Stddev_Pop_Fields = {
+  __typename?: 'room_stddev_pop_fields',
   id?: Maybe<Scalars['Float']>,
 };
 
@@ -1151,6 +1189,7 @@ export type Room_Stddev_Pop_Order_By = {
 
 /** aggregate stddev_samp on columns */
 export type Room_Stddev_Samp_Fields = {
+  __typename?: 'room_stddev_samp_fields',
   id?: Maybe<Scalars['Float']>,
 };
 
@@ -1161,6 +1200,7 @@ export type Room_Stddev_Samp_Order_By = {
 
 /** aggregate sum on columns */
 export type Room_Sum_Fields = {
+  __typename?: 'room_sum_fields',
   id?: Maybe<Scalars['bigint']>,
 };
 
@@ -1179,6 +1219,7 @@ export enum Room_Update_Column {
 
 /** aggregate var_pop on columns */
 export type Room_Var_Pop_Fields = {
+  __typename?: 'room_var_pop_fields',
   id?: Maybe<Scalars['Float']>,
 };
 
@@ -1189,6 +1230,7 @@ export type Room_Var_Pop_Order_By = {
 
 /** aggregate var_samp on columns */
 export type Room_Var_Samp_Fields = {
+  __typename?: 'room_var_samp_fields',
   id?: Maybe<Scalars['Float']>,
 };
 
@@ -1199,6 +1241,7 @@ export type Room_Var_Samp_Order_By = {
 
 /** aggregate variance on columns */
 export type Room_Variance_Fields = {
+  __typename?: 'room_variance_fields',
   id?: Maybe<Scalars['Float']>,
 };
 
@@ -1209,6 +1252,7 @@ export type Room_Variance_Order_By = {
 
 /** subscription root */
 export type Subscription_Root = {
+  __typename?: 'subscription_root',
   /** fetch data from the table: "attendee" */
   attendee: Array<Attendee>,
   /** fetch aggregated fields from the table: "attendee" */
@@ -1374,6 +1418,7 @@ export type Timestamptz_Comparison_Exp = {
 
 /** columns and relationships of "user" */
 export type User = {
+  __typename?: 'user',
   auth_id: Scalars['String'],
   avatar?: Maybe<Scalars['String']>,
   name?: Maybe<Scalars['String']>,
@@ -1381,12 +1426,14 @@ export type User = {
 
 /** aggregated selection of "user" */
 export type User_Aggregate = {
+  __typename?: 'user_aggregate',
   aggregate?: Maybe<User_Aggregate_Fields>,
   nodes: Array<User>,
 };
 
 /** aggregate fields of "user" */
 export type User_Aggregate_Fields = {
+  __typename?: 'user_aggregate_fields',
   count?: Maybe<Scalars['Int']>,
   max?: Maybe<User_Max_Fields>,
   min?: Maybe<User_Min_Fields>,
@@ -1439,6 +1486,7 @@ export type User_Insert_Input = {
 
 /** aggregate max on columns */
 export type User_Max_Fields = {
+  __typename?: 'user_max_fields',
   auth_id?: Maybe<Scalars['String']>,
   avatar?: Maybe<Scalars['String']>,
   name?: Maybe<Scalars['String']>,
@@ -1453,6 +1501,7 @@ export type User_Max_Order_By = {
 
 /** aggregate min on columns */
 export type User_Min_Fields = {
+  __typename?: 'user_min_fields',
   auth_id?: Maybe<Scalars['String']>,
   avatar?: Maybe<Scalars['String']>,
   name?: Maybe<Scalars['String']>,
@@ -1467,6 +1516,7 @@ export type User_Min_Order_By = {
 
 /** response of any mutation on the table "user" */
 export type User_Mutation_Response = {
+  __typename?: 'user_mutation_response',
   /** number of affected rows by the mutation */
   affected_rows: Scalars['Int'],
   /** data of the affected rows by the mutation */

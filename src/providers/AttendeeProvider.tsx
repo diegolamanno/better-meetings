@@ -7,6 +7,7 @@ import React, {
 } from 'react'
 import { useMachine } from '@xstate/react'
 import { AuthContext } from './AuthProvider'
+import { PusherContext } from './PusherProvider'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
 import { useApolloClient } from 'react-apollo-hooks'
 import {
@@ -37,9 +38,10 @@ const AttendeeProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const authContext = useContext(AuthContext)
+	const pusher = useContext(PusherContext)
 	const apolloClient = useApolloClient<NormalizedCacheObject>()
 
-	const [state, send] = useMachine(createAttendeeMachine(apolloClient))
+	const [state, send] = useMachine(createAttendeeMachine(apolloClient, pusher))
 
 	useEffect(() => {
 		if (state.matches('unauthenticated') && authContext.isAuthenticated) {

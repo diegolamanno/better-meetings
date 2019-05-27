@@ -9,7 +9,7 @@ import {
 	removeAttendeeFromQueue,
 	removeAttendeeFromRoom,
 } from '../gql/queries'
-import pusher from '../pusher'
+
 import { Attendee, Room, Query, MutationResult } from '../types'
 
 type StateSchema = import('xstate').StateSchema
@@ -47,7 +47,8 @@ export interface Schema extends StateSchema {
 export type Context = Attendee & {
 	roomID: Room['id']
 	roomName: Room['name']
-	client: ApolloClient<NormalizedCacheObject>
+	apolloClient: ApolloClient<NormalizedCacheObject>
+	pusher: import('pusher-js').Pusher
 }
 
 export type Event<
@@ -112,7 +113,7 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 						src: 'addAttendeeToRoom',
 						onDone: {
 							target: 'present',
-							actions: ['setRoomID', 'subscribeToPusher'],
+							actions: ['setRoomID'],
 						},
 						onError: 'absent',
 					},
@@ -199,13 +200,12 @@ export const options: Partial<
 			...context,
 			roomID: (event as Event<'done.invoke.addAttendeeToRoom'>).data,
 		})),
-		subscribeToPusher: ({ roomID }) => pusher.subscribe(`presence-${roomID}`),
 	},
 	services: {
-		addAttendeeToRoom: async ({ userID, roomName, client }) => {
-			let roomID
+		addAttendeeToRoom: async ({ userID, roomName, apolloClient, pusher }) => {
+			let roomID: Context['roomID']
 
-			const result = await client.query<Query<'room'>>({
+			const result = await apolloClient.query<Query<'room'>>({
 				query: getRoomQuery,
 				variables: { name: roomName },
 			})
@@ -213,7 +213,9 @@ export const options: Partial<
 			if (result.data.room.length) {
 				roomID = result.data.room[0].id
 			} else {
-				const newRoom = await client.mutate<MutationResult<'insert_room'>>({
+				const newRoom = await apolloClient.mutate<
+					MutationResult<'insert_room'>
+				>({
 					mutation: createRoom,
 					variables: {
 						name: roomName,
@@ -226,13 +228,33 @@ export const options: Partial<
 
 				roomID = newRoom.data.insert_room.returning[0].id
 			}
-			const room = await client.mutate<MutationResult<'insert_attendee'>>({
-				mutation: addAttendeeToRoom,
-				variables: {
-					userID,
-					roomID,
+
+			const subscription = await new Promise<typeof roomID>(
+				(resolve, reject) => {
+					pusher
+						.subscribe(`presence-${roomID}`)
+						.bind('pusher:subscription_succeeded', () => {
+							resolve(roomID)
+						})
+						.bind('pusher:subscription_error', () => {
+							reject()
+						})
 				},
-			})
+			)
+
+			if (!subscription) {
+				throw new Error()
+			}
+
+			const room = await apolloClient.mutate<MutationResult<'insert_attendee'>>(
+				{
+					mutation: addAttendeeToRoom,
+					variables: {
+						userID,
+						roomID,
+					},
+				},
+			)
 
 			if (!room.data) {
 				throw new Error()
@@ -240,24 +262,24 @@ export const options: Partial<
 
 			return roomID
 		},
-		addAttendeeToQueue: ({ userID, roomID, client }) =>
-			client.mutate({
+		addAttendeeToQueue: ({ userID, roomID, apolloClient }) =>
+			apolloClient.mutate({
 				mutation: addAttendeeToQueue,
 				variables: {
 					userID,
 					roomID,
 				},
 			}),
-		removeAttendeeFromQueue: ({ userID, roomID, client }) =>
-			client.mutate({
+		removeAttendeeFromQueue: ({ userID, roomID, apolloClient }) =>
+			apolloClient.mutate({
 				mutation: removeAttendeeFromQueue,
 				variables: {
 					userID,
 					roomID,
 				},
 			}),
-		removeAttendeeFromRoom: ({ userID, roomID, client }) =>
-			client.mutate({
+		removeAttendeeFromRoom: ({ userID, roomID, apolloClient }) =>
+			apolloClient.mutate({
 				mutation: removeAttendeeFromRoom,
 				variables: {
 					userID,
@@ -275,9 +297,13 @@ export const options: Partial<
 
 export default Machine(config, options)
 
-export const createAttendeeMachine = (client: Context['client']) =>
+export const createAttendeeMachine = (
+	apolloClient: Context['apolloClient'],
+	pusher: Context['pusher'],
+) =>
 	Machine(config, options, {
-		client,
+		apolloClient,
+		pusher,
 		userID: '',
 		roomID: '',
 		roomName: '',
