@@ -17,7 +17,6 @@
 		"@types/node-fetch": "^2.3.4",
 		"config": "^3.1.0",
 		"graphql-request": "^1.8.2",
-		"graphql-tag": "^2.10.1",
 		"jsonwebtoken": "^8.5.1",
 		"micro": "^9.3.4",
 		"micro-cors": "^0.1.1",

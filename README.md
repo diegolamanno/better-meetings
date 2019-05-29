@@ -14,6 +14,6 @@ Setup:
 usage:
 
 - `yarn start` to run the app in hot-reload + a local instance of the lambdas (you will still need to ngrok them to Pusher)
-- `now --target stating` to deploy to now.sh.
+- `yarn deploy` to deploy to now.sh.
 
 TBD...
