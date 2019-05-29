@@ -4,7 +4,7 @@ import { FC, Fragment, useContext, MouseEvent, TouchEvent } from 'react'
 import { jsx, css, Global } from '@emotion/core'
 import { navigate } from '@reach/router'
 import { Context as RoomContext } from '../providers/RoomProvider'
-import { Context as AttendeeContext } from '../providers/AttendeeProvider'
+import { AttendeeContext } from '../providers/AttendeeProvider'
 import { State } from '../state/AttendeeMachine'
 
 import UserRoomState from '../components/UserRoomState'
@@ -40,8 +40,13 @@ const Room: FC<import('@reach/router').RouteComponentProps> = () => {
 		}
 	}
 
-	if (!attendeeState.matches('authenticated.present')) {
+	if (attendeeState.matches('authenticated.absent')) {
+		navigate('/join')
+		return <div>loading...</div>
+	}
+	if (attendeeState.matches('unauthenticated')) {
 		navigate('/')
+		return <div>loading...</div>
 	}
 
 	return (

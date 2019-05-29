@@ -24,7 +24,7 @@ const getSession = () => {
 	const idToken = localStorage.getItem(StorageKey.token)
 	const expiry = localStorage.getItem(StorageKey.expiry)
 	if (idToken && expiry) {
-		const expiresIn = parseInt(expiry) - Date.now()
+		const expiresIn = parseInt(expiry, 10) - Date.now()
 		return {
 			idToken,
 			expiresIn,

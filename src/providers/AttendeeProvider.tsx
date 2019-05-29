@@ -13,16 +13,16 @@ import { useApolloClient } from 'react-apollo-hooks'
 import {
 	createAttendeeMachine,
 	Schema,
-	Context as AttendeeContext,
+	Context,
 	Event,
 } from '../state/AttendeeMachine'
 
 import { getUser, addUser } from '../gql/queries'
 import { MutationResult, Query } from '../types'
 
-type AttendeeState = import('xstate').State<AttendeeContext, Event>
+type AttendeeState = import('xstate').State<Context, Event>
 type AttendeeSend = import('xstate/lib/interpreter').Interpreter<
-	AttendeeContext,
+	Context,
 	Schema,
 	Event
 >['send']
@@ -32,7 +32,7 @@ type ContextType = {
 	send: AttendeeSend
 }
 
-export const Context = createContext<ContextType>({} as ContextType)
+export const AttendeeContext = createContext<ContextType>({} as ContextType)
 
 const AttendeeProvider: FC<{
 	children: ReactNode
@@ -74,7 +74,11 @@ const AttendeeProvider: FC<{
 		}
 	}, [state.value, authContext.isAuthenticated])
 
-	return <Context.Provider value={{ state, send }}>{children}</Context.Provider>
+	return (
+		<AttendeeContext.Provider value={{ state, send }}>
+			{children}
+		</AttendeeContext.Provider>
+	)
 }
 
 export default AttendeeProvider

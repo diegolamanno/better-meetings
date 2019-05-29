@@ -6,7 +6,7 @@ import React, {
 	createContext,
 } from 'react'
 import Subscription from 'react-apollo/Subscriptions'
-import { Context as AttendeeContext } from '../providers/AttendeeProvider'
+import { AttendeeContext } from '../providers/AttendeeProvider'
 import { subscribeToRoom } from '../gql/queries'
 import { Room, SubscriptionData } from '../types'
 import { roomSubscription } from '../gql/converters'

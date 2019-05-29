@@ -22,7 +22,7 @@ const app: import('http').RequestListener = async (req, res) => {
 		console.log('Token verification successful')
 
 		const userData: PresenceUserData = {
-			user_id: (decoded as JWTPayload).sub,
+			user_id: decoded.sub,
 		}
 		const body = (await json(req)) as PusherAuthRequestData
 

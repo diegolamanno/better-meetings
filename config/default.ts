@@ -1,8 +1,11 @@
 const config = {
 	devServerPort: 8080,
 	get appBaseUrl() {
-		return `http://localhost:${this.devServerPort}`
+		return process.env.IS_NOW
+			? 'https://better-meetings.better-meetings.now.sh'
+			: `http://localhost:${this.devServerPort}`
 	},
+	foo: process.env.NOW_REGION,
 	get auth(this: typeof config) {
 		const appBaseUrl = this.appBaseUrl
 		return {

@@ -7,7 +7,7 @@ import {
 	Form,
 } from 'react-bootstrap'
 import { RouteComponentProps, navigate } from '@reach/router'
-import { Context as AttendeeContext } from '../providers/AttendeeProvider'
+import { AttendeeContext } from '../providers/AttendeeProvider'
 
 const Join: FC<RouteComponentProps> = () => {
 	const attendeeMachine = useContext(AttendeeContext)
@@ -16,6 +16,8 @@ const Join: FC<RouteComponentProps> = () => {
 	useEffect(() => {
 		if (attendeeMachine.state.matches('authenticated.present')) {
 			navigate(`/room`)
+		} else if (attendeeMachine.state.matches('unauthenticated')) {
+			navigate('/')
 		}
 	}, [attendeeMachine.state.value])
 

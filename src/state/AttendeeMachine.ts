@@ -278,14 +278,22 @@ export const options: Partial<
 					roomID,
 				},
 			}),
-		removeAttendeeFromRoom: ({ userID, roomID, apolloClient }) =>
-			apolloClient.mutate({
+		removeAttendeeFromRoom: async ({
+			userID,
+			roomID,
+			apolloClient,
+			pusher,
+		}) => {
+			await apolloClient.mutate({
 				mutation: removeAttendeeFromRoom,
 				variables: {
 					userID,
 					roomID,
 				},
-			}),
+			})
+
+			pusher.unsubscribe(`presence-${roomID}`)
+		},
 	},
 	guards: {
 		isSecondInQueue: (_context, event) =>
