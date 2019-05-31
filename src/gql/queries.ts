@@ -51,6 +51,8 @@ export const addUser = gql`
 export const subscribeToRoom = gql`
 	subscription($name: String!) {
 		room(where: { name: { _eq: $name } }) {
+			id
+			name
 			attendees {
 				user_id
 			}

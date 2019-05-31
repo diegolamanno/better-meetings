@@ -1,25 +1,34 @@
 /** @jsx jsx */
 
-import { FC, Fragment, useContext, MouseEvent, TouchEvent } from 'react'
-import { jsx, css, Global } from '@emotion/core'
-import { navigate } from '@reach/router'
+import {
+	FC,
+	Fragment,
+	useContext,
+	MouseEvent,
+	TouchEvent,
+	ComponentProps,
+} from 'react'
+import { jsx, css } from '@emotion/core'
+import { navigate, RouteComponentProps } from '@reach/router'
 import { Context as RoomContext } from '../providers/RoomProvider'
 import { AttendeeContext } from '../providers/AttendeeProvider'
 import { State } from '../state/AttendeeMachine'
+import View from '../components/View'
 
-import UserRoomState from '../components/UserRoomState'
-
-const Room: FC<import('@reach/router').RouteComponentProps> = () => {
+const Room: FC<RouteComponentProps> = () => {
 	const room = useContext(RoomContext)
 	const { state: attendeeState, send: attendeeSend } = useContext(
 		AttendeeContext,
 	)
-	const roomID = room.name
-	const stateString = attendeeState
-		.toStrings()
-		.pop()!
-		.split('.')
-		.pop() as State
+
+	const stateStrings = attendeeState.toStrings()
+	let state: Extract<State, ComponentProps<typeof View>['state']> = 'idle'
+	if (stateStrings.length) {
+		console.log(stateStrings)
+		state = stateStrings[stateStrings.length - 1]
+			.split('.')
+			.pop() as typeof state
+	}
 
 	const handleStateRepresenationTapped = (
 		e: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
@@ -51,30 +60,37 @@ const Room: FC<import('@reach/router').RouteComponentProps> = () => {
 
 	return (
 		<Fragment>
-			<Global
-				styles={css`
-					.state-container {
-						background-color: #00f;
-					}
-				`}
-			/>
 			<div
+				onClick={handleStateRepresenationTapped}
+				onTouchEnd={handleStateRepresenationTapped}
 				css={css`
-					height: 100%;
-					background-color: #f00;
+					position: absolute;
+					top: 0;
+					left: 0;
+					bottom: 0;
+					right: 0;
 				`}
 			>
-				<p>welcome to the room: {roomID}!</p>
-				<div
-					className="state-container"
-					onClick={handleStateRepresenationTapped}
-					onTouchEnd={handleStateRepresenationTapped}
-				>
-					<UserRoomState state={stateString} />
-				</div>
+				<View
+					state={state}
+					queuePosition={attendeeState.context.queuePosition}
+					style={css`
+						width: 100%;
+						height: 100%;
+					`}
+				/>
 			</div>
-			<button type="button" onClick={handleLeaveRoom}>
-				Leave room
+			<button
+				type="button"
+				onClick={handleLeaveRoom}
+				css={css`
+					position: absolute;
+					bottom: 0;
+					right: 0;
+					margin: 1em;
+				`}
+			>
+				Leave {room.name}
 			</button>
 		</Fragment>
 	)

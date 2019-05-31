@@ -47,6 +47,7 @@ export interface Schema extends StateSchema {
 export type Context = Attendee & {
 	roomID: Room['id']
 	roomName: Room['name']
+	queuePosition?: number
 	apolloClient: ApolloClient<NormalizedCacheObject>
 	pusher: import('pusher-js').Pusher
 }
@@ -143,10 +144,12 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 								QUEUE_POSITION_CHANGED: [
 									{
 										target: '#attendee.authenticated.present.active.nextUp',
+										actions: 'setQueuePosition',
 										cond: 'isSecondInQueue',
 									},
 									{
 										target: '#attendee.authenticated.present.active.hasFloor',
+										actions: 'setQueuePosition',
 										cond: 'isFirstInQueue',
 									},
 								],
@@ -199,6 +202,10 @@ export const options: Partial<
 		setRoomID: assign((context, event) => ({
 			...context,
 			roomID: (event as Event<'done.invoke.addAttendeeToRoom'>).data,
+		})),
+		setQueuePosition: assign((context, event) => ({
+			...context,
+			queuePosition: (event as Event<'QUEUE_POSITION_CHANGED'>).newPosition,
 		})),
 	},
 	services: {
