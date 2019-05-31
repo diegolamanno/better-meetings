@@ -59,7 +59,10 @@ const AttendeeProvider: FC<{
 							variables: {
 								authID: authContext.userData.sub,
 								avatar: authContext.userData.picture,
-								name: authContext.userData.name,
+								name:
+									authContext.userData.nickname ||
+									authContext.userData.given_name ||
+									authContext.userData.name,
 							},
 						})
 					}

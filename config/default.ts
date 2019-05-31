@@ -19,7 +19,7 @@ const config = {
 				return `https://${this.domain}/userinfo`
 			},
 			responseType: 'token id_token',
-			scope: 'openid',
+			scope: 'openid profile',
 			prompt: 'none',
 			returnTo: `${appBaseUrl}`,
 			pem:
