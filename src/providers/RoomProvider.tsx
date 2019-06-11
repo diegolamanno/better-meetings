@@ -2,14 +2,16 @@ import React, {
 	FC,
 	ReactNode,
 	useContext,
-	useState,
+	useEffect,
 	createContext,
 } from 'react'
-import Subscription from 'react-apollo/Subscriptions'
+import { useSubscription } from 'react-apollo-hooks'
+import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
 import { AttendeeContext } from '../providers/AttendeeProvider'
 import { subscribeToRoom } from '../gql/queries'
-import { Room, SubscriptionData } from '../types'
+import { SubscriptionData, Room } from '../types'
 import { roomSubscription } from '../gql/converters'
+import { getQueuePosition } from '../utilities'
 
 export const Context = createContext({} as Room)
 
@@ -26,36 +28,35 @@ const RoomProvider: FC<{
 	const { state: attendeeState, send: attendeeSend } = useContext(
 		AttendeeContext,
 	)
-	const [prevQueuePosition, setCurrentQueuePosition] = useState<number>(-1)
 
-	return attendeeState.matches('authenticated.present') ? (
-		<Subscription<SubscriptionData<'room'>>
-			subscription={subscribeToRoom}
-			variables={{ name: attendeeState.context.roomName }}
-		>
-			{({ loading, data, error }) => {
-				let room = {} as Room
-				if (!loading && !error && data) {
-					room = roomSubscription(data)[0]
-					const currentQueuePosition = room.queue.findIndex(
-						attendee => attendee === attendeeState.context.userID,
-					)
-					if (
-						currentQueuePosition !== -1 &&
-						currentQueuePosition !== prevQueuePosition
-					) {
-						attendeeSend({
-							type: 'QUEUE_POSITION_CHANGED',
-							newPosition: currentQueuePosition,
-						})
-					}
-					setCurrentQueuePosition(currentQueuePosition)
-				}
-				return <Provider room={room}>{children}</Provider>
-			}}
-		</Subscription>
-	) : (
-		<Provider room={{} as Room}>{children}</Provider>
-	)
+	const { loading, error, data } = useSubscription<
+		SubscriptionData<'room'>,
+		{},
+		NormalizedCacheObject
+	>(subscribeToRoom, {
+		variables: { name: attendeeState.context.roomName },
+		skip: !attendeeState.matches('authenticated.present'),
+	})
+
+	const room = data ? roomSubscription(data)[0] : ({} as Room)
+
+	const currentQueuePosition = data
+		? getQueuePosition(attendeeState.context.userID, data.room[0].queue)
+		: -1
+
+	useEffect(() => {
+		if (currentQueuePosition !== -1) {
+			attendeeSend({
+				type: 'QUEUE_POSITION_CHANGED',
+				data: currentQueuePosition,
+			})
+		}
+	}, [currentQueuePosition, attendeeState.context.queuePosition])
+
+	if (loading || error || !data) {
+		return <Provider room={{} as Room}>{children}</Provider>
+	}
+
+	return <Provider room={room}>{children}</Provider>
 }
 export default RoomProvider

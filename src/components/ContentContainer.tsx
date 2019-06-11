@@ -1,7 +1,7 @@
 import React, { FC, ReactNode } from 'react'
 import { css } from '@emotion/core'
 import styled from '@emotion/styled'
-import globalStyles from '../styles/variables'
+import styleVars from '../styles/variables'
 
 type Props = {
 	children: ReactNode
@@ -21,7 +21,7 @@ const Container = styled.div`
 	max-width: 560px;
 	padding: 0 ${styleConsts.padding};
 
-	@media (min-width: ${globalStyles.mediaQueries.min}) {
+	@media (min-width: ${styleVars.mediaQueries.min}) {
 		max-width: ${styleConsts.max};
 		padding: 0 ${styleConsts.paddingLarge};
 	}

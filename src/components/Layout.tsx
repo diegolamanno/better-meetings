@@ -1,35 +1,32 @@
-import React, { FC, ComponentType, ReactNode } from 'react'
-import { Global, css } from '@emotion/core'
+/** @jsx jsx */
+
+import { FC, ComponentType, ReactNode } from 'react'
+import { css, jsx } from '@emotion/core'
 import { RouteComponentProps } from '@reach/router'
-import globalStyles from '../styles/variables'
 import NavBar from './Navbar'
-import ContentContainer from './ContentContainer'
 
 const Layout: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	return (
-		<>
-			<Global
-				styles={css`
-					html {
-						box-sizing: border-box;
-					}
-
-					*,
-					*::before,
-					*::after {
-						box-sizing: inherit;
-					}
-
-					body {
-						background-color: ${globalStyles.palette.primary};
-					}
-				`}
-			/>
+		<div
+			css={css`
+				display: flex;
+				flex-flow: column nowrap;
+				min-height: 100vh;
+			`}
+		>
 			<NavBar />
-			<ContentContainer data-section="main-area">{children}</ContentContainer>
-		</>
+			<main
+				data-section="main-area"
+				css={css`
+					flex-grow: 1;
+					position: relative;
+				`}
+			>
+				{children}
+			</main>
+		</div>
 	)
 }
 

@@ -9,8 +9,9 @@ import {
 	removeAttendeeFromQueue,
 	removeAttendeeFromRoom,
 } from '../gql/queries'
+import { getQueuePosition } from '../utilities'
 
-import { Attendee, Room, Query, MutationResult } from '../types'
+import { Attendee, Room, Query, MutationResult, GQL } from '../types'
 
 type StateSchema = import('xstate').StateSchema
 
@@ -45,7 +46,8 @@ export interface Schema extends StateSchema {
 }
 
 export type Context = Attendee & {
-	roomID: Room['id']
+	userID: GQL.User['auth_id']
+	roomID: GQL.Room['id']
 	roomName: Room['name']
 	queuePosition?: number
 	apolloClient: ApolloClient<NormalizedCacheObject>
@@ -65,26 +67,39 @@ export type Event<
 > = E extends 'DID_AUTHENTICATE'
 	? {
 			type: E
-			userID: string
+			userID: Context['userID']
 	  }
 	: E extends 'JOIN'
 	? {
 			type: E
-			roomName: string
+			roomName: Context['roomName']
 	  }
 	: E extends 'QUEUE_POSITION_CHANGED'
 	? {
 			type: E
-			newPosition: number
+			data: number
 	  }
 	: E extends 'done.invoke.addAttendeeToRoom'
 	? {
 			type: E
-			data: Room['id']
+			data: Context['roomID']
 	  }
 	: {
 			type: E
 	  }
+
+const queuePositionChangedTransition = [
+	{
+		target: '#attendee.authenticated.present.active.nextUp',
+		actions: 'setQueuePosition',
+		cond: 'isSecondInQueue',
+	},
+	{
+		target: '#attendee.authenticated.present.active.hasFloor',
+		actions: 'setQueuePosition',
+		cond: 'isFirstInQueue',
+	},
+]
 
 export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 	id: 'attendee',
@@ -94,7 +109,7 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 			on: {
 				DID_AUTHENTICATE: {
 					target: 'authenticated',
-					actions: ['setUserID'],
+					actions: 'setUserID',
 				},
 			},
 		},
@@ -105,7 +120,7 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 					on: {
 						JOIN: {
 							target: 'joining',
-							actions: ['setRoomName'],
+							actions: 'setRoomName',
 						},
 					},
 				},
@@ -114,7 +129,7 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 						src: 'addAttendeeToRoom',
 						onDone: {
 							target: 'present',
-							actions: ['setRoomID'],
+							actions: 'setRoomID',
 						},
 						onError: 'absent',
 					},
@@ -133,7 +148,7 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 						queueing: {
 							invoke: {
 								src: 'addAttendeeToQueue',
-								onDone: 'active',
+								onDone: queuePositionChangedTransition,
 								onError: 'idle',
 							},
 						},
@@ -141,18 +156,8 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 							initial: 'queued',
 							on: {
 								YIELD: 'yielding',
-								QUEUE_POSITION_CHANGED: [
-									{
-										target: '#attendee.authenticated.present.active.nextUp',
-										actions: 'setQueuePosition',
-										cond: 'isSecondInQueue',
-									},
-									{
-										target: '#attendee.authenticated.present.active.hasFloor',
-										actions: 'setQueuePosition',
-										cond: 'isFirstInQueue',
-									},
-								],
+								'': queuePositionChangedTransition,
+								QUEUE_POSITION_CHANGED: queuePositionChangedTransition,
 							},
 							states: {
 								queued: {},
@@ -205,7 +210,7 @@ export const options: Partial<
 		})),
 		setQueuePosition: assign((context, event) => ({
 			...context,
-			queuePosition: (event as Event<'QUEUE_POSITION_CHANGED'>).newPosition,
+			queuePosition: (event as Event<'QUEUE_POSITION_CHANGED'>).data,
 		})),
 	},
 	services: {
@@ -269,16 +274,30 @@ export const options: Partial<
 
 			return roomID
 		},
-		addAttendeeToQueue: ({ userID, roomID, apolloClient }) =>
-			apolloClient.mutate({
+		addAttendeeToQueue: async ({ userID, roomID, apolloClient }) => {
+			const result = await apolloClient.mutate<
+				MutationResult<'insert_queue_record'>
+			>({
 				mutation: addAttendeeToQueue,
 				variables: {
 					userID,
 					roomID,
 				},
-			}),
+			})
+			if (
+				!result.data ||
+				!result.data.insert_queue_record ||
+				!result.data.insert_queue_record.returning.length
+			) {
+				throw new Error()
+			}
+			return getQueuePosition(
+				userID,
+				result.data.insert_queue_record.returning[0].room.queue,
+			)
+		},
 		removeAttendeeFromQueue: ({ userID, roomID, apolloClient }) =>
-			apolloClient.mutate({
+			apolloClient.mutate<MutationResult<'delete_queue_record'>>({
 				mutation: removeAttendeeFromQueue,
 				variables: {
 					userID,
@@ -291,7 +310,7 @@ export const options: Partial<
 			apolloClient,
 			pusher,
 		}) => {
-			await apolloClient.mutate({
+			await apolloClient.mutate<MutationResult<'delete_attendee'>>({
 				mutation: removeAttendeeFromRoom,
 				variables: {
 					userID,
@@ -304,9 +323,9 @@ export const options: Partial<
 	},
 	guards: {
 		isSecondInQueue: (_context, event) =>
-			(event as Event<'QUEUE_POSITION_CHANGED'>).newPosition === 1,
+			(event as Event<'QUEUE_POSITION_CHANGED'>).data === 1,
 		isFirstInQueue: (_context, event) =>
-			(event as Event<'QUEUE_POSITION_CHANGED'>).newPosition === 0,
+			(event as Event<'QUEUE_POSITION_CHANGED'>).data === 0,
 	},
 }
 

@@ -1,5 +1,7 @@
 import React, { FC } from 'react'
 import { hot } from 'react-hot-loader'
+import { Global, css } from '@emotion/core'
+import styleVars from '../styles/variables'
 import ApolloProvider from '../providers/ApolloProvider'
 import AttendeeProvider from '../providers/AttendeeProvider'
 import RoomProvider from '../providers/RoomProvider'
@@ -13,6 +15,23 @@ const App: FC = () => (
 			<ApolloProvider>
 				<AttendeeProvider>
 					<RoomProvider>
+						<Global
+							styles={css`
+								html {
+									box-sizing: border-box;
+								}
+
+								*,
+								*::before,
+								*::after {
+									box-sizing: inherit;
+								}
+
+								body {
+									background-color: ${styleVars.palette.primary};
+								}
+							`}
+						/>
 						<Routes />
 					</RoomProvider>
 				</AttendeeProvider>

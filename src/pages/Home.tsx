@@ -12,7 +12,7 @@ const Home: FC = () => {
 		navigate('/room')
 		return <div>loading...</div>
 	}
-	return <div>This is the home page</div>
+	return <div>Welcome</div>
 }
 
 export default Home

@@ -1,19 +1,12 @@
 /** @jsx jsx */
 
-import {
-	FC,
-	Fragment,
-	useContext,
-	MouseEvent,
-	TouchEvent,
-	ComponentProps,
-} from 'react'
+import { FC, Fragment, useContext, MouseEvent, TouchEvent } from 'react'
 import { jsx, css } from '@emotion/core'
 import { navigate, RouteComponentProps } from '@reach/router'
+import styleVars from '../styles/variables'
 import { Context as RoomContext } from '../providers/RoomProvider'
 import { AttendeeContext } from '../providers/AttendeeProvider'
-import { State } from '../state/AttendeeMachine'
-import View from '../components/View'
+import { getInitials } from '../utilities'
 
 const Room: FC<RouteComponentProps> = () => {
 	const room = useContext(RoomContext)
@@ -21,16 +14,7 @@ const Room: FC<RouteComponentProps> = () => {
 		AttendeeContext,
 	)
 
-	const stateStrings = attendeeState.toStrings()
-	let state: Extract<State, ComponentProps<typeof View>['state']> = 'idle'
-	if (stateStrings.length) {
-		console.log(stateStrings)
-		state = stateStrings[stateStrings.length - 1]
-			.split('.')
-			.pop() as typeof state
-	}
-
-	const handleStateRepresenationTapped = (
+	const handleInteract = (
 		e: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
 	) => {
 		e.preventDefault()
@@ -58,28 +42,106 @@ const Room: FC<RouteComponentProps> = () => {
 		return <div>loading...</div>
 	}
 
+	const queued = attendeeState.matches('authenticated.present.active.queued')
+	const nextUp = attendeeState.matches('authenticated.present.active.nextUp')
+	const hasFloor = attendeeState.matches(
+		'authenticated.present.active.hasFloor',
+	)
+
+	let queueAhead =
+		attendeeState.context.queuePosition &&
+		room.queue.splice(attendeeState.context.queuePosition)
+
+	for (let i = 0; i < 2 && queueAhead; i++) {
+		queueAhead = [queueAhead[0], ...queueAhead]
+	}
+
+	const flexPercentage = 80 / (queueAhead ? queueAhead.length : 1)
+	const borderWidth = flexPercentage / 75
+	const fontSize = flexPercentage / 5
+
 	return (
 		<Fragment>
 			<div
-				onClick={handleStateRepresenationTapped}
-				onTouchEnd={handleStateRepresenationTapped}
-				css={css`
-					position: absolute;
-					top: 0;
-					left: 0;
-					bottom: 0;
-					right: 0;
-				`}
+				onClick={handleInteract}
+				onTouchEnd={handleInteract}
+				css={[
+					css`
+						justify-content: space-around;
+						top: 0;
+						left: 0;
+						bottom: 0;
+						right: 0;
+						display: flex;
+						position: absolute;
+						flex-flow: column nowrap;
+						align-items: center;
+						background-color: ${styleVars.colors.idle};
+
+						@media (orientation: landscape) {
+							flex-direction: row;
+						}
+
+						.avatar {
+							flex: 0 1 ${flexPercentage}vmax;
+							display: block;
+							border-radius: 50%;
+							background-color: #fff;
+							overflow: hidden;
+							border: ${borderWidth}vmin solid #000;
+							color: #000;
+							font-size: ${fontSize}vmin;
+							text-align: center;
+							line-height: ${flexPercentage}vmin;
+							text-transform: uppercase;
+							max-width: ${flexPercentage}vmin;
+							max-height: ${flexPercentage}vmin;
+
+							&__img {
+								width: 100%;
+								height: 100%;
+								object-fit: cover;
+							}
+
+							@media (orientation: portrait) {
+								width: ${flexPercentage}vmax;
+							}
+
+							@media (orientation: landscape) {
+								height: ${flexPercentage}vmax;
+							}
+						}
+					`,
+					(queued || nextUp) &&
+						css`
+							background-color: ${styleVars.colors.queued};
+						`,
+					hasFloor &&
+						css`
+							background-color: ${styleVars.colors.hasFloor};
+						`,
+				]}
 			>
-				<View
-					state={state}
-					queuePosition={attendeeState.context.queuePosition}
-					style={css`
-						width: 100%;
-						height: 100%;
-					`}
-				/>
+				{queueAhead &&
+					queueAhead.map(attendee => {
+						const avatarSrc = room.attendees[attendee].avatar
+						const initials =
+							room.attendees[attendee].name &&
+							getInitials(room.attendees[attendee].name as string)
+						return (
+							<div className="avatar" key={attendee}>
+								{typeof avatarSrc === 'stringf' ? (
+									<img className="avatar__img" src={avatarSrc} />
+								) : initials ? (
+									initials
+								) : (
+									undefined
+								)}
+							</div>
+						)
+					})}
 			</div>
+
 			<button
 				type="button"
 				onClick={handleLeaveRoom}

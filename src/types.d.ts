@@ -1,15 +1,12 @@
 import * as GQL from './gql/types'
 import { Auth0UserProfile } from 'auth0-js'
 
-export interface Attendee {
-	userID: GQL.User['auth_id']
-}
+export type Attendee = Pick<GQL.User, 'name' | 'avatar'>
 
-export interface Room {
+export type Room = {
 	name: GQL.Room['name']
-	id: GQL.Room['id']
-	attendees: Attendee['userID'][]
-	queue: Attendee['userID'][]
+	attendees: { [key in GQL.Attendee['user_id']]: Attendee }
+	queue: GQL.Attendee['user_id'][]
 }
 
 export type JWTPayload = {

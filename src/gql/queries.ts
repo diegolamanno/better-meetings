@@ -55,6 +55,10 @@ export const subscribeToRoom = gql`
 			name
 			attendees {
 				user_id
+				user {
+					name
+					avatar
+				}
 			}
 			queue {
 				user_id
@@ -66,7 +70,13 @@ export const subscribeToRoom = gql`
 export const addAttendeeToQueue = gql`
 	mutation($userID: String, $roomID: bigint!) {
 		insert_queue_record(objects: { room_id: $roomID, user_id: $userID }) {
-			affected_rows
+			returning {
+				room {
+					queue {
+						user_id
+					}
+				}
+			}
 		}
 	}
 `

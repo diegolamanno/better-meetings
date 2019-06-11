@@ -37,15 +37,19 @@ const clearSession = () => {
 	localStorage.removeItem(StorageKey.expiry)
 }
 
-type UnauthenticatedState = {
+type Base = {
+	ready: boolean
+}
+
+type UnauthenticatedState = Base & {
 	isAuthenticated: false
 	idToken?: string
 	userData?: JWTPayload
 }
 
-type AuthenticatedState = {
-	idToken: string
+type AuthenticatedState = Base & {
 	isAuthenticated: true
+	idToken: string
 	userData: JWTPayload
 	renewalTimer: number
 }
@@ -57,13 +61,17 @@ type UnauthenticatedContextType = UnauthenticatedState & {
 	handleAuthentication: () => void
 }
 
-export type AuthenticatedContextType = AuthenticatedState & {
+export type AuthenticatedContextType = Pick<
+	AuthenticatedState,
+	'ready' | 'isAuthenticated' | 'idToken' | 'userData'
+> & {
 	logout: (err?: Auth0Error | null) => void
 }
 
 type ContextType = UnauthenticatedContextType | AuthenticatedContextType
 
 export const AuthContext = createContext<ContextType>({
+	ready: false,
 	isAuthenticated: false,
 	login: () => {},
 	handleAuthentication: () => {},
@@ -73,6 +81,7 @@ const AuthProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const [state, setState] = useState<State>({
+		ready: false,
 		isAuthenticated: false,
 	})
 
@@ -85,6 +94,7 @@ const AuthProvider: FC<{
 		setState({
 			idToken,
 			userData,
+			ready: true,
 			renewalTimer: window.setTimeout(renewTokens, expiresIn * 1000),
 			isAuthenticated: true,
 		})
@@ -102,6 +112,11 @@ const AuthProvider: FC<{
 					session.expiresIn,
 				)
 			}
+		} else {
+			setState({
+				ready: true,
+				isAuthenticated: false,
+			})
 		}
 	}, [])
 
@@ -114,6 +129,10 @@ const AuthProvider: FC<{
 	}
 
 	const renewTokens = () => {
+		setState({
+			...state,
+			ready: false,
+		})
 		auth0.checkSession({}, processsAuthResult)
 	}
 
@@ -142,10 +161,11 @@ const AuthProvider: FC<{
 
 		if (state.isAuthenticated) {
 			window.clearTimeout(state.renewalTimer)
-			setState({
-				isAuthenticated: false,
-			})
 		}
+		setState({
+			isAuthenticated: false,
+			ready: true,
+		})
 
 		if (!err) {
 			auth0.logout({
