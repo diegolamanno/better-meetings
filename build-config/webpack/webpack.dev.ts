@@ -1,5 +1,5 @@
 import merge = require('webpack-merge')
-import CleanWebpackPlugin from 'clean-webpack-plugin'
+import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import config from 'config'
 import common = require('./webpack.common')
 import paths from './paths'

@@ -25,7 +25,13 @@ module.exports = {
 				options: {
 					transpileOnly: true,
 					getCustomTransformers: () => ({
-						before: [createEmotionPlugin()],
+						before: [
+							createEmotionPlugin({
+								sourcemap: true,
+								autoLabel: true,
+								autoInject: false,
+							}),
+						],
 					}),
 				},
 			},

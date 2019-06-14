@@ -48,15 +48,13 @@ const Room: FC<RouteComponentProps> = () => {
 		'authenticated.present.active.hasFloor',
 	)
 
-	let queueAhead =
+	const queueAhead =
 		attendeeState.context.queuePosition &&
 		room.queue.splice(attendeeState.context.queuePosition)
 
-	for (let i = 0; i < 2 && queueAhead; i++) {
-		queueAhead = [queueAhead[0], ...queueAhead]
-	}
+	const avatarScale = 80
 
-	const flexPercentage = 80 / (queueAhead ? queueAhead.length : 1)
+	const flexPercentage = avatarScale / (queueAhead ? queueAhead.length : 1)
 	const borderWidth = flexPercentage / 75
 	const fontSize = flexPercentage / 5
 
@@ -94,8 +92,8 @@ const Room: FC<RouteComponentProps> = () => {
 							text-align: center;
 							line-height: ${flexPercentage}vmin;
 							text-transform: uppercase;
-							max-width: ${flexPercentage}vmin;
-							max-height: ${flexPercentage}vmin;
+							max-width: ${avatarScale}vmin;
+							max-height: ${avatarScale}vmin;
 
 							&__img {
 								width: 100%;
@@ -122,24 +120,25 @@ const Room: FC<RouteComponentProps> = () => {
 						`,
 				]}
 			>
-				{queueAhead &&
-					queueAhead.map(attendee => {
-						const avatarSrc = room.attendees[attendee].avatar
-						const initials =
-							room.attendees[attendee].name &&
-							getInitials(room.attendees[attendee].name as string)
-						return (
-							<div className="avatar" key={attendee}>
-								{typeof avatarSrc === 'stringf' ? (
-									<img className="avatar__img" src={avatarSrc} />
-								) : initials ? (
-									initials
-								) : (
-									undefined
-								)}
-							</div>
-						)
-					})}
+				{queueAhead
+					? queueAhead.map(attendee => {
+							const avatarSrc = room.attendees[attendee].avatar
+							const initials =
+								room.attendees[attendee].name &&
+								getInitials(room.attendees[attendee].name as string)
+							return (
+								<div className="avatar" key={attendee}>
+									{typeof avatarSrc === 'string' ? (
+										<img className="avatar__img" src={avatarSrc} />
+									) : initials ? (
+										initials
+									) : (
+										undefined
+									)}
+								</div>
+							)
+					  })
+					: undefined}
 			</div>
 
 			<button

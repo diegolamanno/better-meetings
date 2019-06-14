@@ -7,3 +7,4 @@ reports
 .env.*
 *.log
 api/config.json
+.vscode
