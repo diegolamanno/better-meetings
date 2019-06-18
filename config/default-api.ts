@@ -1,6 +1,6 @@
 const config = {
 	pusher: {
-		secret: process.env.PUSHER_SECRET as string,
+		secret: process.env.PUSHER_SECRET_DEV as string,
 	},
 	hasura: {
 		adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET as string,

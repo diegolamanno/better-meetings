@@ -20,9 +20,10 @@
 	],
 	"build": {
 		"env": {
-			"PUSHER_SECRET": "@pusher-secret",
-			"HASURA_GRAPHQL_ADMIN_SECRET": "@hasura-graphql-admin-secret",
-			"IS_NOW": "true"
+			"PUSHER_SECRET_DEV": "@pusher-secret-dev",
+			"PUSHER_SECRET_STAGE": "@pusher-secret-stage",
+			"PUSHER_SECRET_PROD": "@pusher-secret-prod",
+			"HASURA_GRAPHQL_ADMIN_SECRET": "@hasura-graphql-admin-secret"
 		}
 	}
 }

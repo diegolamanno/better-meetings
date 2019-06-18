@@ -1,5 +1,6 @@
 {
 	"version": 2,
+	"alias": "better-meetings.live",
 	"builds": [
 		{ "src": "./package.json", "use": "@now/static-build" },
 		{ "src": "./api/src/**/*", "use": "@now/node" }
@@ -23,9 +24,10 @@
 	],
 	"build": {
 		"env": {
-			"PUSHER_SECRET": "@pusher-secret",
-			"HASURA_GRAPHQL_ADMIN_SECRET": "@hasura-graphql-admin-secret",
-			"IS_NOW": "true"
+			"PUSHER_SECRET_DEV": "@pusher-secret-dev",
+			"PUSHER_SECRET_STAGE": "@pusher-secret-stage",
+			"PUSHER_SECRET_PROD": "@pusher-secret-prod",
+			"HASURA_GRAPHQL_ADMIN_SECRET": "@hasura-graphql-admin-secret"
 		}
 	}
 }

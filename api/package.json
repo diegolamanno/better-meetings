@@ -10,7 +10,7 @@
 	},
 	"dependencies": {
 		"@types/co-body": "^0.0.3",
-		"@types/config": "^0.0.34",
+		"@types/config": "nonAlgebraic/types__config#master",
 		"@types/jsonwebtoken": "^8.3.2",
 		"@types/micro": "^7.3.3",
 		"@types/micro-cors": "^0.1.0",
