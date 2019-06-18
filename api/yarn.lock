@@ -31,9 +31,10 @@
     "@types/node" "*"
     "@types/qs" "*"
 
-"@types/config@nonAlgebraic/types__config#master":
+"@types/config@^0.0.34":
   version "0.0.34"
-  resolved "https://codeload.github.com/nonAlgebraic/types__config/tar.gz/543b2267591f0b2b6c648228bf1bc87e9a2688b8"
+  resolved "https://registry.yarnpkg.com/@types/config/-/config-0.0.34.tgz#123f91bdb5afdd702294b9de9ca04d9ea11137b0"
+  integrity sha512-jWi9DXx77hnzN4kHCNEvP/kab+nchRLTg9yjXYxjTcMBkuc5iBb3QuwJ4sPrb+nzy1GQjrfyfMqZOdR4i7opRQ==
 
 "@types/connect@*":
   version "3.4.32"
@@ -131,10 +132,10 @@
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.1.tgz#dc488842312a7f075149312905b5e3c0b054c79d"
   integrity sha512-FwI9gX75FgVBJ7ywgnq/P7tw+/o1GUbtP0KzbtusLigAOgIgNISRK0ZPl4qertvXSIE8YbsVJueQ90cDt9YYyw==
 
-"@types/node-fetch@^2.3.6":
-  version "2.3.6"
-  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.3.6.tgz#761f30134f62c9fd30174603a97348a0477e5dc2"
-  integrity sha512-KuQEir6FTxAdrdPsTVPDukPRRJmZyVldu/1+ua6kF26lyvhK9Elq1mQJgDl7773H9XxCu8H8oEC0yQM06Cy3kg==
+"@types/node-fetch@^2.3.7":
+  version "2.3.7"
+  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.3.7.tgz#b7212e895100f8642dbdab698472bab5f3c1d2f1"
+  integrity sha512-+bKtuxhj/TYSSP1r4CZhfmyA0vm/aDRQNo7vbAgf6/cZajn0SAniGGST07yvI4Q+q169WTa2/x9gEHfJrkcALw==
   dependencies:
     "@types/node" "*"
 
@@ -718,10 +719,10 @@ tough-cookie@~2.4.3:
     psl "^1.1.24"
     punycode "^1.4.1"
 
-ts-node@^8.2.0:
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-8.2.0.tgz#4a89754b00560bb24cd54526e1685fa38c45f240"
-  integrity sha512-m8XQwUurkbYqXrKqr3WHCW310utRNvV5OnRVeISeea7LoCWVcdfeB/Ntl8JYWFh+WRoUAdBgESrzKochQt7sMw==
+ts-node@^8.3.0:
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-8.3.0.tgz#e4059618411371924a1fb5f3b125915f324efb57"
+  integrity sha512-dyNS/RqyVTDcmNM4NIBAeDMpsAdaQ+ojdf0GOLqE6nwJOgzEkdRNzJywhDfwnuvB10oa6NLVG1rUJQCpRN7qoQ==
   dependencies:
     arg "^4.1.0"
     diff "^4.0.1"

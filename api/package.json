@@ -10,11 +10,11 @@
 	},
 	"dependencies": {
 		"@types/co-body": "^0.0.3",
-		"@types/config": "nonAlgebraic/types__config#master",
+		"@types/config": "^0.0.34",
 		"@types/jsonwebtoken": "^8.3.2",
 		"@types/micro": "^7.3.3",
 		"@types/micro-cors": "^0.1.0",
-		"@types/node-fetch": "^2.3.6",
+		"@types/node-fetch": "^2.3.7",
 		"config": "^3.1.0",
 		"graphql-request": "^1.8.2",
 		"jsonwebtoken": "^8.5.1",
@@ -22,7 +22,7 @@
 		"micro-cors": "^0.1.1",
 		"node-fetch": "^2.6.0",
 		"pusher": "^2.2.0",
-		"ts-node": "^8.2.0",
+		"ts-node": "^8.3.0",
 		"typescript": "^3.5.2"
 	}
 }
