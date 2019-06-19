@@ -77,12 +77,16 @@ export type Event<
 	: E extends 'QUEUE_POSITION_CHANGED'
 	? {
 			type: E
-			data: number
+			data: {
+				queuePosition: Exclude<Context['queuePosition'], undefined>
+			}
 	  }
 	: E extends 'done.invoke.addAttendeeToRoom'
 	? {
 			type: E
-			data: Context['roomID']
+			data: {
+				roomID: Context['roomID']
+			}
 	  }
 	: {
 			type: E
@@ -98,6 +102,14 @@ const queuePositionChangedTransition = [
 		target: '#attendee.authenticated.present.active.hasFloor',
 		actions: 'setQueuePosition',
 		cond: 'isFirstInQueue',
+	},
+]
+
+const queuedTransition = [
+	...queuePositionChangedTransition,
+	{
+		target: '#attendee.authenticated.present.active.queued',
+		actions: 'setQueuePosition',
 	},
 ]
 
@@ -148,7 +160,7 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 						queueing: {
 							invoke: {
 								src: 'addAttendeeToQueue',
-								onDone: queuePositionChangedTransition,
+								onDone: queuedTransition,
 								onError: 'idle',
 							},
 						},
@@ -156,7 +168,6 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 							initial: 'queued',
 							on: {
 								YIELD: 'yielding',
-								'': queuePositionChangedTransition,
 								QUEUE_POSITION_CHANGED: queuePositionChangedTransition,
 							},
 							states: {
@@ -171,7 +182,10 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 						yielding: {
 							invoke: {
 								src: 'removeAttendeeFromQueue',
-								onDone: '#attendee.authenticated.present.idle',
+								onDone: {
+									target: '#attendee.authenticated.present.idle',
+									actions: 'clearQueuePosition',
+								},
 								onError: 'active.lastQueuePosition',
 							},
 						},
@@ -183,7 +197,10 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 				leaving: {
 					invoke: {
 						src: 'removeAttendeeFromRoom',
-						onDone: '#attendee.authenticated.absent',
+						onDone: {
+							target: '#attendee.authenticated.absent',
+							actions: 'clearRoomFromContext',
+						},
 						onError: 'present.lastRoomStatus',
 					},
 				},
@@ -206,11 +223,21 @@ export const options: Partial<
 		})),
 		setRoomID: assign((context, event) => ({
 			...context,
-			roomID: (event as Event<'done.invoke.addAttendeeToRoom'>).data,
+			roomID: (event as Event<'done.invoke.addAttendeeToRoom'>).data.roomID,
 		})),
 		setQueuePosition: assign((context, event) => ({
 			...context,
-			queuePosition: (event as Event<'QUEUE_POSITION_CHANGED'>).data,
+			queuePosition: (event as Event<'QUEUE_POSITION_CHANGED'>).data
+				.queuePosition,
+		})),
+		clearQueuePosition: assign(context => ({
+			...context,
+			queuePosition: undefined,
+		})),
+		clearRoomFromContext: assign(context => ({
+			...context,
+			roomID: undefined,
+			roomName: undefined,
 		})),
 	},
 	services: {
@@ -272,7 +299,7 @@ export const options: Partial<
 				throw new Error()
 			}
 
-			return roomID
+			return { roomID }
 		},
 		addAttendeeToQueue: async ({ userID, roomID, apolloClient }) => {
 			const result = await apolloClient.mutate<
@@ -291,19 +318,24 @@ export const options: Partial<
 			) {
 				throw new Error()
 			}
-			return getQueuePosition(
-				userID,
-				result.data.insert_queue_record.returning[0].room.queue,
-			)
+			return {
+				queuePosition: getQueuePosition(
+					userID,
+					result.data.insert_queue_record.returning[0].room.queue,
+				),
+			}
 		},
-		removeAttendeeFromQueue: ({ userID, roomID, apolloClient }) =>
-			apolloClient.mutate<MutationResult<'delete_queue_record'>>({
+		removeAttendeeFromQueue: async ({ userID, roomID, apolloClient }) => {
+			await apolloClient.mutate<MutationResult<'delete_queue_record'>>({
 				mutation: removeAttendeeFromQueue,
 				variables: {
 					userID,
 					roomID,
 				},
-			}),
+			})
+
+			return {}
+		},
 		removeAttendeeFromRoom: async ({
 			userID,
 			roomID,
@@ -319,13 +351,15 @@ export const options: Partial<
 			})
 
 			pusher.unsubscribe(`presence-${roomID}`)
+
+			return {}
 		},
 	},
 	guards: {
 		isSecondInQueue: (_context, event) =>
-			(event as Event<'QUEUE_POSITION_CHANGED'>).data === 1,
+			(event as Event<'QUEUE_POSITION_CHANGED'>).data.queuePosition === 1,
 		isFirstInQueue: (_context, event) =>
-			(event as Event<'QUEUE_POSITION_CHANGED'>).data === 0,
+			(event as Event<'QUEUE_POSITION_CHANGED'>).data.queuePosition === 0,
 	},
 }
 

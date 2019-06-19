@@ -48,7 +48,9 @@ const RoomProvider: FC<{
 		if (currentQueuePosition !== -1) {
 			attendeeSend({
 				type: 'QUEUE_POSITION_CHANGED',
-				data: currentQueuePosition,
+				data: {
+					queuePosition: currentQueuePosition,
+				},
 			})
 		}
 	}, [currentQueuePosition, attendeeState.context.queuePosition])
