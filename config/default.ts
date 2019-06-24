@@ -43,8 +43,13 @@ const config = {
 			presenceEndpoint: `${this.api.baseURL}/presence`,
 		}
 	},
-	hasura: {
-		graphqlUri: 'https://hth5-better-meetings.herokuapp.com/v1alpha1/graphql',
+	get hasura() {
+		const baseUrl = 'https://hth5-better-meetings.herokuapp.com/v1'
+		return {
+			baseUrl,
+			graphqlUri: `${baseUrl}/graphql`,
+			apiEndpoint: `${baseUrl}/query`,
+		}
 	},
 }
 

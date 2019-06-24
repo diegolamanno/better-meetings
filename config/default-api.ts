@@ -1,9 +1,10 @@
 const config = {
 	pusher: {
-		secret: process.env.PUSHER_SECRET_DEV as string,
+		secret: process.env.PUSHER_SECRET_DEV,
 	},
 	hasura: {
-		adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET as string,
+		adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET,
+		queryCollectionName: 'allowedQueries',
 	},
 }
 
