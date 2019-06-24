@@ -77,7 +77,7 @@ export const AuthContext = createContext<ContextType>({
 	handleAuthentication: () => {},
 })
 
-const AuthProvider: FC<{
+export const AuthProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const [state, setState] = useState<State>({

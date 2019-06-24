@@ -105,8 +105,6 @@ export enum Attendee_Constraint {
   /** unique or primary key constraint */
   AttendeePkey = 'attendee_pkey',
   /** unique or primary key constraint */
-  AttendeeRoomIdKey = 'attendee_room_id_key',
-  /** unique or primary key constraint */
   AttendeeUserIdKey = 'attendee_user_id_key'
 }
 
@@ -1419,9 +1417,57 @@ export type Timestamptz_Comparison_Exp = {
 /** columns and relationships of "user" */
 export type User = {
   __typename?: 'user',
+  /** An array relationship */
+  attendees: Array<Attendee>,
+  /** An aggregated array relationship */
+  attendees_aggregate: Attendee_Aggregate,
   auth_id: Scalars['String'],
   avatar?: Maybe<Scalars['String']>,
   name?: Maybe<Scalars['String']>,
+  /** An array relationship */
+  queue_records: Array<Queue_Record>,
+  /** An aggregated array relationship */
+  queue_records_aggregate: Queue_Record_Aggregate,
+};
+
+
+/** columns and relationships of "user" */
+export type UserAttendeesArgs = {
+  distinct_on?: Maybe<Array<Attendee_Select_Column>>,
+  limit?: Maybe<Scalars['Int']>,
+  offset?: Maybe<Scalars['Int']>,
+  order_by?: Maybe<Array<Attendee_Order_By>>,
+  where?: Maybe<Attendee_Bool_Exp>
+};
+
+
+/** columns and relationships of "user" */
+export type UserAttendees_AggregateArgs = {
+  distinct_on?: Maybe<Array<Attendee_Select_Column>>,
+  limit?: Maybe<Scalars['Int']>,
+  offset?: Maybe<Scalars['Int']>,
+  order_by?: Maybe<Array<Attendee_Order_By>>,
+  where?: Maybe<Attendee_Bool_Exp>
+};
+
+
+/** columns and relationships of "user" */
+export type UserQueue_RecordsArgs = {
+  distinct_on?: Maybe<Array<Queue_Record_Select_Column>>,
+  limit?: Maybe<Scalars['Int']>,
+  offset?: Maybe<Scalars['Int']>,
+  order_by?: Maybe<Array<Queue_Record_Order_By>>,
+  where?: Maybe<Queue_Record_Bool_Exp>
+};
+
+
+/** columns and relationships of "user" */
+export type UserQueue_Records_AggregateArgs = {
+  distinct_on?: Maybe<Array<Queue_Record_Select_Column>>,
+  limit?: Maybe<Scalars['Int']>,
+  offset?: Maybe<Scalars['Int']>,
+  order_by?: Maybe<Array<Queue_Record_Order_By>>,
+  where?: Maybe<Queue_Record_Bool_Exp>
 };
 
 /** aggregated selection of "user" */
@@ -1464,9 +1510,11 @@ export type User_Bool_Exp = {
   _and?: Maybe<Array<Maybe<User_Bool_Exp>>>,
   _not?: Maybe<User_Bool_Exp>,
   _or?: Maybe<Array<Maybe<User_Bool_Exp>>>,
+  attendees?: Maybe<Attendee_Bool_Exp>,
   auth_id?: Maybe<Text_Comparison_Exp>,
   avatar?: Maybe<Text_Comparison_Exp>,
   name?: Maybe<Text_Comparison_Exp>,
+  queue_records?: Maybe<Queue_Record_Bool_Exp>,
 };
 
 /** unique or primary key constraints on table "user" */
@@ -1479,9 +1527,11 @@ export enum User_Constraint {
 
 /** input type for inserting data into table "user" */
 export type User_Insert_Input = {
+  attendees?: Maybe<Attendee_Arr_Rel_Insert_Input>,
   auth_id?: Maybe<Scalars['String']>,
   avatar?: Maybe<Scalars['String']>,
   name?: Maybe<Scalars['String']>,
+  queue_records?: Maybe<Queue_Record_Arr_Rel_Insert_Input>,
 };
 
 /** aggregate max on columns */
@@ -1537,9 +1587,11 @@ export type User_On_Conflict = {
 
 /** ordering options when selecting data from "user" */
 export type User_Order_By = {
+  attendees_aggregate?: Maybe<Attendee_Aggregate_Order_By>,
   auth_id?: Maybe<Order_By>,
   avatar?: Maybe<Order_By>,
   name?: Maybe<Order_By>,
+  queue_records_aggregate?: Maybe<Queue_Record_Aggregate_Order_By>,
 };
 
 /** select columns of table "user" */
@@ -1568,3 +1620,71 @@ export enum User_Update_Column {
   /** column name */
   Name = 'name'
 }
+export type GetUserQueryVariables = {
+  authID: Scalars['String']
+};
+
+
+export type GetUserQuery = ({ __typename?: 'query_root' } & { user: Array<({ __typename?: 'user' } & Pick<User, 'auth_id'>)> });
+
+export type AddAttendeeToRoomMutationVariables = {
+  userID: Scalars['String'],
+  roomID: Scalars['bigint']
+};
+
+
+export type AddAttendeeToRoomMutation = ({ __typename?: 'mutation_root' } & { insert_attendee: Maybe<({ __typename?: 'attendee_mutation_response' } & Pick<Attendee_Mutation_Response, 'affected_rows'>)> });
+
+export type CreateRoomMutationVariables = {
+  name?: Maybe<Scalars['String']>
+};
+
+
+export type CreateRoomMutation = ({ __typename?: 'mutation_root' } & { insert_room: Maybe<({ __typename?: 'room_mutation_response' } & { returning: Array<({ __typename?: 'room' } & Pick<Room, 'id'>)> })> });
+
+export type GetRoomQueryVariables = {
+  name?: Maybe<Scalars['String']>
+};
+
+
+export type GetRoomQuery = ({ __typename?: 'query_root' } & { room: Array<({ __typename?: 'room' } & Pick<Room, 'id' | 'name'>)> });
+
+export type AddUserMutationVariables = {
+  authID: Scalars['String'],
+  name?: Maybe<Scalars['String']>,
+  avatar?: Maybe<Scalars['String']>
+};
+
+
+export type AddUserMutation = ({ __typename?: 'mutation_root' } & { insert_user: Maybe<({ __typename?: 'user_mutation_response' } & Pick<User_Mutation_Response, 'affected_rows'>)> });
+
+export type SubscribeToRoomSubscriptionVariables = {
+  name: Scalars['String']
+};
+
+
+export type SubscribeToRoomSubscription = ({ __typename?: 'subscription_root' } & { room: Array<({ __typename?: 'room' } & Pick<Room, 'id' | 'name'> & { attendees: Array<({ __typename?: 'attendee' } & Pick<Attendee, 'user_id'> & { user: ({ __typename?: 'user' } & Pick<User, 'name' | 'avatar'>) })>, queue: Array<({ __typename?: 'queue_record' } & Pick<Queue_Record, 'user_id'>)> })> });
+
+export type AddAttendeeToQueueMutationVariables = {
+  userID?: Maybe<Scalars['String']>,
+  roomID: Scalars['bigint']
+};
+
+
+export type AddAttendeeToQueueMutation = ({ __typename?: 'mutation_root' } & { insert_queue_record: Maybe<({ __typename?: 'queue_record_mutation_response' } & { returning: Array<({ __typename?: 'queue_record' } & { room: ({ __typename?: 'room' } & { queue: Array<({ __typename?: 'queue_record' } & Pick<Queue_Record, 'user_id'>)> }) })> })> });
+
+export type RemoveAttendeeFromQueueMutationVariables = {
+  userID?: Maybe<Scalars['String']>,
+  roomID: Scalars['bigint']
+};
+
+
+export type RemoveAttendeeFromQueueMutation = ({ __typename?: 'mutation_root' } & { delete_queue_record: Maybe<({ __typename?: 'queue_record_mutation_response' } & Pick<Queue_Record_Mutation_Response, 'affected_rows'>)> });
+
+export type RemoveAttendeeFromRoomMutationVariables = {
+  userID?: Maybe<Scalars['String']>,
+  roomID: Scalars['bigint']
+};
+
+
+export type RemoveAttendeeFromRoomMutation = ({ __typename?: 'mutation_root' } & { delete_attendee: Maybe<({ __typename?: 'attendee_mutation_response' } & Pick<Attendee_Mutation_Response, 'affected_rows'>)> });

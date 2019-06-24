@@ -17,8 +17,8 @@ import {
 	Event,
 } from '../state/AttendeeMachine'
 
-import { getUser, addUser } from '../gql/queries'
-import { MutationResult, Query } from '../types'
+import { getUser, addUser } from '../gql/queries.graphql'
+import { MutationResult, Query, GQL } from '../types'
 
 type AttendeeState = import('xstate').State<Context, Event>
 type AttendeeSend = import('xstate/lib/interpreter').Interpreter<
@@ -34,7 +34,7 @@ type ContextType = {
 
 export const AttendeeContext = createContext<ContextType>({} as ContextType)
 
-const AttendeeProvider: FC<{
+export const AttendeeProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const authContext = useContext(AuthContext)
@@ -46,7 +46,7 @@ const AttendeeProvider: FC<{
 	useEffect(() => {
 		if (state.matches('unauthenticated') && authContext.isAuthenticated) {
 			apolloClient
-				.query<Query<'user'>>({
+				.query<Query<'user'>, GQL.GetUserQueryVariables>({
 					query: getUser,
 					variables: {
 						authID: authContext.userData.sub,
@@ -54,7 +54,10 @@ const AttendeeProvider: FC<{
 				})
 				.then(async result => {
 					if (!result.data.user.length) {
-						await apolloClient.mutate<MutationResult<'insert_user'>>({
+						await apolloClient.mutate<
+							MutationResult<'insert_user'>,
+							GQL.AddUserMutationVariables
+						>({
 							mutation: addUser,
 							variables: {
 								authID: authContext.userData.sub,

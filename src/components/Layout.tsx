@@ -1,13 +1,11 @@
 /** @jsx jsx */
 
-import { FC, ComponentType, ReactNode } from 'react'
+import { FC } from 'react'
 import { css, jsx } from '@emotion/core'
 import { RouteComponentProps } from '@reach/router'
-import NavBar from './Navbar'
+import { NavBar } from '@components'
 
-const Layout: FC<{
-	children: ReactNode
-}> = ({ children }) => {
+export const Layout: FC<RouteComponentProps> = ({ children }) => {
 	return (
 		<div
 			css={css`
@@ -31,11 +29,3 @@ const Layout: FC<{
 }
 
 export default Layout
-
-export const withLayout = (Wrapped: ComponentType<RouteComponentProps>) => (
-	props: RouteComponentProps,
-) => (
-	<Layout>
-		<Wrapped {...props} />
-	</Layout>
-)

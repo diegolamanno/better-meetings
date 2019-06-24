@@ -88,7 +88,7 @@ type ContextType = ApolloClient<NormalizedCacheObject>
 
 export const ApolloContext = createContext<ContextType>({} as ContextType)
 
-const ApolloProvider: FC<{
+export const ApolloProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const authContext = useContext(AuthContext)

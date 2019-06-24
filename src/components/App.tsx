@@ -1,15 +1,17 @@
 import React, { FC } from 'react'
 import { hot } from 'react-hot-loader'
 import { Global, css } from '@emotion/core'
-import styleVars from '../styles/variables'
-import ApolloProvider from '../providers/ApolloProvider'
-import AttendeeProvider from '../providers/AttendeeProvider'
-import RoomProvider from '../providers/RoomProvider'
-import AuthProvider from '../providers/AuthProvider'
-import PusherProvider from '../providers/PusherProvider'
-import Routes from './Routes'
+import { variables as styleVars } from '@styles'
+import {
+	ApolloProvider,
+	AttendeeProvider,
+	RoomProvider,
+	AuthProvider,
+	PusherProvider,
+} from '@providers'
+import { Routes } from '@components'
 
-const App: FC = () => (
+export const ColdApp: FC = () => (
 	<AuthProvider>
 		<PusherProvider>
 			<ApolloProvider>
@@ -40,4 +42,6 @@ const App: FC = () => (
 	</AuthProvider>
 )
 
-export default hot(module)(App)
+export const App = hot(module)(ColdApp)
+
+export default App

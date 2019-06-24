@@ -8,21 +8,21 @@ import React, {
 import { useSubscription } from 'react-apollo-hooks'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
 import { AttendeeContext } from '../providers/AttendeeProvider'
-import { subscribeToRoom } from '../gql/queries'
+import { subscribeToRoom } from '../gql/queries.graphql'
 import { SubscriptionData, Room } from '../types'
 import { roomSubscription } from '../gql/converters'
 import { getQueuePosition } from '../utilities'
 
-export const Context = createContext({} as Room)
+export const RoomContext = createContext({} as Room)
 
 const Provider: FC<{
 	room: Room
 	children: ReactNode
 }> = ({ room, children }) => (
-	<Context.Provider value={room}>{children}</Context.Provider>
+	<RoomContext.Provider value={room}>{children}</RoomContext.Provider>
 )
 
-const RoomProvider: FC<{
+export const RoomProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const { state: attendeeState, send: attendeeSend } = useContext(

@@ -1,8 +1,10 @@
+delete process.env.TS_NODE_PROJECT
 import HtmlWebpackPlugin = require('html-webpack-plugin')
 import { DefinePlugin } from 'webpack'
 import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 import { GenerateSW } from 'workbox-webpack-plugin'
 import { createEmotionPlugin } from 'emotion-ts-plugin'
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 import paths from './paths'
 
 module.exports = {
@@ -16,6 +18,7 @@ module.exports = {
 	},
 	resolve: {
 		extensions: ['.tsx', '.ts', '.jsx', '.js'],
+		plugins: [new TsconfigPathsPlugin()],
 	},
 	module: {
 		rules: [
@@ -42,6 +45,11 @@ module.exports = {
 			{
 				test: /\.(png|svg|jpg|gif)$/,
 				use: ['file-loader'],
+			},
+			{
+				test: /\.(graphql|gql)$/,
+				exclude: /node_modules/,
+				loader: 'graphql-tag/loader',
 			},
 		],
 	},

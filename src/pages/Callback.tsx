@@ -1,6 +1,7 @@
 import React, { FC, useContext, useEffect } from 'react'
 import { RouteComponentProps, navigate } from '@reach/router'
-import { AuthContext } from '../providers/AuthProvider'
+import { AuthContext } from '@providers'
+import { Loading } from '@components'
 
 // Auth0 sends the user to this route. We'll if they come back with a jwt token.
 // we'll authorize and send them to the home route, Otherwise we'll log  the error and do the same.
@@ -8,7 +9,7 @@ import { AuthContext } from '../providers/AuthProvider'
 // You might load user data from mongodb or firebase in the handleAuthentication function and for those
 // cases we'll want to have this loading page because that takes time.
 
-const Callback: FC<RouteComponentProps> = ({ location }) => {
+export const Callback: FC<RouteComponentProps> = ({ location }) => {
 	const authContext = useContext(AuthContext)
 	useEffect(() => {
 		if (!authContext.isAuthenticated && location && location.hash) {
@@ -18,7 +19,7 @@ const Callback: FC<RouteComponentProps> = ({ location }) => {
 		}
 	}, [authContext.isAuthenticated, location])
 
-	return <div>Loading...</div>
+	return <Loading />
 }
 
 export default Callback

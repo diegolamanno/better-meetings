@@ -1,7 +1,7 @@
 import React, { FC, ReactNode } from 'react'
 import { css } from '@emotion/core'
 import styled from '@emotion/styled'
-import styleVars from '../styles/variables'
+import { variables as styleVars } from '@styles'
 
 type Props = {
 	children: ReactNode
@@ -27,7 +27,7 @@ const Container = styled.div`
 	}
 `
 
-const ContentContainer: FC<Props> = props => {
+export const ContentContainer: FC<Props> = props => {
 	const { customMaxWidth, children, customPadding } = props
 	const customExists = customMaxWidth || customPadding
 	const customStyle = customExists

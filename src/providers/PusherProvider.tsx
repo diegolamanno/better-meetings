@@ -45,7 +45,7 @@ type ContextType = Pusher.Pusher
 
 export const PusherContext = createContext<ContextType>({} as ContextType)
 
-const PusherProvider: FC<{
+export const PusherProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const authContext = useContext(AuthContext)

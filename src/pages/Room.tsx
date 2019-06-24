@@ -3,12 +3,11 @@
 import { FC, Fragment, useContext, MouseEvent, TouchEvent } from 'react'
 import { jsx, css } from '@emotion/core'
 import { navigate, RouteComponentProps } from '@reach/router'
-import styleVars from '../styles/variables'
-import { Context as RoomContext } from '../providers/RoomProvider'
-import { AttendeeContext } from '../providers/AttendeeProvider'
+import { variables as styleVars } from '@styles'
+import { RoomContext, AttendeeContext } from '@providers'
 import { getInitials } from '../utilities'
 
-const Room: FC<RouteComponentProps> = () => {
+export const Room: FC<RouteComponentProps> = () => {
 	const room = useContext(RoomContext)
 	const { state: attendeeState, send: attendeeSend } = useContext(
 		AttendeeContext,

@@ -1,18 +1,18 @@
 import React, { FC, useContext } from 'react'
-import { navigate } from '@reach/router'
-import { AttendeeContext } from '../providers/AttendeeProvider'
+import { RouteComponentProps } from '@reach/router'
+import { AuthContext } from '@providers'
+import { Button, Loading, JoinRoomForm } from '@components'
 
-const Home: FC = () => {
-	const { state } = useContext(AttendeeContext)
-	if (state.matches('authenticated.absent')) {
-		navigate('/join')
-		return <div>loading...</div>
+export const Home: FC<RouteComponentProps> = () => {
+	const authContext = useContext(AuthContext)
+	if (!authContext.isAuthenticated && authContext.ready) {
+		return <Button onClick={authContext.login}>Login</Button>
 	}
-	if (state.matches('authenticated.present')) {
-		navigate('/room')
-		return <div>loading...</div>
+	if (!authContext.isAuthenticated && !authContext.ready) {
+		return <Loading />
 	}
-	return <div>Welcome</div>
+
+	return <JoinRoomForm />
 }
 
 export default Home

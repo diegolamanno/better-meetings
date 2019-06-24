@@ -1,6 +1,8 @@
-import React, { FC } from 'react'
+import React, { FC, memo } from 'react'
 import { RouteComponentProps } from '@reach/router'
 
-const NotFound: FC<RouteComponentProps> = () => <div>Sorry, nothing here.</div>
+export const NotFound: FC<RouteComponentProps> = memo(() => (
+	<div>Sorry, nothing here.</div>
+))
 
 export default NotFound

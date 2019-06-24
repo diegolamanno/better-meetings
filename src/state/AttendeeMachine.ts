@@ -2,13 +2,13 @@ import { Machine, assign } from 'xstate'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
 import ApolloClient from 'apollo-client'
 import {
-	getRoomQuery,
+	getRoom,
 	addAttendeeToRoom,
 	createRoom,
 	addAttendeeToQueue,
 	removeAttendeeFromQueue,
 	removeAttendeeFromRoom,
-} from '../gql/queries'
+} from '../gql/queries.graphql'
 import { getQueuePosition } from '../utilities'
 
 import { Attendee, Room, Query, MutationResult, GQL } from '../types'
@@ -244,8 +244,11 @@ export const options: Partial<
 		addAttendeeToRoom: async ({ userID, roomName, apolloClient, pusher }) => {
 			let roomID: Context['roomID']
 
-			const result = await apolloClient.query<Query<'room'>>({
-				query: getRoomQuery,
+			const result = await apolloClient.query<
+				Query<'room'>,
+				GQL.GetRoomQueryVariables
+			>({
+				query: getRoom,
 				variables: { name: roomName },
 			})
 
@@ -253,7 +256,8 @@ export const options: Partial<
 				roomID = result.data.room[0].id
 			} else {
 				const newRoom = await apolloClient.mutate<
-					MutationResult<'insert_room'>
+					MutationResult<'insert_room'>,
+					GQL.CreateRoomMutationVariables
 				>({
 					mutation: createRoom,
 					variables: {
@@ -285,17 +289,22 @@ export const options: Partial<
 				throw new Error()
 			}
 
-			const room = await apolloClient.mutate<MutationResult<'insert_attendee'>>(
-				{
-					mutation: addAttendeeToRoom,
-					variables: {
-						userID,
-						roomID,
-					},
+			const room = await apolloClient.mutate<
+				MutationResult<'insert_attendee'>,
+				GQL.AddAttendeeToRoomMutationVariables
+			>({
+				mutation: addAttendeeToRoom,
+				variables: {
+					userID,
+					roomID,
 				},
-			)
+			})
 
-			if (!room.data) {
+			if (
+				!room.data ||
+				!room.data.insert_attendee ||
+				room.data.insert_attendee.affected_rows <= 0
+			) {
 				throw new Error()
 			}
 
@@ -303,7 +312,8 @@ export const options: Partial<
 		},
 		addAttendeeToQueue: async ({ userID, roomID, apolloClient }) => {
 			const result = await apolloClient.mutate<
-				MutationResult<'insert_queue_record'>
+				MutationResult<'insert_queue_record'>,
+				GQL.AddAttendeeToQueueMutationVariables
 			>({
 				mutation: addAttendeeToQueue,
 				variables: {
@@ -326,7 +336,10 @@ export const options: Partial<
 			}
 		},
 		removeAttendeeFromQueue: async ({ userID, roomID, apolloClient }) => {
-			await apolloClient.mutate<MutationResult<'delete_queue_record'>>({
+			await apolloClient.mutate<
+				MutationResult<'delete_queue_record'>,
+				GQL.RemoveAttendeeFromQueueMutationVariables
+			>({
 				mutation: removeAttendeeFromQueue,
 				variables: {
 					userID,
@@ -342,7 +355,10 @@ export const options: Partial<
 			apolloClient,
 			pusher,
 		}) => {
-			await apolloClient.mutate<MutationResult<'delete_attendee'>>({
+			await apolloClient.mutate<
+				MutationResult<'delete_attendee'>,
+				GQL.RemoveAttendeeFromRoomMutationVariables
+			>({
 				mutation: removeAttendeeFromRoom,
 				variables: {
 					userID,
