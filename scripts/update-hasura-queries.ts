@@ -42,13 +42,13 @@ const doUpdate = async () => {
 	}
 
 	const queries = parsed.definitions.map(definition => {
-		const { name, ...rest } = definition as OperationDefinitionNode
+		const { name } = definition as OperationDefinitionNode
 		if (!name) {
 			throw new Error('Encountered anonymous query in query file!')
 		}
 
 		return {
-			query: print(rest),
+			query: print(definition),
 			name: name.value,
 		}
 	})

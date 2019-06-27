@@ -16,10 +16,5 @@ module.exports = merge(common, {
 			[`${config.get('api.baseURL')}`]: 'http://localhost:3000',
 		},
 	},
-	resolve: {
-		alias: {
-			'react-dom': '@hot-loader/react-dom',
-		},
-	},
 	plugins: [new CleanWebpackPlugin({ cleanOnceBeforeBuildPatterns: ['dist'] })],
 })
