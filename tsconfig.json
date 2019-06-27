@@ -27,7 +27,7 @@
 			"@styles": ["./src/styles"]
 		}
 	},
-	"include": ["./src/**/*"],
+	"include": ["./src/**/*", "./scripts/**/*", "./config/**/*"],
 	"awesomeTypescriptLoaderOptions": {
 		"reportFiles": ["./src/**/*"]
 	}
