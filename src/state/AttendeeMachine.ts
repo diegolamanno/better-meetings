@@ -1,6 +1,5 @@
 import { Machine, assign } from 'xstate'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
-import ApolloClient from 'apollo-client'
 import {
 	getRoom,
 	addAttendeeToRoom,
@@ -50,8 +49,6 @@ export type Context = Attendee & {
 	roomID: GQL.Room['id']
 	roomName: Room['name']
 	queuePosition?: number
-	apolloClient: ApolloClient<NormalizedCacheObject>
-	pusher: import('pusher-js').Pusher
 }
 
 export type Event<
@@ -115,6 +112,13 @@ const queuedTransition = [
 
 export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 	id: 'attendee',
+	context: {
+		userID: '',
+		name: '',
+		avatar: '',
+		roomID: '',
+		roomName: '',
+	},
 	initial: 'unauthenticated',
 	states: {
 		unauthenticated: {
@@ -209,9 +213,10 @@ export const config: import('xstate').MachineConfig<Context, Schema, Event> = {
 	},
 }
 
-export const options: Partial<
-	import('xstate').MachineOptions<Context, Event>
-> = {
+export const createOptionsObject = (
+	apolloClient: import('apollo-client').ApolloClient<NormalizedCacheObject>,
+	pusher: import('pusher-js').Pusher,
+): Partial<import('xstate').MachineOptions<Context, Event>> => ({
 	actions: {
 		setUserID: assign((context, event) => ({
 			...context,
@@ -241,7 +246,7 @@ export const options: Partial<
 		})),
 	},
 	services: {
-		addAttendeeToRoom: async ({ userID, roomName, apolloClient, pusher }) => {
+		addAttendeeToRoom: async ({ userID, roomName }) => {
 			let roomID: Context['roomID']
 
 			const result = await apolloClient.query<
@@ -310,7 +315,7 @@ export const options: Partial<
 
 			return { roomID }
 		},
-		addAttendeeToQueue: async ({ userID, roomID, apolloClient }) => {
+		addAttendeeToQueue: async ({ userID, roomID }) => {
 			const result = await apolloClient.mutate<
 				MutationResult<'insert_queue_record'>,
 				GQL.AddAttendeeToQueueMutationVariables
@@ -335,7 +340,7 @@ export const options: Partial<
 				),
 			}
 		},
-		removeAttendeeFromQueue: async ({ userID, roomID, apolloClient }) => {
+		removeAttendeeFromQueue: async ({ userID, roomID }) => {
 			await apolloClient.mutate<
 				MutationResult<'delete_queue_record'>,
 				GQL.RemoveAttendeeFromQueueMutationVariables
@@ -349,12 +354,7 @@ export const options: Partial<
 
 			return {}
 		},
-		removeAttendeeFromRoom: async ({
-			userID,
-			roomID,
-			apolloClient,
-			pusher,
-		}) => {
+		removeAttendeeFromRoom: async ({ userID, roomID }) => {
 			await apolloClient.mutate<
 				MutationResult<'delete_attendee'>,
 				GQL.RemoveAttendeeFromRoomMutationVariables
@@ -377,24 +377,12 @@ export const options: Partial<
 		isFirstInQueue: (_context, event) =>
 			(event as Event<'QUEUE_POSITION_CHANGED'>).data.queuePosition === 0,
 	},
-}
+})
 
-export default Machine(config, options)
+export default Machine(config)
 
-export const createAttendeeMachine = (
-	apolloClient: Context['apolloClient'],
-	pusher: Context['pusher'],
-) =>
-	Machine(config, options, {
-		apolloClient,
-		pusher,
-		userID: '',
-		roomID: '',
-		roomName: '',
-	})
-
-export type State =
-	| keyof Schema['states']
-	| keyof Schema['states']['authenticated']['states']
-	| keyof Schema['states']['authenticated']['states']['present']['states']
-	| keyof Schema['states']['authenticated']['states']['present']['states']['active']['states']
+// export type State =
+// 	| keyof Schema['states']
+// 	| keyof Schema['states']['authenticated']['states']
+// 	| keyof Schema['states']['authenticated']['states']['present']['states']
+// 	| keyof Schema['states']['authenticated']['states']['present']['states']['active']['states']

@@ -1,14 +1,14 @@
 import React, {
 	FC,
 	ReactNode,
-	useState,
 	useEffect,
 	useContext,
+	useCallback,
 	createContext,
 } from 'react'
 import Pusher, { Authorizer } from 'pusher-js'
-import { AuthContext } from '../providers/AuthProvider'
-import { TokenStore, PusherAuthRequestData } from '../types'
+import { AuthContext } from '@providers'
+import { PusherAuthRequestData } from '../types'
 
 const getAuthorizer = (getToken: () => string): Authorizer => channel => ({
 	authorize: async (socketID, callback) => {
@@ -34,35 +34,27 @@ const getAuthorizer = (getToken: () => string): Authorizer => channel => ({
 	},
 })
 
-const tokenStore: TokenStore = {
-	token: '',
-	getToken(this: typeof tokenStore) {
-		return this.token
-	},
-}
-
 type ContextType = Pusher.Pusher
 
-export const PusherContext = createContext<ContextType>({} as ContextType)
+const pusher = new Pusher(CONFIG.pusher.key, {
+	cluster: CONFIG.pusher.cluster,
+	forceTLS: true,
+	disableStats: true,
+})
+
+export const PusherContext = createContext<ContextType>(pusher)
 
 export const PusherProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const authContext = useContext(AuthContext)
-	const [pusher] = useState(
-		new Pusher(CONFIG.pusher.key, {
-			cluster: CONFIG.pusher.cluster,
-			forceTLS: true,
-			disableStats: true,
-			authorizer: getAuthorizer(() => tokenStore.getToken()),
-		}),
-	)
+	const getToken = useCallback(() => authContext.idToken || '', [
+		authContext.idToken,
+	])
 
 	useEffect(() => {
-		if (authContext.idToken) {
-			tokenStore.token = authContext.idToken
-		}
-	}, [authContext.idToken])
+		pusher.config.authorizer = getAuthorizer(getToken)
+	}, [])
 
 	return (
 		<PusherContext.Provider value={pusher}>{children}</PusherContext.Provider>

@@ -1,14 +1,6 @@
-import React, {
-	FC,
-	useContext,
-	ReactNode,
-	createContext,
-	useState,
-	useEffect,
-} from 'react'
+import React, { FC, useContext, ReactNode, useState, useCallback } from 'react'
 
 import { InMemoryCache } from 'apollo-cache-inmemory/lib/inMemoryCache'
-import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
 import { WebSocketLink } from 'apollo-link-ws/lib/webSocketLink'
 import { onError } from 'apollo-link-error'
 import { HttpLink } from 'apollo-link-http/lib/httpLink'
@@ -16,9 +8,8 @@ import { getMainDefinition } from 'apollo-utilities/lib/getFromAST'
 import { from, split } from 'apollo-link/lib/link'
 import { setContext } from 'apollo-link-context'
 import ApolloClient from 'apollo-client/ApolloClient'
-import ReactApolloProvider from 'react-apollo/ApolloProvider'
 import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks'
-import { AuthContext } from '../providers/AuthProvider'
+import { AuthContext } from '@providers'
 
 const getApolloLink = (getToken: () => string) => {
 	const [, endpoint] = CONFIG.hasura.graphqlUri.split('//')
@@ -72,44 +63,22 @@ const getApolloLink = (getToken: () => string) => {
 	)
 }
 
-type TokenStore = {
-	token: string
-	getToken: () => TokenStore['token']
-}
-
-const tokenStore: TokenStore = {
-	token: '',
-	getToken(this: typeof tokenStore) {
-		return this.token
-	},
-}
-
-type ContextType = ApolloClient<NormalizedCacheObject>
-
-export const ApolloContext = createContext<ContextType>({} as ContextType)
-
 export const ApolloProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const authContext = useContext(AuthContext)
+	const getToken = useCallback(() => authContext.idToken || '', [
+		authContext.idToken,
+	])
+
 	const [client] = useState(
 		new ApolloClient({
-			link: getApolloLink(() => tokenStore.getToken()),
+			link: getApolloLink(getToken),
 			cache: new InMemoryCache(),
 		}),
 	)
 
-	useEffect(() => {
-		if (authContext.idToken) {
-			tokenStore.token = authContext.idToken
-		}
-	}, [authContext.idToken])
-
-	return (
-		<ReactApolloProvider client={client}>
-			<ApolloHooksProvider client={client}>{children}</ApolloHooksProvider>
-		</ReactApolloProvider>
-	)
+	return <ApolloHooksProvider client={client}>{children}</ApolloHooksProvider>
 }
 
 export default ApolloProvider

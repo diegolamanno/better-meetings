@@ -5,16 +5,13 @@ export const roomSubscription: (data: {
 }) => Room[] = data =>
 	data.room.map(({ name, attendees, queue }) => ({
 		name,
-		attendees: attendees.reduce(
-			(obj, attendee) => {
-				obj[attendee.user_id] = {
-					name: attendee.user.name,
-					avatar: attendee.user.avatar,
-				}
+		attendees: attendees.reduce<Room['attendees']>((obj, attendee) => {
+			obj[attendee.user_id] = {
+				name: attendee.user.name,
+				avatar: attendee.user.avatar,
+			}
 
-				return obj
-			},
-			{} as Room['attendees'],
-		),
+			return obj
+		}, {}),
 		queue: queue.map(record => record.user_id),
 	}))

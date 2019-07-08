@@ -1,8 +1,10 @@
 import React, { FC, memo } from 'react'
 import { RouteComponentProps } from '@reach/router'
 
-export const NotFound: FC<RouteComponentProps> = memo(() => (
-	<div>Sorry, nothing here.</div>
-))
+const NotFound: FC<RouteComponentProps> = () => <div>Sorry, nothing here.</div>
 
-export default NotFound
+const MemoizedNotFound = memo(NotFound)
+
+export { MemoizedNotFound as NotFound }
+
+export default MemoizedNotFound

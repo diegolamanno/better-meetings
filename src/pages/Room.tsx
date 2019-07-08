@@ -1,7 +1,5 @@
-/** @jsx jsx */
-
-import { FC, Fragment, useContext, MouseEvent, TouchEvent } from 'react'
-import { jsx, css } from '@emotion/core'
+import React, { FC, Fragment, useContext, MouseEvent, TouchEvent } from 'react'
+import { css } from '@emotion/core'
 import { navigate, RouteComponentProps } from '@reach/router'
 import { variables as styleVars } from '@styles'
 import { RoomContext, AttendeeContext } from '@providers'

@@ -1,30 +1,37 @@
-/** @jsx jsx */
-
-import { ComponentProps, memo, forwardRef } from 'react'
-import { jsx, css } from '@emotion/core'
+import React, {
+	ComponentProps,
+	RefForwardingComponent,
+	memo,
+	forwardRef,
+} from 'react'
+import { css } from '@emotion/core'
 import { SerializedStyles } from '@emotion/utils/types'
 
-export const Input = memo(
-	forwardRef<
-		HTMLInputElement,
-		{
-			label: string
-			styles?: SerializedStyles
-		} & ComponentProps<'input'>
-	>(({ styles, label, ...rest }, ref) => (
-		<label
-			css={[
-				css`
-					display: flex;
-					flex-direction: column;
-				`,
-				styles,
-			]}
-		>
-			{label}
-			<input ref={ref} {...rest} />
-		</label>
-	)),
+type Props = {
+	label: string
+	styles?: SerializedStyles
+} & ComponentProps<'input'>
+
+const Input: RefForwardingComponent<HTMLInputElement, Props> = (
+	{ styles, label, ...rest },
+	ref,
+) => (
+	<label
+		css={[
+			css`
+				display: flex;
+				flex-direction: column;
+			`,
+			styles,
+		]}
+	>
+		{label}
+		<input ref={ref} {...rest} />
+	</label>
 )
 
-export default Input
+const MemoizedInput = memo(forwardRef(Input))
+
+export { MemoizedInput as Input }
+
+export default MemoizedInput

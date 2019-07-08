@@ -37,7 +37,7 @@ const clearSession = () => {
 	localStorage.removeItem(StorageKey.expiry)
 }
 
-type Base = {
+interface Base {
 	ready: boolean
 }
 

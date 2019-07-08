@@ -7,13 +7,19 @@ import React, {
 } from 'react'
 import { useSubscription } from 'react-apollo-hooks'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
-import { AttendeeContext } from '../providers/AttendeeProvider'
+import { AttendeeContext } from '@providers'
 import { subscribeToRoom } from '../gql/queries.graphql'
 import { SubscriptionData, Room } from '../types'
 import { roomSubscription } from '../gql/converters'
 import { getQueuePosition } from '../utilities'
 
-export const RoomContext = createContext({} as Room)
+const initialRoomContext: Room = {
+	name: '',
+	attendees: {},
+	queue: [],
+}
+
+export const RoomContext = createContext(initialRoomContext)
 
 const Provider: FC<{
 	room: Room
@@ -29,7 +35,7 @@ export const RoomProvider: FC<{
 		AttendeeContext,
 	)
 
-	const { loading, error, data } = useSubscription<
+	const { data } = useSubscription<
 		SubscriptionData<'room'>,
 		{},
 		NormalizedCacheObject
@@ -38,7 +44,7 @@ export const RoomProvider: FC<{
 		skip: !attendeeState.matches('authenticated.present'),
 	})
 
-	const room = data ? roomSubscription(data)[0] : ({} as Room)
+	const room = data ? roomSubscription(data)[0] : initialRoomContext
 
 	const currentQueuePosition = data
 		? getQueuePosition(attendeeState.context.userID, data.room[0].queue)
@@ -54,10 +60,6 @@ export const RoomProvider: FC<{
 			})
 		}
 	}, [currentQueuePosition, attendeeState.context.queuePosition])
-
-	if (loading || error || !data) {
-		return <Provider room={{} as Room}>{children}</Provider>
-	}
 
 	return <Provider room={room}>{children}</Provider>
 }

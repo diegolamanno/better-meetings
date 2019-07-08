@@ -1,5 +1,9 @@
 import React, { FC, memo } from 'react'
 
-export const Loading: FC = memo(() => <div>Loading...</div>)
+const Loading: FC = () => <div>Loading...</div>
 
-export default Loading
+const MemoizedLoading: FC = memo(Loading)
+
+export { MemoizedLoading as Loading }
+
+export default MemoizedLoading

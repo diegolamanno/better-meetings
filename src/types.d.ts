@@ -3,7 +3,7 @@ import { Auth0UserProfile } from 'auth0-js'
 
 export type Attendee = Pick<GQL.User, 'name' | 'avatar'>
 
-export type Room = {
+export interface Room {
 	name: GQL.Room['name']
 	attendees: { [key in GQL.Attendee['user_id']]: Attendee }
 	queue: GQL.Attendee['user_id'][]
@@ -30,17 +30,12 @@ export type SubscriptionData<T extends keyof GQL.Subscription_Root> = Pick<
 
 export type Query<T extends keyof GQL.Query_Root> = Pick<GQL.Query_Root, T>
 
-export type TokenStore = {
-	token: string
-	getToken: () => TokenStore['token']
-}
-
-export type PusherAuthRequestData = {
+export interface PusherAuthRequestData {
 	socket_id: string
 	channel_name: string
 }
 
-export type PresenceUserData = {
+export interface PresenceUserData {
 	user_id: string
 }
 
@@ -49,7 +44,7 @@ export type PresenceEvent = {
 	name: string
 } & PresenceUserData
 
-export type PresenceNotification = {
+export interface PresenceNotification {
 	time_ms: number
 	events: PresenceEvent[]
 }

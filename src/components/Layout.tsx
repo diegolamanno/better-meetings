@@ -1,7 +1,5 @@
-/** @jsx jsx */
-
-import { FC } from 'react'
-import { css, jsx } from '@emotion/core'
+import React, { FC } from 'react'
+import { css } from '@emotion/core'
 import { RouteComponentProps } from '@reach/router'
 import { NavBar } from '@components'
 

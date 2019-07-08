@@ -6,15 +6,14 @@ import React, {
 	useEffect,
 } from 'react'
 import { useMachine } from '@xstate/react'
-import { AuthContext } from './AuthProvider'
-import { PusherContext } from './PusherProvider'
+import { AuthContext, PusherContext } from '@providers'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
 import { useApolloClient } from 'react-apollo-hooks'
-import {
-	createAttendeeMachine,
+import AttendeeMachine, {
 	Schema,
 	Context,
 	Event,
+	createOptionsObject,
 } from '../state/AttendeeMachine'
 
 import { getUser, addUser } from '../gql/queries.graphql'
@@ -27,12 +26,17 @@ type AttendeeSend = import('xstate/lib/interpreter').Interpreter<
 	Event
 >['send']
 
-type ContextType = {
+interface ContextType {
 	state: AttendeeState
 	send: AttendeeSend
 }
 
-export const AttendeeContext = createContext<ContextType>({} as ContextType)
+export const AttendeeContext = createContext<ContextType>({
+	state: AttendeeMachine.initialState,
+	send: () => {
+		throw new Error('Cannot use "send" without the AttendeeContext povider!')
+	},
+})
 
 export const AttendeeProvider: FC<{
 	children: ReactNode
@@ -41,7 +45,10 @@ export const AttendeeProvider: FC<{
 	const pusher = useContext(PusherContext)
 	const apolloClient = useApolloClient<NormalizedCacheObject>()
 
-	const [state, send] = useMachine(createAttendeeMachine(apolloClient, pusher))
+	const [state, send] = useMachine(
+		AttendeeMachine,
+		createOptionsObject(apolloClient, pusher),
+	)
 
 	useEffect(() => {
 		if (state.matches('unauthenticated') && authContext.isAuthenticated) {

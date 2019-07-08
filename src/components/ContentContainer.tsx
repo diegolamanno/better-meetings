@@ -3,7 +3,7 @@ import { css } from '@emotion/core'
 import styled from '@emotion/styled'
 import { variables as styleVars } from '@styles'
 
-type Props = {
+interface Props {
 	children: ReactNode
 	customMaxWidth?: number | null | undefined
 	customPadding?: string | null | undefined

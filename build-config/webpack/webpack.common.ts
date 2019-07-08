@@ -30,12 +30,15 @@ module.exports = {
 				loader: 'ts-loader',
 				options: {
 					transpileOnly: true,
+					compilerOptions: {
+						jsxFactory: 'jsx',
+					},
 					getCustomTransformers: () => ({
 						before: [
 							createEmotionPlugin({
 								sourcemap: true,
 								autoLabel: true,
-								autoInject: false,
+								autoInject: true,
 							}),
 						],
 					}),

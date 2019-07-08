@@ -1,7 +1,5 @@
-/** @jsx jsx */
-
-import { FC, ComponentProps, ReactNode } from 'react'
-import { jsx, css } from '@emotion/core'
+import React, { FC, ComponentProps, ReactNode } from 'react'
+import { css } from '@emotion/core'
 import { SerializedStyles } from '@emotion/utils/types'
 
 export const Button: FC<
