@@ -1,6 +1,5 @@
 {
 	"version": 2,
-	"alias": "better-meetings.live",
 	"builds": [
 		{ "src": "./package.json", "use": "@now/static-build" },
 		{ "src": "./api/src/**/*", "use": "@now/node" }
