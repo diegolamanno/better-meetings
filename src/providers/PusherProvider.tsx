@@ -3,14 +3,13 @@ import React, {
 	ReactNode,
 	useEffect,
 	useContext,
-	useCallback,
 	createContext,
 } from 'react'
 import Pusher, { Authorizer } from 'pusher-js'
 import { AuthContext } from '@providers'
 import { PusherAuthRequestData } from '../types'
 
-const getAuthorizer = (getToken: () => string): Authorizer => channel => ({
+const getAuthorizer = (token: string): Authorizer => channel => ({
 	authorize: async (socketID, callback) => {
 		const requestData: PusherAuthRequestData = {
 			socket_id: socketID,
@@ -21,7 +20,7 @@ const getAuthorizer = (getToken: () => string): Authorizer => channel => ({
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				authorization: `Bearer ${getToken()}`,
+				authorization: `Bearer ${token}`,
 			},
 		})
 
@@ -48,13 +47,12 @@ export const PusherProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const authContext = useContext(AuthContext)
-	const getToken = useCallback(() => authContext.idToken || '', [
-		authContext.idToken,
-	])
 
 	useEffect(() => {
-		pusher.config.authorizer = getAuthorizer(getToken)
-	}, [])
+		if (authContext.idToken) {
+			pusher.config.authorizer = getAuthorizer(authContext.idToken)
+		}
+	}, [authContext.idToken])
 
 	return (
 		<PusherContext.Provider value={pusher}>{children}</PusherContext.Provider>

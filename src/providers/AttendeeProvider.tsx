@@ -13,7 +13,7 @@ import AttendeeMachine, {
 	Schema,
 	Context,
 	Event,
-	createOptionsObject,
+	createMachineWithOptions,
 } from '../state/AttendeeMachine'
 
 import { getUser, addUser } from '../gql/queries.graphql'
@@ -46,8 +46,7 @@ export const AttendeeProvider: FC<{
 	const apolloClient = useApolloClient<NormalizedCacheObject>()
 
 	const [state, send] = useMachine(
-		AttendeeMachine,
-		createOptionsObject(apolloClient, pusher),
+		createMachineWithOptions(apolloClient, pusher),
 	)
 
 	useEffect(() => {
