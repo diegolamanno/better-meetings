@@ -6,16 +6,13 @@ import React, {
 	useEffect,
 } from 'react'
 import { useMachine } from '@xstate/react'
-import { AuthContext, PusherContext } from '@providers'
-import { NormalizedCacheObject } from 'apollo-cache-inmemory/lib/types'
-import { useApolloClient } from 'react-apollo-hooks'
+import { AuthContext } from '@providers'
 import AttendeeMachine, {
 	Schema,
 	Context,
 	Event,
-	createMachineWithOptions,
 } from '../state/AttendeeMachine'
-
+import { ApolloClient } from '@services'
 import { getUser, addUser } from '../gql/queries.graphql'
 import { MutationResult, Query, GQL } from '../types'
 
@@ -42,45 +39,37 @@ export const AttendeeProvider: FC<{
 	children: ReactNode
 }> = ({ children }) => {
 	const authContext = useContext(AuthContext)
-	const pusher = useContext(PusherContext)
-	const apolloClient = useApolloClient<NormalizedCacheObject>()
 
-	const [state, send] = useMachine(
-		createMachineWithOptions(apolloClient, pusher),
-	)
+	const [state, send] = useMachine(AttendeeMachine)
 
 	useEffect(() => {
 		if (state.matches('unauthenticated') && authContext.isAuthenticated) {
-			apolloClient
-				.query<Query<'user'>, GQL.GetUserQueryVariables>({
-					query: getUser,
-					variables: {
-						authID: authContext.userData.sub,
-					},
-				})
-				.then(async result => {
-					if (!result.data.user.length) {
-						await apolloClient.mutate<
-							MutationResult<'insert_user'>,
-							GQL.AddUserMutationVariables
-						>({
-							mutation: addUser,
-							variables: {
-								authID: authContext.userData.sub,
-								avatar: authContext.userData.picture,
-								name:
-									authContext.userData.nickname ||
-									authContext.userData.given_name ||
-									authContext.userData.name,
-							},
-						})
-					}
-
-					send({
-						type: 'DID_AUTHENTICATE',
-						userID: authContext.userData.sub,
+			const userData = authContext.getUserData()
+			ApolloClient.query<Query<'user'>, GQL.GetUserQueryVariables>({
+				query: getUser,
+				variables: {
+					authID: userData.sub,
+				},
+			}).then(async result => {
+				if (!result.data.user.length) {
+					await ApolloClient.mutate<
+						MutationResult<'insert_user'>,
+						GQL.AddUserMutationVariables
+					>({
+						mutation: addUser,
+						variables: {
+							authID: userData.sub,
+							avatar: userData.picture,
+							name: userData.nickname || userData.given_name || userData.name,
+						},
 					})
+				}
+
+				send({
+					type: 'DID_AUTHENTICATE',
+					userID: userData.sub,
 				})
+			})
 		} else if (state.matches('authenticated') && !authContext.isAuthenticated) {
 			send('DID_DEAUTHENTICATE')
 		}

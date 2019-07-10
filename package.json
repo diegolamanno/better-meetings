@@ -39,7 +39,7 @@
 		"@types/auth0-js": "^9.10.2",
 		"@types/classnames": "^2.2.9",
 		"@types/config": "^0.0.34",
-		"@types/enzyme": "^3.10.1",
+		"@types/enzyme": "^3.10.2",
 		"@types/enzyme-adapter-react-16": "^1.0.5",
 		"@types/graphql": "^14.2.2",
 		"@types/html-webpack-plugin": "^3.2.0",
@@ -95,7 +95,7 @@
 		"pusher-js": "^4.4.0",
 		"react": "^16.8.6",
 		"react-apollo": "^2.5.8",
-		"react-apollo-hooks": "^0.4.5",
+		"react-apollo-hooks": "^0.5.0",
 		"react-bootstrap": "^1.0.0-beta.9",
 		"react-dom": "^16.8.6",
 		"react-helmet": "^5.2.0",
@@ -137,7 +137,7 @@
 		"graphql-toolkit": "^0.3.3",
 		"node-fetch": "^2.6.0",
 		"now": "^15.7.0",
-		"serve": "^11.0.2",
+		"serve": "^11.1.0",
 		"webpack-dev-server": "^3.7.2"
 	},
 	"jest": {

@@ -23,6 +23,7 @@
 		"paths": {
 			"@components": ["./src/components"],
 			"@providers": ["./src/providers"],
+			"@services": ["./src/services"],
 			"@pages": ["./src/pages"],
 			"@styles": ["./src/styles"]
 		}

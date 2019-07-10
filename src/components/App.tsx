@@ -1,44 +1,38 @@
 import React, { FC } from 'react'
 import { hot } from 'react-hot-loader'
 import { Global, css } from '@emotion/core'
+import { ApolloProvider } from 'react-apollo-hooks'
 import { variables as styleVars } from '@styles'
-import {
-	ApolloProvider,
-	AttendeeProvider,
-	RoomProvider,
-	AuthProvider,
-	PusherProvider,
-} from '@providers'
+import { AttendeeProvider, RoomProvider, AuthProvider } from '@providers'
 import { Routes } from '@components'
+import { ApolloClient } from '@services'
 
 export const ColdApp: FC = () => (
 	<AuthProvider>
-		<PusherProvider>
-			<ApolloProvider>
-				<AttendeeProvider>
-					<RoomProvider>
-						<Global
-							styles={css`
-								html {
-									box-sizing: border-box;
-								}
+		<ApolloProvider client={ApolloClient}>
+			<AttendeeProvider>
+				<RoomProvider>
+					<Global
+						styles={css`
+							html {
+								box-sizing: border-box;
+							}
 
-								*,
-								*::before,
-								*::after {
-									box-sizing: inherit;
-								}
+							*,
+							*::before,
+							*::after {
+								box-sizing: inherit;
+							}
 
-								body {
-									background-color: ${styleVars.palette.primary};
-								}
-							`}
-						/>
-						<Routes />
-					</RoomProvider>
-				</AttendeeProvider>
-			</ApolloProvider>
-		</PusherProvider>
+							body {
+								background-color: ${styleVars.palette.primary};
+							}
+						`}
+					/>
+					<Routes />
+				</RoomProvider>
+			</AttendeeProvider>
+		</ApolloProvider>
 	</AuthProvider>
 )
 

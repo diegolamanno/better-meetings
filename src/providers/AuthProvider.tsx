@@ -1,28 +1,33 @@
 import React, { FC, useState, useEffect, createContext, ReactNode } from 'react'
 import { WebAuth, Auth0DecodedHash, Auth0Error } from 'auth0-js'
 import jwtDecode from 'jwt-decode'
+import { getIdToken } from '@services'
+import { AUTH_STORAGE_KEY } from '../constants'
 import { JWTPayload } from '../types'
-
-enum StorageKey {
-	token = 'idToken',
-	expiry = 'expiry',
-}
 
 const { callbackPath, returnTo, pem, ...auth0Config } = CONFIG.auth
 
 const auth0 = new WebAuth(auth0Config)
 
 const setSession = (idToken: string, expiresIn: number) => {
-	localStorage.setItem(StorageKey.token, idToken)
+	localStorage.setItem(AUTH_STORAGE_KEY.token, idToken)
 	localStorage.setItem(
-		StorageKey.expiry,
+		AUTH_STORAGE_KEY.expiry,
 		`${expiresIn * 1000 + new Date().getTime()}`,
 	)
 }
 
+const getUserData = () => jwtDecode(getIdToken()) as JWTPayload
+
 const getSession = () => {
-	const idToken = localStorage.getItem(StorageKey.token)
-	const expiry = localStorage.getItem(StorageKey.expiry)
+	let idToken
+	try {
+		idToken = getIdToken()
+	} catch (e) {
+		// continue
+	}
+
+	const expiry = localStorage.getItem(AUTH_STORAGE_KEY.expiry)
 	if (idToken && expiry) {
 		const expiresIn = parseInt(expiry, 10) - Date.now()
 		return {
@@ -33,8 +38,8 @@ const getSession = () => {
 }
 
 const clearSession = () => {
-	localStorage.removeItem(StorageKey.token)
-	localStorage.removeItem(StorageKey.expiry)
+	localStorage.removeItem(AUTH_STORAGE_KEY.token)
+	localStorage.removeItem(AUTH_STORAGE_KEY.expiry)
 }
 
 interface Base {
@@ -43,14 +48,10 @@ interface Base {
 
 type UnauthenticatedState = Base & {
 	isAuthenticated: false
-	idToken?: string
-	userData?: JWTPayload
 }
 
 type AuthenticatedState = Base & {
 	isAuthenticated: true
-	idToken: string
-	userData: JWTPayload
 	renewalTimer: number
 }
 
@@ -63,8 +64,10 @@ type UnauthenticatedContextType = UnauthenticatedState & {
 
 export type AuthenticatedContextType = Pick<
 	AuthenticatedState,
-	'ready' | 'isAuthenticated' | 'idToken' | 'userData'
+	'ready' | 'isAuthenticated'
 > & {
+	getIdToken: typeof getIdToken
+	getUserData: typeof getUserData
 	logout: (err?: Auth0Error | null) => void
 }
 
@@ -85,15 +88,9 @@ export const AuthProvider: FC<{
 		isAuthenticated: false,
 	})
 
-	const setAuthenticatedState = (
-		idToken: string,
-		userData: JWTPayload,
-		expiresIn: number,
-	) => {
+	const setAuthenticatedState = (idToken: string, expiresIn: number) => {
 		setSession(idToken, expiresIn)
 		setState({
-			idToken,
-			userData,
 			ready: true,
 			renewalTimer: window.setTimeout(renewTokens, expiresIn * 1000),
 			isAuthenticated: true,
@@ -106,11 +103,7 @@ export const AuthProvider: FC<{
 			if (session.expiresIn <= 0) {
 				renewTokens()
 			} else {
-				setAuthenticatedState(
-					session.idToken,
-					jwtDecode(session.idToken),
-					session.expiresIn,
-				)
+				setAuthenticatedState(session.idToken, session.expiresIn)
 			}
 		} else {
 			setState({
@@ -140,17 +133,8 @@ export const AuthProvider: FC<{
 		err: Auth0Error | null,
 		authResult: Auth0DecodedHash | null,
 	) => {
-		if (
-			authResult &&
-			authResult.idToken &&
-			authResult.idTokenPayload &&
-			authResult.expiresIn
-		) {
-			setAuthenticatedState(
-				authResult.idToken,
-				authResult.idTokenPayload,
-				authResult.expiresIn,
-			)
+		if (authResult && authResult.idToken && authResult.expiresIn) {
+			setAuthenticatedState(authResult.idToken, authResult.expiresIn)
 		} else {
 			logout(err)
 		}
@@ -178,6 +162,8 @@ export const AuthProvider: FC<{
 		? {
 				...state,
 				logout,
+				getIdToken,
+				getUserData,
 		  }
 		: {
 				...state,

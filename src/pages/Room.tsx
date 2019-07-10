@@ -31,7 +31,7 @@ export const Room: FC<RouteComponentProps> = () => {
 	}
 
 	if (attendeeState.matches('authenticated.absent')) {
-		navigate('/join')
+		navigate('/')
 		return <div>loading...</div>
 	}
 	if (attendeeState.matches('unauthenticated')) {

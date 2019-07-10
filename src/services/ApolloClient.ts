@@ -1,5 +1,3 @@
-import React, { FC, useContext, ReactNode, useEffect } from 'react'
-
 import { InMemoryCache } from 'apollo-cache-inmemory/lib/inMemoryCache'
 import { WebSocketLink } from 'apollo-link-ws/lib/webSocketLink'
 import { onError } from 'apollo-link-error'
@@ -8,15 +6,7 @@ import { getMainDefinition } from 'apollo-utilities/lib/getFromAST'
 import { from, split } from 'apollo-link/lib/link'
 import { setContext } from 'apollo-link-context'
 import ApolloClient from 'apollo-client/ApolloClient'
-import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks'
-import { AuthContext } from '@providers'
-
-const persistentTokenStore = {
-	token: '',
-	getToken() {
-		return this.token
-	},
-}
+import { getIdToken } from '@services'
 
 const [, endpoint] = CONFIG.hasura.graphqlUri.split('//')
 const httpLinkWithoutAuth = from([
@@ -38,7 +28,7 @@ const httpLinkWithoutAuth = from([
 const authLink = setContext((_, { headers }) => ({
 	headers: {
 		...headers,
-		Authorization: `Bearer ${persistentTokenStore.getToken()}`,
+		Authorization: `Bearer ${getIdToken()}`,
 	},
 }))
 
@@ -51,7 +41,7 @@ const wsLink = new WebSocketLink({
 		lazy: true,
 		connectionParams: () => ({
 			headers: {
-				Authorization: `Bearer ${persistentTokenStore.getToken()}`,
+				Authorization: `Bearer ${getIdToken()}`,
 			},
 		}),
 	},
@@ -68,27 +58,11 @@ const link = split(
 	httpLink,
 )
 
-const client = new ApolloClient({
+const apolloClient = new ApolloClient({
 	link,
 	cache: new InMemoryCache(),
 })
 
-export const ApolloProvider: FC<{
-	children: ReactNode
-}> = ({ children }) => {
-	const authContext = useContext(AuthContext)
+export { apolloClient as ApolloClient }
 
-	useEffect(() => {
-		if (authContext.idToken) {
-			persistentTokenStore.token = authContext.idToken
-		}
-
-		return () => {
-			persistentTokenStore.token = ''
-		}
-	}, [authContext.idToken])
-
-	return <ApolloHooksProvider client={client}>{children}</ApolloHooksProvider>
-}
-
-export default ApolloProvider
+export default apolloClient
