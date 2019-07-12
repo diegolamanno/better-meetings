@@ -32,6 +32,7 @@ module.exports = {
 					transpileOnly: true,
 					compilerOptions: {
 						jsxFactory: 'jsx',
+						module: 'es2015',
 					},
 					getCustomTransformers: () => ({
 						before: [
