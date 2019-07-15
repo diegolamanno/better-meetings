@@ -28,5 +28,6 @@
 			"@styles": ["./src/styles"]
 		}
 	},
-	"include": ["./**/*"]
+	"include": ["./**/*"],
+	"exclude": ["./node_modules", "./dist", "./api"]
 }
