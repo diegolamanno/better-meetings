@@ -12,6 +12,7 @@ module.exports = merge(common, {
 		hot: true,
 		historyApiFallback: true,
 		port: config.get('devServerPort'),
+		host: '0.0.0.0',
 		proxy: {
 			[`${config.get('api.baseURL')}`]: 'http://localhost:3000',
 		},
